@@ -18,11 +18,12 @@ export async function initHero(reduced) {
   const loader = hero.querySelector('.hero__loader');
 
   // w hero widać tylko logo
-  ScrollTrigger.create({
-    trigger: hero, start: 'top top', end: 'bottom 60%',
-    onToggle: (self) => document.documentElement.classList.toggle('in-hero', self.isActive),
-  });
-  if (scrollY < hero.offsetTop + hero.offsetHeight * 0.85) document.documentElement.classList.add('in-hero');
+  // (sprawdzane przy każdym scrollu, więc działa też po odświeżeniu w połowie strony)
+  const syncInHero = () => document.documentElement.classList.toggle('in-hero',
+    scrollY < hero.offsetTop + hero.offsetHeight - innerHeight * 0.6);
+  addEventListener('scroll', syncInHero, { passive: true });
+  addEventListener('resize', syncInHero);
+  syncInHero();
 
   initHeroSnow(hero.querySelector('.hero__snow'), reduced);
   if (!reduced) {

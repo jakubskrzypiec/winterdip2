@@ -763,3 +763,92 @@ body { background: var(--bg); }
 @media (max-width: 960px) {
   .order-feed .order-toast:nth-last-child(n+3) { display: none; }
 }
+
+/* =========================================================
+   v7 — jasne tło Snowflake, reszta w kolorach palety
+   ========================================================= */
+:root {
+  --bg: #dce0e8;            /* Snowflake — tło całej strony */
+  --bg-2: #dce0e8;
+  --bg-3: rgba(142, 161, 174, .22);   /* Mist, rozjaśniony — karty i pola */
+  --cream: #27363f;         /* Pine — tekst */
+  --cream-dim: rgba(39, 54, 63, .72);
+  --cream-faint: rgba(39, 54, 63, .08);
+  --line: rgba(39, 54, 63, .16);
+  --gold: #6b212c;          /* Berry — akcenty na jasnym tle */
+  --gold-soft: rgba(107, 33, 44, .1);
+  --ice: #6b212c;
+}
+body { background: var(--bg); color: var(--cream); }
+::selection { background: var(--berry); color: var(--snow); }
+
+/* ciemne „wyspy” (hero, stopka, karty opinii): tam tekst jest jasny */
+.hero, .footer, .r-card, .announce, .in-hero .header, .sticky-buy {
+  --cream: #dce0e8;
+  --cream-dim: rgba(220, 224, 232, .72);
+  --cream-faint: rgba(220, 224, 232, .12);
+  --line: rgba(220, 224, 232, .2);
+  --gold: #beb3ac;
+  color: var(--cream);
+}
+
+/* logo: jasne nad filmem, bordowe na jasnym tle */
+.logo .logo--dark { display: none; }
+html:not(.in-hero) .logo .logo--light { display: none; }
+html:not(.in-hero) .logo .logo--dark { display: block; }
+
+/* nagłówek po zjechaniu z hero */
+.header.is-scrolled { background: rgba(220, 224, 232, .88); border-bottom-color: var(--line); }
+@media (max-width: 960px) { .nav.is-open { background: rgba(220, 224, 232, .98); } }
+
+/* przyciski */
+.btn--primary { background: var(--berry); color: var(--snow); box-shadow: 0 12px 30px -14px rgba(107, 33, 44, .6); }
+.btn--primary::before { background: #561a23; }
+.btn--primary:hover { box-shadow: 0 18px 40px -14px rgba(107, 33, 44, .7); }
+.btn--ghost { border-color: rgba(39, 54, 63, .35); color: var(--pine); }
+.btn--ghost::before { background: var(--pine); }
+.btn--ghost:hover { color: var(--snow); }
+.hero .btn--ghost, .in-hero .header .btn--ghost { color: var(--snow); border-color: rgba(220,224,232,.4); }
+.hero .btn--ghost::before { background: var(--snow); }
+.hero .btn--ghost:hover { color: var(--pine); }
+
+/* produkty */
+.p-card { background: var(--bg-3); border-color: var(--line); }
+.p-card:hover { border-color: rgba(39, 54, 63, .3); }
+.badge { background: var(--pine); color: var(--snow); }
+.ph { border-color: rgba(39, 54, 63, .25); background: repeating-linear-gradient(135deg, rgba(39,54,63,.035) 0 14px, transparent 14px 28px); }
+
+/* opinie: karty Branch z jasnym tekstem */
+.reviews { background: var(--bg); }
+.reviews__summary .stars { color: var(--berry); }
+
+/* galeria */
+.g-tile { background: var(--bg-3); }
+
+/* globus na jasnym tle */
+.globe-sec { background: radial-gradient(70% 70% at 78% 60%, rgba(142,161,174,.45) 0%, rgba(142,161,174,.12) 45%, var(--bg) 80%); }
+@media (max-width: 960px) {
+  .globe-sec__sticky::before { background: linear-gradient(180deg, #dce0e8 40%, rgba(220,224,232,0)); }
+}
+.order-toast { background: rgba(220, 224, 232, .9); border-color: var(--line); color: var(--pine); box-shadow: 0 16px 34px -18px rgba(39,54,63,.5); }
+.demo-badge { color: var(--pine); border-color: rgba(39,54,63,.4); background: rgba(220,224,232,.7); }
+
+/* formularze, koszyk, reszta */
+.field input, .field textarea { background-color: var(--bg-3); }
+.newsletter input { color: var(--cream); }
+.contact { background: var(--bg); }
+.drawer { background: var(--bg); }
+.upsell button { background: var(--pine); color: var(--snow); }
+.toast-add { background: var(--pine); color: var(--snow); }
+.cart-btn { color: var(--pine); }
+.in-hero .cart-btn { color: var(--snow); }
+.burger span { background: var(--pine); }
+.in-hero .burger span { background: var(--snow); }
+.sticky-buy { background: rgba(39, 54, 63, .95); }
+.pdp__main { background: var(--bg-3); }
+.compare .hl { background: rgba(107, 33, 44, .08); }
+/* przyciski na bordowej stopce */
+.footer .btn--primary { background: var(--snow); color: var(--berry); box-shadow: none; }
+.footer .btn--primary::before { background: #fff; }
+.footer .newsletter input { border-color: rgba(220,224,232,.35); color: var(--snow); }
+.footer .newsletter input::placeholder { color: rgba(220,224,232,.7); }
