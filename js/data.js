@@ -11,7 +11,14 @@ export const SHOP = {
   christmasCutoff: '2026-12-19T23:59:59+01:00',
 };
 
+// Kafelki na stronie głównej (kolejność = kolejność na stronie).
+// TODO: nazwy, opisy i zdjęcia kubków do podmiany.
+export const MUGS = ['mug-1', 'mug-2', 'mug-3'];
+
 export const PRODUCTS = {
+  'mug-1': { id: 'mug-1', name: 'Kubek nr 1', short: 'Ceramiczny kubek do fondue z podgrzewaczem', price: 75, img: 'assets/img/mug.webp' },
+  'mug-2': { id: 'mug-2', name: 'Kubek nr 2', short: 'Ceramiczny kubek do fondue z podgrzewaczem', price: 75, img: 'assets/img/mug.webp' },
+  'mug-3': { id: 'mug-3', name: 'Kubek nr 3', short: 'Ceramiczny kubek do fondue z podgrzewaczem', price: 75, img: 'assets/img/mug.webp', soldOut: true },
   'chocolate-mug': {
     id: 'chocolate-mug',
     name: 'Chocolate… kubek do fondue',

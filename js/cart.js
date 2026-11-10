@@ -18,7 +18,7 @@ export function subtotal() {
 }
 
 export function add(id, qty = 1) {
-  if (!PRODUCTS[id]) return;
+  if (!PRODUCTS[id] || PRODUCTS[id].soldOut) return;
   items[id] = (items[id] || 0) + qty;
   save(); render(); bump();
   toast(`Dodano: ${PRODUCTS[id].name}`);

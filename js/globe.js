@@ -1,6 +1,6 @@
 // =========================================================
-// GLOBUS 3D — naturalne kolory Ziemi, scroll przesuwa go na bok
-// i przybliża do Polski: widać kontur kraju, granice i miasta.
+// GLOBUS 3D — od razu w rogu, ustawiony na Polskę. Scroll nic nie
+// zmienia, globus lekko podąża za myszką. Widać kontur kraju i miasta.
 // Zamówienia na żywo: window.WINTERDIP_ORDERS_URL -> JSON
 // [{ city: "Kraków", product: "chocolate-mug", ts: 1731150000000 }]
 // Bez endpointu działa tryb demo (widoczna plakietka).
@@ -9,8 +9,7 @@ import * as THREE from 'three';
 import { Line2 } from 'three/addons/lines/Line2.js';
 import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
 import { LineGeometry } from 'three/addons/lines/LineGeometry.js';
-import { CITIES, PRODUCTS } from './data.js';
-import { initHeroSnow } from './hero.js';
+import { CITIES, PRODUCTS, MUGS } from './data.js';
 
 const gsap = window.gsap;
 const DEG = Math.PI / 180;
@@ -25,12 +24,6 @@ export async function initGlobe(reduced) {
   if (!sec) return;
   const sticky = sec.querySelector('.globe-sec__sticky');
   const canvas = sec.querySelector('.globe-canvas');
-
-  // śnieg nad sceną
-  const snow = document.createElement('canvas');
-  snow.className = 'globe-snow'; snow.setAttribute('aria-hidden', 'true');
-  sticky.appendChild(snow);
-  initHeroSnow(snow, reduced);
 
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -57,17 +50,17 @@ export async function initGlobe(reduced) {
         float light = .8 + .45 * max(dot(vN, normalize(vec3(-.35,.45,.85))), 0.);
         c *= light;
         c = pow(c, vec3(.88)) * 1.12;
-        c += vec3(.55,.75,1.) * pow(1. - facing, 3.) * .45;
+        c += vec3(.56,.63,.68) * pow(1. - facing, 3.) * .4;
         gl_FragColor = vec4(c, 1.);
       }`,
   });
   spin.add(new THREE.Mesh(new THREE.SphereGeometry(1, 128, 128), earthMat));
 
-  // atmosfera
+  // atmosfera (mglisty błękit z palety)
   scene.add(new THREE.Mesh(new THREE.SphereGeometry(1.1, 64, 64), new THREE.ShaderMaterial({
     side: THREE.BackSide, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
     vertexShader: `varying vec3 vN; void main(){ vN=normalize(normalMatrix*normal); gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.); }`,
-    fragmentShader: `varying vec3 vN; void main(){ float i = pow(max(.65 - dot(vN, vec3(0,0,1.)), 0.), 3.); gl_FragColor = vec4(.6,.8,1.,1.) * i * 1.6; }`,
+    fragmentShader: `varying vec3 vN; void main(){ float i = pow(max(.65 - dot(vN, vec3(0,0,1.)), 0.), 3.); gl_FragColor = vec4(.56,.63,.68,1.) * i * 1.3; }`,
   })));
 
   // ---------- granice i Polska ----------
@@ -83,15 +76,15 @@ export async function initGlobe(reduced) {
   let plOutline = [], plFill = null, nearLines = [], worldLines = [];
   try {
     const geo = await (await fetch('assets/geo/geo.json')).json();
-    worldLines = geo.borders.map((l) => makeLine(l, 1.0015, 0xffffff, 0.8, 0.22));
-    nearLines = geo.near.map((l) => makeLine(l, 1.002, 0xffffff, 1.2, 0));
-    plOutline = geo.poland.map((ring) => makeLine([...ring, ring[0]], 1.003, 0xffe7c4, 3, 0));
+    worldLines = geo.borders.map((l) => makeLine(l, 1.0015, 0xdce0e8, 1, 0.35));
+    nearLines = geo.near.map((l) => makeLine(l, 1.002, 0xdce0e8, 1.4, 0.7));
+    plOutline = geo.poland.map((ring) => makeLine([...ring, ring[0]], 1.003, 0xffffff, 2.6, 1));
     const ring = geo.poland.reduce((a, b) => (b.length > a.length ? b : a));
     const shape = new THREE.Shape(ring.map(([lon, lat]) => new THREE.Vector2(lon, lat)));
     const sg = new THREE.ShapeGeometry(shape);
     const pos = sg.attributes.position;
     for (let i = 0; i < pos.count; i++) { const v = latLon(pos.getY(i), pos.getX(i), 1.004); pos.setXYZ(i, v.x, v.y, v.z); }
-    plFill = new THREE.Mesh(sg, new THREE.MeshBasicMaterial({ color: 0xf2b05e, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false }));
+    plFill = new THREE.Mesh(sg, new THREE.MeshBasicMaterial({ color: 0x6b212c, transparent: true, opacity: 0.55, side: THREE.DoubleSide, depthWrite: false }));
     spin.add(plFill);
   } catch (e) { console.warn('geo', e); }
 
@@ -109,7 +102,7 @@ export async function initGlobe(reduced) {
   });
 
   function pulse(city) {
-    const ring = new THREE.Mesh(new THREE.RingGeometry(0.002, 0.004, 48), new THREE.MeshBasicMaterial({ color: 0xf2b05e, transparent: true, side: THREE.DoubleSide, depthWrite: false }));
+    const ring = new THREE.Mesh(new THREE.RingGeometry(0.002, 0.004, 48), new THREE.MeshBasicMaterial({ color: 0xdce0e8, transparent: true, side: THREE.DoubleSide, depthWrite: false }));
     ring.position.copy(city.pos.clone().multiplyScalar(1.001));
     ring.lookAt(city.pos.clone().multiplyScalar(2));
     spin.add(ring);
@@ -120,16 +113,16 @@ export async function initGlobe(reduced) {
     city.flash = performance.now();
   }
 
-  // ---------- scroll: obrót -> przesunięcie na bok -> zbliżenie na Polskę ----------
+  // ---------- stały widok na Polskę + lekkie podążanie za myszką ----------
   const PL = latLon(52, 19.3);
-  const targetY = -Math.atan2(PL.x, PL.z);
-  const targetX = 52 * DEG;
-  const st = { ry: targetY - 2.4, rx: 0.2, z: 4.4, shift: 0, zoomP: 0 };
+  const baseY = -Math.atan2(PL.x, PL.z);
+  const baseX = 52 * DEG;
   const mobile = () => innerWidth < 960;
-  gsap.timeline({ scrollTrigger: { trigger: sec, start: 'top bottom', end: 'bottom bottom', scrub: reduced ? true : 1 } })
-    .to(st, { ry: targetY - 0.5, rx: targetX * 0.6, z: 3.6, duration: 0.4, ease: 'none' })
-    .to(st, { ry: targetY, rx: targetX, z: 1.36, shift: 1, zoomP: 1, duration: 0.45, ease: 'power2.inOut' })
-    .to({}, { duration: 0.15 });
+  const mouse = { x: 0, y: 0 }, look = { x: 0, y: 0 };
+  if (!reduced) addEventListener('pointermove', (e) => {
+    mouse.x = (e.clientX / innerWidth) * 2 - 1;
+    mouse.y = (e.clientY / innerHeight) * 2 - 1;
+  }, { passive: true });
 
   function resize() {
     const w = canvas.clientWidth, h = canvas.clientHeight;
@@ -148,19 +141,16 @@ export async function initGlobe(reduced) {
     if (!visible) return;
     const w = canvas.clientWidth, h = canvas.clientHeight;
     const m = mobile();
-    // Polska ląduje po prawej (komputer) albo niżej (telefon)
-    camera.setViewOffset(w, h, m ? 0 : -0.2 * w * st.shift, m ? -0.16 * h * st.shift : 0, w, h);
-    camera.position.set(0, 0, m ? 1 + (st.z - 1) * 1.7 : st.z);
+    // globus w prawym dolnym rogu (telefon: niżej, na środku)
+    camera.setViewOffset(w, h, m ? 0 : -0.22 * w, m ? -0.1 * h : 0.02 * h, w, h);
+    camera.position.set(0, 0, m ? 3.4 : 2.75);
 
-    const idle = reduced ? 0 : (1 - st.zoomP) * now * 0.00003;
-    spin.rotation.y = st.ry + idle;
-    tilt.rotation.x = st.rx;
-
-    const zp = st.zoomP;
-    plOutline.forEach((l) => (l.material.opacity = Math.min(1, zp * 1.6)));
-    nearLines.forEach((l) => (l.material.opacity = Math.min(0.55, zp * 0.8)));
-    worldLines.forEach((l) => (l.material.opacity = 0.22 * (1 - zp * 0.6)));
-    if (plFill) plFill.material.opacity = 0.12 + zp * 0.14;
+    // płynne dojście do pozycji myszki + delikatne kołysanie
+    look.x += (mouse.x - look.x) * 0.05;
+    look.y += (mouse.y - look.y) * 0.05;
+    const sway = reduced ? 0 : Math.sin(now * 0.0004) * 0.02;
+    spin.rotation.y = baseY + look.x * 0.16 + sway;
+    tilt.rotation.x = baseX + look.y * 0.1;
 
     renderer.render(scene, camera);
 
@@ -168,9 +158,8 @@ export async function initGlobe(reduced) {
       c.sprite.getWorldPosition(tmp);
       const facing = tmp.clone().normalize().dot(camera.position.clone().normalize()) > 0.2;
       tmp.project(camera);
-      const big = zp > 0.75 && (c.w >= 2 || zp > 0.95);
       const flash = c.flash && now - c.flash < 2200;
-      c.label.style.opacity = facing && (big || flash) ? 1 : 0;
+      c.label.style.opacity = facing && (c.w >= 10 || flash) ? 1 : 0;
       c.label.style.left = ((tmp.x + 1) / 2) * w + 'px';
       c.label.style.top = ((1 - tmp.y) / 2) * h + 'px';
     }
@@ -202,7 +191,7 @@ function initFeed(sec, pulse, markers) {
 
   function push(order) {
     const city = byName[order.city];
-    const product = PRODUCTS[order.product] || PRODUCTS['chocolate-mug'];
+    const product = PRODUCTS[order.product] || PRODUCTS[MUGS[0]];
     total++; if (countEl) countEl.textContent = total;
     seenCities.add(order.city); if (citiesEl) citiesEl.textContent = seenCities.size;
     if (city) pulse(city);
@@ -232,10 +221,11 @@ function initFeed(sec, pulse, markers) {
     return;
   }
 
+  const avail = MUGS.filter((id) => !PRODUCTS[id].soldOut);
   const weighted = markers.flatMap((m) => Array(m.w).fill(m.name));
   const tick = () => {
     if (active && document.visibilityState === 'visible') {
-      push({ city: weighted[(Math.random() * weighted.length) | 0], product: Math.random() < 0.35 ? 'chocolate-duo' : 'chocolate-mug', ts: Date.now() });
+      push({ city: weighted[(Math.random() * weighted.length) | 0], product: avail[(Math.random() * avail.length) | 0], ts: Date.now() });
     }
     setTimeout(tick, 2200 + Math.random() * 2600);
   };

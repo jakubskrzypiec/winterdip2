@@ -645,3 +645,121 @@ body { background: var(--bg); }
 .gallery__pin { padding-top: 120px; box-sizing: border-box; }
 .gallery__head { margin-bottom: 28px; }
 .g-item { height: min(56vh, 600px); }
+
+/* =========================================================
+   v6 — paleta WINTER: Snowflake #DCE0E8 · Mist #8EA1AE · Pine #27363F
+   Berry #6B212C · Branch #685652 · Frosty Silver #BEB3AC
+   ========================================================= */
+:root {
+  --snow: #dce0e8;
+  --mist: #8ea1ae;
+  --pine: #27363f;
+  --berry: #6b212c;
+  --branch: #685652;
+  --silver: #beb3ac;
+
+  --bg: #27363f;            /* Pine */
+  --bg-2: #213039;          /* Pine, ciemniej — co druga sekcja */
+  --bg-3: #31434d;          /* Pine, jaśniej — karty, pola */
+  --cream: #dce0e8;         /* Snowflake — tekst */
+  --cream-dim: rgba(220, 224, 232, 0.7);
+  --cream-faint: rgba(220, 224, 232, 0.12);
+  --line: rgba(220, 224, 232, 0.14);
+  --wine: #6b212c;          /* Berry */
+  --red: #6b212c;
+  --red-deep: #561a23;
+  --gold: #8ea1ae;          /* Mist — akcenty */
+  --gold-soft: rgba(142, 161, 174, 0.16);
+  --ice: #8ea1ae;
+  --ice-deep: #6b212c;
+  --footer: #6b212c;        /* stopka w Berry */
+}
+::selection { background: var(--berry); color: var(--snow); }
+
+/* przyciski: Snowflake z tekstem Berry */
+.btn--primary { background: var(--snow); color: var(--berry); box-shadow: 0 12px 34px -16px rgba(10, 16, 20, .7); }
+.btn--primary::before { background: #fff; }
+.btn--primary:hover { box-shadow: 0 18px 44px -16px rgba(10, 16, 20, .8); }
+.btn--ghost { border-color: rgba(220, 224, 232, .35); }
+.btn--ghost:hover { color: var(--pine); }
+.btn[disabled] { opacity: .55; cursor: not-allowed; pointer-events: none; }
+
+/* pasek promocji, nagłówek, menu */
+.announce { background: var(--berry); color: var(--snow); }
+.header.is-scrolled { background: rgba(39, 54, 63, .82); }
+@media (max-width: 960px) { .nav.is-open { background: rgba(33, 48, 57, .97); } }
+.cart-count { background: var(--berry); color: var(--snow); }
+
+/* hero: przyciemnienie w odcieniu Pine zamiast bordo */
+.hero__sticky { background: #1b262d; }
+.hero__scrim { background: linear-gradient(90deg, rgba(27,38,45,.62) 0%, rgba(27,38,45,.25) 32%, transparent 55%),
+                           linear-gradient(0deg, rgba(27,38,45,.55) 0%, transparent 38%); }
+@media (max-width: 760px) {
+  .hero__scrim { background: linear-gradient(180deg, rgba(27,38,45,.75) 0%, rgba(27,38,45,.25) 30%, transparent 45%), linear-gradient(0deg, rgba(27,38,45,.7) 0%, transparent 22%); }
+}
+.hero__headline, .hero .eyebrow { text-shadow: 0 6px 30px rgba(20, 30, 36, .7); }
+.hero__headline em { color: var(--snow); opacity: .9; }
+.hero__btns .btn--ghost { background: rgba(220,224,232,.1); border-color: rgba(220,224,232,.4); }
+
+/* produkty: 3 kafelki */
+.products-grid--3 { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 960px) { .products-grid--3 { grid-template-columns: 1fr; } }
+.p-card { background: var(--bg-3); }
+.p-card:hover { border-color: rgba(142, 161, 174, .5); }
+.p-card__media { aspect-ratio: 1 / 1; }
+.p-card__top { align-items: center; }
+.badge { background: var(--snow); color: var(--pine); }
+.badge--red { background: var(--berry); color: var(--snow); }
+.badge--sold { background: var(--berry); color: var(--snow); }
+.p-card.is-sold .p-card__media, .p-card.is-sold .p-card__top { opacity: .5; filter: grayscale(.6); }
+.p-card.is-sold .price__now { text-decoration: line-through; }
+
+/* opinie: karty w Branch */
+.reviews { background: var(--bg-2); }
+.r-card { background: var(--branch); border-color: rgba(220, 224, 232, .1); }
+.r-card .avatar { background: var(--silver); color: var(--pine); }
+.stars { color: var(--silver); }
+
+/* galeria: zwykła siatka zdjęć produktu */
+.gallery { overflow: visible; }
+.g-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: clamp(160px, 18vw, 280px); gap: clamp(12px, 1.6vw, 20px); }
+.g-tile { position: relative; margin: 0; border-radius: var(--radius); overflow: hidden; background: var(--bg-3); border: 1px solid var(--line); }
+.g-tile--big { grid-column: span 2; grid-row: span 2; }
+.g-tile img { width: 100%; height: 100%; object-fit: cover; }
+.g-tile .ph { inset: 12px; }
+@media (max-width: 760px) {
+  .g-grid { grid-template-columns: 1fr 1fr; grid-auto-rows: 42vw; }
+}
+
+/* miejsca na zdjęcia */
+.ph { border-color: rgba(220, 224, 232, .25); background: repeating-linear-gradient(135deg, rgba(220,224,232,.03) 0 14px, transparent 14px 28px); }
+
+/* globus: jeden ekran, bez scrollowania i bez śniegu */
+.globe-sec { height: auto; background: radial-gradient(70% 70% at 78% 70%, #31434d 0%, #27363f 50%, #213039 100%); }
+.globe-sec__sticky { position: relative; height: 100vh; height: 100svh; min-height: 640px; }
+.globe-snow { display: none; }
+.order-toast { background: rgba(33, 48, 57, .82); border-color: rgba(220, 224, 232, .14); }
+.live-dot { background: var(--berry); box-shadow: 0 0 0 0 rgba(220,224,232,.5); }
+@keyframes live { 70% { box-shadow: 0 0 0 10px rgba(220,224,232,0); } 100% { box-shadow: 0 0 0 0 rgba(220,224,232,0); } }
+.pl-label::after { background: var(--snow); box-shadow: 0 0 8px rgba(220,224,232,.8); }
+.city-label { background: var(--snow); color: var(--pine); }
+
+/* reszta */
+.field input, .field textarea { background-color: var(--bg-3); }
+.contact { background: var(--bg-2); }
+.footer__bottom { border-top-color: rgba(220, 224, 232, .18); }
+.footer h4 { color: var(--silver); }
+.ship-bar__fill { background: linear-gradient(90deg, var(--berry), var(--silver)); }
+.upsell { border-color: rgba(142, 161, 174, .45); }
+.upsell button { background: var(--snow); color: var(--pine); }
+.toast-add { background: var(--snow); color: var(--pine); }
+.deadline { border-color: rgba(142, 161, 174, .35); }
+.pdp__main { background: linear-gradient(160deg, var(--bg-3), var(--bg-2)); }
+.compare .hl { background: rgba(107, 33, 44, .18); }
+.sticky-buy { background: rgba(33, 48, 57, .92); }
+@media (max-width: 960px) {
+  .globe-sec__sticky::before { content: ""; position: absolute; inset: 0 0 auto; height: 52%; z-index: 1; pointer-events: none; background: linear-gradient(180deg, #27363f 40%, rgba(39,54,63,0)); }
+}
+@media (max-width: 960px) {
+  .order-feed .order-toast:nth-last-child(n+3) { display: none; }
+}
