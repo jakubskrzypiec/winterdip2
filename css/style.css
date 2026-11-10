@@ -852,3 +852,33 @@ html:not(.in-hero) .logo .logo--dark { display: block; }
 .footer .btn--primary::before { background: #fff; }
 .footer .newsletter input { border-color: rgba(220,224,232,.35); color: var(--snow); }
 .footer .newsletter input::placeholder { color: rgba(220,224,232,.7); }
+
+/* =========================================================
+   v8 — czerwone opinie i powiadomienia, kontakt, menu
+   ========================================================= */
+/* opinie w Berry */
+.r-card { background: var(--berry); border-color: rgba(220, 224, 232, .12); }
+.r-card .stars { color: var(--silver); }
+.r-card .avatar { background: var(--snow); color: var(--berry); }
+
+/* powiadomienia o zamówieniach w Berry */
+.order-toast { background: rgba(107, 33, 44, .94); border-color: rgba(220, 224, 232, .14); color: var(--snow); box-shadow: 0 16px 34px -18px rgba(107, 33, 44, .8); }
+.order-toast small { color: rgba(220, 224, 232, .75); }
+
+/* kontakt: luźniejszy nagłówek i odstęp do linków */
+.contact__title { font-size: clamp(38px, 4.6vw, 72px); line-height: 1.08; }
+.contact__title .split-line { padding-bottom: .1em; margin-bottom: -.04em; }
+.contact__links { margin-top: clamp(36px, 4vw, 56px); }
+.contact__grid { align-items: center; }
+
+/* menu: aktywna podstrona */
+.nav a[aria-current="page"] { color: var(--cream); }
+.nav a[aria-current="page"]::after { transform: scaleX(1); }
+/* globus przybliżony: jasne przejście pod tekstem po lewej */
+@media (min-width: 961px) {
+  .globe-sec__sticky::before { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+    background: linear-gradient(90deg, #dce0e8 0%, #dce0e8 26%, rgba(220,224,232,.85) 36%, rgba(220,224,232,0) 52%); }
+}
+@media (max-width: 960px) {
+  .globe-sec__sticky::before { height: 100%; background: linear-gradient(180deg, #dce0e8 0%, #dce0e8 30%, rgba(220,224,232,.8) 34%, rgba(220,224,232,0) 42%); }
+}

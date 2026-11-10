@@ -142,15 +142,15 @@ export async function initGlobe(reduced) {
     const w = canvas.clientWidth, h = canvas.clientHeight;
     const m = mobile();
     // globus w prawym dolnym rogu (telefon: niżej, na środku)
-    camera.setViewOffset(w, h, m ? 0 : -0.22 * w, m ? -0.1 * h : 0.02 * h, w, h);
-    camera.position.set(0, 0, m ? 3.4 : 2.75);
+    camera.setViewOffset(w, h, m ? 0 : -0.2 * w, m ? -0.19 * h : 0, w, h);
+    camera.position.set(0, 0, m ? 1.75 : 1.5);
 
     // płynne dojście do pozycji myszki + delikatne kołysanie
     look.x += (mouse.x - look.x) * 0.05;
     look.y += (mouse.y - look.y) * 0.05;
     const sway = reduced ? 0 : Math.sin(now * 0.0004) * 0.02;
-    spin.rotation.y = baseY + look.x * 0.16 + sway;
-    tilt.rotation.x = baseX + look.y * 0.1;
+    spin.rotation.y = baseY + look.x * 0.06 + sway * 0.5;
+    tilt.rotation.x = baseX + look.y * 0.04;
 
     renderer.render(scene, camera);
 
@@ -159,7 +159,7 @@ export async function initGlobe(reduced) {
       const facing = tmp.clone().normalize().dot(camera.position.clone().normalize()) > 0.2;
       tmp.project(camera);
       const flash = c.flash && now - c.flash < 2200;
-      c.label.style.opacity = facing && (c.w >= 10 || flash) ? 1 : 0;
+      c.label.style.opacity = facing && (c.w >= 4 || flash) ? 1 : 0;
       c.label.style.left = ((tmp.x + 1) / 2) * w + 'px';
       c.label.style.top = ((1 - tmp.y) / 2) * h + 'px';
     }
