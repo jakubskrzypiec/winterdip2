@@ -3,10 +3,10 @@
 // Klatki: tools/extract-frames.sh -> assets/hero/
 //
 // Płynność:
-//  - klatki dekodowane poza głównym wątkiem (createImageBitmap)
-//  - pozycja filmu „dogania” scroll z lekką bezwładnością (lerp)
-//  - przenikanie sąsiednich klatek -> brak skoków między klatkami
-//  - rysowanie tylko gdy coś się zmieniło
+//  - klatki pobierane jako skompresowane pliki, dekodowane tylko w oknie
+//    wokół bieżącej pozycji i od razu w rozmiarze ekranu (mało pamięci)
+//  - pozycja filmu szybko „dogania” scroll (lerp)
+//  - rysowanie tylko gdy zmienia się klatka
 // =========================================================
 const gsap = window.gsap;
 const ScrollTrigger = window.ScrollTrigger;
@@ -50,84 +50,115 @@ export async function initHero(reduced) {
   const src = mobile ? manifest.mobile : manifest;
   const N = src.count;
   const url = (i) => `assets/hero/${src.dir}/${String(i + 1).padStart(4, '0')}.${src.ext || 'webp'}`;
-  const frames = new Array(N);
-  const ctx = canvas.getContext('2d', { alpha: false, desynchronized: true });
+  const ctx = canvas.getContext('2d', { alpha: false });
+
+  // ---------- pamięć ----------
+  // Wszystkie klatki trzymamy jako skompresowane pliki (ok. 30 MB).
+  // Do rysowania dekodujemy tylko klatki wokół bieżącej pozycji (okno),
+  // od razu w rozmiarze ekranu. Dekodowanie wszystkich 481 klatek Full HD
+  // naraz zajmowało kilka GB pamięci i zacinało przeglądarkę.
+  const blobs = new Array(N);
+  const bitmaps = new Map();          // indeks -> ImageBitmap
+  const pending = new Set();
+  const WINDOW = 18;                  // ile klatek przed i za bieżącą trzymamy gotowych
+  const useBitmap = 'createImageBitmap' in window;
 
   // ---------- scroll -> docelowa pozycja ----------
-  let target = 0, current = 0;
+  let target = 0, current = 0, dir = 1;
   ScrollTrigger.create({
     trigger: hero, start: 'top top', end: 'bottom bottom',
-    onUpdate: (self) => { target = self.progress * (N - 1); },
+    onUpdate: (self) => { target = self.progress * (N - 1); dir = self.direction || dir; },
   });
 
-  // ---------- rozmiar canvasa ----------
-  let cw = 0, ch = 0, dirty = true;
+  // ---------- rozmiar canvasa (bez nadmiarowej rozdzielczości) ----------
+  let cw = 0, ch = 0, decodeW = 1280, dirty = true;
   function resize() {
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.25);
     cw = canvas.width = Math.round(canvas.clientWidth * dpr);
     ch = canvas.height = Math.round(canvas.clientHeight * dpr);
+    // klatka 16:9 dopasowana „cover” — dekodujemy dokładnie w potrzebnej szerokości
+    decodeW = Math.min(src.width || 1920, Math.ceil(Math.max(cw, ch * 16 / 9)));
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
+    bitmaps.forEach((b) => b.close && b.close()); bitmaps.clear();
     dirty = true;
   }
   addEventListener('resize', resize);
   resize();
 
+  async function decode(i) {
+    if (!blobs[i] || bitmaps.has(i) || pending.has(i)) return;
+    pending.add(i);
+    try {
+      let img;
+      if (useBitmap) {
+        img = await createImageBitmap(blobs[i], { resizeWidth: decodeW, resizeQuality: 'high' });
+      } else {
+        img = new Image(); img.src = URL.createObjectURL(blobs[i]); await img.decode();
+      }
+      bitmaps.set(i, img);
+      if (Math.abs(i - Math.round(current)) < 2) dirty = true;
+    } catch {}
+    pending.delete(i);
+  }
+
+  // utrzymuje okno zdekodowanych klatek wokół bieżącej i zwalnia resztę
+  function keepWindow(c) {
+    for (const [i, b] of bitmaps) {
+      if (Math.abs(i - c) > WINDOW + 6) { b.close && b.close(); bitmaps.delete(i); }
+    }
+    for (let d = 0; d <= WINDOW && pending.size < 4; d++) {
+      const ahead = c + d * dir, behind = c - d * dir;
+      if (ahead >= 0 && ahead < N) decode(ahead);
+      if (d && d <= WINDOW / 3 && behind >= 0 && behind < N) decode(behind);
+    }
+  }
+
   // ---------- rysowanie ----------
-  const nearest = (i, dir) => {
-    for (let d = 0; d < N; d++) {
-      const j = i + d * dir;
-      if (j >= 0 && j < N && frames[j]) return frames[j];
-      const k = i - d * dir;
-      if (k >= 0 && k < N && frames[k]) return frames[k];
+  function nearest(i) {
+    if (bitmaps.has(i)) return bitmaps.get(i);
+    for (let d = 1; d < N; d++) {
+      if (bitmaps.has(i - d * dir)) return bitmaps.get(i - d * dir);
+      if (bitmaps.has(i + d * dir)) return bitmaps.get(i + d * dir);
     }
     return null;
-  };
-  function cover(img, alpha) {
+  }
+  let lastImg = null;
+  function draw(i) {
+    const img = nearest(i);
+    if (!img || (img === lastImg && !dirty)) return;
+    lastImg = img; dirty = false;
     const s = Math.max(cw / img.width, ch / img.height);
     const w = img.width * s, h = img.height * s;
-    ctx.globalAlpha = alpha;
     ctx.drawImage(img, (cw - w) / 2, (ch - h) / 2, w, h);
   }
-  // zawsze jedna, pełna klatka (bez nakładania dwóch) = maksymalna ostrość
-  let lastDrawn = -1, lastImg = null;
-  function draw() {
-    const i = Math.max(0, Math.min(N - 1, Math.round(current)));
-    const img = frames[i] || nearest(i, -1);
-    if (!img) return;
-    if (i === lastDrawn && img === lastImg && !dirty) return;
-    lastDrawn = i; lastImg = img; dirty = false;
-    cover(img, 1);
-  }
 
+  let heroVisible = true;
+  new IntersectionObserver(([e]) => { heroVisible = e.isIntersecting; }).observe(hero);
   (function loop() {
     requestAnimationFrame(loop);
+    if (!heroVisible) return;
     const diff = target - current;
-    current = reduced || Math.abs(diff) < 0.01 ? target : current + diff * 0.22;
-    draw();
+    current = reduced || Math.abs(diff) < 0.01 ? target : current + diff * 0.35;
+    const i = Math.max(0, Math.min(N - 1, Math.round(current)));
+    keepWindow(i);
+    draw(i);
   })();
 
-  // ---------- ładowanie: najpierw co 16. klatka, potem gęściej ----------
+  // ---------- pobieranie: najpierw co 16. klatka (szybki podgląd), potem gęściej ----------
   const order = [], seen = new Set();
   [32, 16, 8, 4, 2, 1].forEach((step) => { for (let i = 0; i < N; i += step) if (!seen.has(i)) { seen.add(i); order.push(i); } });
   let cursor = 0, loaded = 0;
-  const useBitmap = 'createImageBitmap' in window;
   async function load(i) {
-    try {
-      if (useBitmap) {
-        const blob = await (await fetch(url(i))).blob();
-        frames[i] = await createImageBitmap(blob);
-      } else {
-        const img = new Image(); img.src = url(i); await img.decode(); frames[i] = img;
-      }
-    } catch {}
+    try { blobs[i] = await (await fetch(url(i))).blob(); } catch {}
     loaded++;
     if (loader) { loader.style.width = (loaded / N) * 100 + '%'; if (loaded === N) loader.style.opacity = 0; }
-    if (i === 0 || Math.abs(i - current) < 2) dirty = true;
+    if (Math.abs(i - Math.round(current)) <= WINDOW) { dirty = true; }
   }
   async function worker() { while (cursor < order.length) await load(order[cursor++]); }
   await load(order[cursor++]); // pierwsza klatka od razu
-  for (let k = 0; k < 6; k++) worker();
+  await decode(0); dirty = true;
+  for (let k = 0; k < 4; k++) worker();
 }
 
 // ---------- śnieg nad filmem: pada CAŁY CZAS, także bez scrollowania ----------
@@ -135,7 +166,7 @@ export async function initHero(reduced) {
 export function initHeroSnow(canvas, reduced) {
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
-  const dpr = Math.min(devicePixelRatio || 1, 2);
+  const dpr = Math.min(devicePixelRatio || 1, 1.25);
 
   // kryształek: 6 zaokrąglonych ramion z gałązkami
   function crystal(size, color) {
@@ -199,7 +230,7 @@ export function initHeroSnow(canvas, reduced) {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     flakes = [];
     for (const L of layers) {
-      const n = Math.max(8, Math.round(w * h * L.density * (reduced ? 0.3 : 1)));
+      const n = Math.max(6, Math.round(w * h * L.density * 0.6 * (reduced ? 0.3 : 1)));
       for (let i = 0; i < n; i++) flakes.push(make(L, true));
     }
   }
