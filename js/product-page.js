@@ -3,7 +3,7 @@
 // Treść każdego kubka jest w INFO poniżej. Strona renderuje się
 // sama, a potem ładuje main.js (koszyk, galerie, animacje).
 // =========================================================
-import { PRODUCTS, REVIEWS } from './data.js';
+import { PRODUCTS, REVIEWS, SHOP } from './data.js';
 
 const IMG = (key, n) => `assets/products/winter-dips-${key}-${n}.webp`;
 
@@ -51,7 +51,20 @@ document.getElementById('product-root').innerHTML = `
       <div class="pdp__info">
         <span class="eyebrow">Kubek do fondue Chocolat…</span>
         <h1 class="pdp__title">${p.name}</h1>
-        <div class="pdp__price"><span class="now" data-price="${id}">75 zł</span><span class="pdp__vat">z VAT · darmowa dostawa od 149 zł</span></div>
+        <div class="pdp__price">
+          <span class="now" data-price="${id}">75 zł</span>
+          <span class="old" data-old-price="${id}" data-sale-only>99 zł</span>
+          <span class="save" data-sale-only data-discount="${id}">−24%</span>
+        </div>
+        <p class="pdp__omnibus" data-sale-only>Najniższa cena z 30 dni przed obniżką: ${p.lowest30 || p.oldPrice || p.price} zł · cena z VAT</p>
+        <div class="sale-box" data-sale-only>
+          <div class="sale-box__head"><span class="sale-box__tag">Wyprzedaż</span><span>Promocja kończy się za</span></div>
+          <div class="sale-box__timer" data-sale-countdown data-format="boxes"></div>
+        </div>
+        ${p.stock > 0 && p.stock <= 10 ? `<div class="stock-alert" style="--left:${Math.max(8, p.stock * 10)}%">
+          <p><b>Ostatnie sztuki!</b> Zostało tylko <b>${p.stock}</b> ${p.stock === 1 ? 'sztuka' : p.stock < 5 ? 'sztuki' : 'sztuk'}.</p>
+          <div class="stock-alert__bar"><span></span></div>
+        </div>` : ''}
         <p class="lead" style="margin:0">${info.lead}</p>
         <div class="swatches">
           <span class="swatches__label">Kolor: <b>${info.color}</b></span>
@@ -65,6 +78,8 @@ document.getElementById('product-root').innerHTML = `
           <button class="btn btn--primary" data-add="${id}" data-qty-from="#qty-main" data-open-cart>Dodaj do koszyka · <span data-price="${id}">75 zł</span></button>
         </div>
         <p class="stock-note"><span class="live-dot"></span>Dostępny od ręki · wysyłka w 24 h</p>
+        <div class="bundle-tip"><b>Kup 2 kubki — dostawa gratis.</b> Dwa kubki to ${(p.price * 2)} zł, czyli powyżej progu darmowej dostawy (${SHOP.freeShippingFrom} zł).
+          <button class="bundle-tip__btn" data-add="${otherId}" data-open-cart>+ Dodaj ${other.name.toLowerCase()}</button></div>
         <div class="trust-row">
           <div><b>Dostawa</b>Darmowa od 149 zł</div>
           <div><b>Zwrot</b>30 dni bez pytań</div>
@@ -134,7 +149,7 @@ document.getElementById('product-root').innerHTML = `
         <span class="eyebrow">Druga wersja</span>
         <h2 class="display h2" style="margin:20px 0 18px">${other.name}</h2>
         <p class="lead">${otherInfo.lead}</p>
-        <div class="pp-both__btns"><a class="btn btn--ghost" href="produkt.html?id=${otherId}">Zobacz produkt</a><button class="btn btn--primary" data-add="${otherId}" data-open-cart>Do koszyka · 75 zł</button></div>
+        <div class="pp-both__btns"><a class="btn btn--ghost" href="produkt.html?id=${otherId}">Zobacz produkt</a><button class="btn btn--primary" data-add="${otherId}" data-open-cart>Do koszyka · ${other.price} zł</button></div>
       </div>
     </div>
   </section>

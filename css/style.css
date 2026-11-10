@@ -1054,3 +1054,37 @@ html:not(.in-hero) .logo .logo--dark { display: block; }
 @media (max-width: 760px) { .pp-divider__media { aspect-ratio: 4 / 3; } }
 .pp-divider__media { aspect-ratio: 3 / 1; }
 @media (max-width: 760px) { .pp-divider__media { aspect-ratio: 4 / 3; } .pp-divider__media img { object-position: 52% 50%; } }
+
+/* =========================================================
+   v12 — wyprzedaż, ostatnie sztuki, przerywnik na całą szerokość
+   ========================================================= */
+.pp-divider { padding: 0; }
+.pp-divider__media { max-width: none; border-radius: 0; }
+
+.announce--sale { background: var(--berry); letter-spacing: .02em; }
+.announce--sale strong:first-child { text-transform: uppercase; letter-spacing: .12em; }
+.announce__timer { font-variant-numeric: tabular-nums; display: inline-block; min-width: 9ch; text-align: left; }
+@media (max-width: 600px) { .announce__long { display: none; } }
+
+.price__old { font-size: 15px; }
+.pdp__price .old { font-size: 22px; }
+.pdp__price .save { font-size: 13px; padding: 6px 12px; }
+.pdp__omnibus { margin: -10px 0 0; font-size: 12px; color: var(--cream-dim); }
+
+.sale-box { display: grid; gap: 12px; padding: 18px 20px; border-radius: 18px; background: rgba(107,33,44,.08); border: 1px solid rgba(107,33,44,.25); }
+.sale-box__head { display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 700; color: var(--berry); }
+.sale-box__tag { padding: 5px 10px; border-radius: 99px; background: var(--berry); color: var(--snow); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; }
+.sale-box__timer { display: flex; gap: 10px; }
+.sale-box__timer span { flex: 1; display: grid; justify-items: center; padding: 10px 6px; border-radius: 12px; background: var(--snow); border: 1px solid rgba(107,33,44,.15); }
+.sale-box__timer b { font-family: var(--display); font-size: clamp(22px, 2.2vw, 30px); line-height: 1; color: var(--pine); font-variant-numeric: tabular-nums; }
+.sale-box__timer small { margin-top: 4px; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--cream-dim); }
+
+.stock-alert p { margin: 0 0 8px; font-size: 15px; color: var(--berry); }
+.stock-alert__bar { height: 8px; border-radius: 99px; background: rgba(107,33,44,.12); overflow: hidden; }
+.stock-alert__bar span { display: block; height: 100%; width: var(--left); border-radius: inherit; background: var(--berry); animation: stock-pulse 1.8s ease-in-out infinite; }
+@keyframes stock-pulse { 50% { opacity: .55; } }
+
+.bundle-tip { padding: 14px 16px; border-radius: 16px; border: 1px dashed rgba(39,54,63,.3); font-size: 14px; color: var(--cream-dim); line-height: 1.5; }
+.bundle-tip b { color: var(--cream); }
+.bundle-tip__btn { display: inline-block; margin-top: 8px; padding: 7px 14px; border-radius: 99px; background: var(--pine); color: var(--snow); font-weight: 700; font-size: 13px; }
+.bundle-tip__btn:hover { background: var(--berry); }

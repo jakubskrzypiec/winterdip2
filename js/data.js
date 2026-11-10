@@ -9,6 +9,9 @@ export const SHOP = {
   shippingCost: 14.99,
   // ostatni dzień zamówień z gwarancją dostawy przed Wigilią
   christmasCutoff: '2026-12-19T23:59:59+01:00',
+  // WYPRZEDAŻ: data końca (jedna dla wszystkich, licznik się nie resetuje).
+  // Po tej dacie pasek, licznik i przekreślone ceny znikają same.
+  saleEnds: '2026-11-17T23:59:59+01:00',
 };
 
 // Kafelki na stronie głównej (kolejność = kolejność na stronie).
@@ -16,8 +19,13 @@ export const SHOP = {
 export const MUGS = ['mug-1', 'mug-2', 'mug-3'];
 
 export const PRODUCTS = {
-  'mug-1': { id: 'mug-1', name: 'Kubek beżowy', short: 'Ceramiczny kubek do fondue z podgrzewaczem', price: 75, img: 'assets/products/winter-dips-bezowy-01-katalog.webp' },
-  'mug-2': { id: 'mug-2', name: 'Kubek czerwony', short: 'Ceramiczny kubek do fondue z podgrzewaczem', price: 75, img: 'assets/products/winter-dips-czerwony-01-katalog.webp' },
+  'mug-1': { id: 'mug-1', name: 'Kubek beżowy', short: 'Ceramiczny kubek do fondue z podgrzewaczem', price: 75, img: 'assets/products/winter-dips-bezowy-01-katalog.webp',
+    // TODO: oldPrice = prawdziwa cena sprzed obniżki, lowest30 = najniższa cena z 30 dni przed obniżką (wymóg prawa — dyrektywa Omnibus)
+    oldPrice: 99, lowest30: 99,
+    stock: 7 },   // TODO: prawdziwa liczba sztuk w magazynie
+  'mug-2': { id: 'mug-2', name: 'Kubek czerwony', short: 'Ceramiczny kubek do fondue z podgrzewaczem', price: 75, img: 'assets/products/winter-dips-czerwony-01-katalog.webp',
+    oldPrice: 99, lowest30: 99,   // TODO: jak wyżej
+    stock: 4 },   // TODO: prawdziwa liczba sztuk w magazynie
   'mug-3': { id: 'mug-3', name: 'Kubek nr 3', short: 'Ceramiczny kubek do fondue z podgrzewaczem', price: 75, img: 'assets/img/mug.webp', soldOut: true },
   'chocolate-mug': {
     id: 'chocolate-mug',

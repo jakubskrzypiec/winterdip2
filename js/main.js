@@ -122,6 +122,35 @@ document.querySelector('.newsletter')?.addEventListener('submit', (e) => {
   e.target.innerHTML = '<p style="margin:0;color:var(--gold)">Dzięki! Odezwiemy się z zimowymi nowościami.</p>';
 });
 
+// ---------- wyprzedaż: odliczanie do SHOP.saleEnds (jedna data dla wszystkich) ----------
+{
+  const end = new Date(SHOP.saleEnds).getTime();
+  const pad = (n) => String(n).padStart(2, '0');
+  const timers = document.querySelectorAll('[data-sale-countdown]');
+  const tick = () => {
+    const ms = end - Date.now();
+    if (!SHOP.saleEnds || ms <= 0) {
+      // po wyprzedaży: chowamy pasek, licznik, przekreślone ceny i plakietki
+      document.querySelectorAll('[data-sale-only]').forEach((el) => el.remove());
+      document.documentElement.classList.remove('has-announce');
+      return false;
+    }
+    const dd = Math.floor(ms / 864e5), hh = Math.floor((ms % 864e5) / 36e5), mm = Math.floor((ms % 36e5) / 6e4), ss = Math.floor((ms % 6e4) / 1e3);
+    timers.forEach((el) => {
+      el.innerHTML = el.dataset.format === 'boxes'
+        ? [[dd, 'dni'], [hh, 'godz'], [mm, 'min'], [ss, 'sek']].map(([v, l]) => `<span><b>${pad(v)}</b><small>${l}</small></span>`).join('')
+        : `${dd} d ${pad(hh)}:${pad(mm)}:${pad(ss)}`;
+    });
+    return true;
+  };
+  if (tick()) setInterval(tick, 1000);
+  // plakietki rabatu liczone z cen
+  document.querySelectorAll('[data-discount]').forEach((el) => {
+    const p = PRODUCTS[el.dataset.discount];
+    if (p && p.oldPrice > p.price) el.textContent = '−' + Math.round((1 - p.price / p.oldPrice) * 100) + '%'; else el.remove();
+  });
+}
+
 // ---------- christmas deadline ----------
 document.querySelectorAll('[data-deadline]').forEach((el) => {
   const end = new Date(SHOP.christmasCutoff).getTime();
