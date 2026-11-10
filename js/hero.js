@@ -60,7 +60,7 @@ export async function initHero(reduced) {
   const blobs = new Array(N);
   const bitmaps = new Map();          // indeks -> ImageBitmap
   const pending = new Set();
-  const WINDOW = 18;                  // ile klatek przed i za bieżącą trzymamy gotowych
+  const WINDOW = 24;                  // ile klatek przed bieżącą trzymamy gotowych (za nią: 1/3)
   const useBitmap = 'createImageBitmap' in window;
 
   // ---------- scroll -> docelowa pozycja ----------
@@ -92,7 +92,10 @@ export async function initHero(reduced) {
     try {
       let img;
       if (useBitmap) {
-        img = await createImageBitmap(blobs[i], { resizeWidth: decodeW, resizeQuality: 'high' });
+        // klatki są już w rozmiarze strony (1280 px) — zmniejszamy tylko, gdy ekran jest mniejszy
+        img = (src.width || 1920) > decodeW * 1.15
+          ? await createImageBitmap(blobs[i], { resizeWidth: decodeW, resizeQuality: 'medium' })
+          : await createImageBitmap(blobs[i]);
       } else {
         img = new Image(); img.src = URL.createObjectURL(blobs[i]); await img.decode();
       }
@@ -107,7 +110,7 @@ export async function initHero(reduced) {
     for (const [i, b] of bitmaps) {
       if (Math.abs(i - c) > WINDOW + 6) { b.close && b.close(); bitmaps.delete(i); }
     }
-    for (let d = 0; d <= WINDOW && pending.size < 4; d++) {
+    for (let d = 0; d <= WINDOW && pending.size < 6; d++) {
       const ahead = c + d * dir, behind = c - d * dir;
       if (ahead >= 0 && ahead < N) decode(ahead);
       if (d && d <= WINDOW / 3 && behind >= 0 && behind < N) decode(behind);
@@ -158,7 +161,7 @@ export async function initHero(reduced) {
   async function worker() { while (cursor < order.length) await load(order[cursor++]); }
   await load(order[cursor++]); // pierwsza klatka od razu
   await decode(0); dirty = true;
-  for (let k = 0; k < 4; k++) worker();
+  for (let k = 0; k < 6; k++) worker();
 }
 
 // ---------- śnieg nad filmem: pada CAŁY CZAS, także bez scrollowania ----------
