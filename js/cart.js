@@ -1,4 +1,5 @@
 import { PRODUCTS, SHOP, SHOPIFY } from './data.js';
+import { syncProducts, gql } from './shopify.js';
 
 const KEY = 'winterdip-cart';
 const fmt = (n) => n.toFixed(2).replace('.', ',').replace(',00', '') + ' ' + SHOP.currency;
@@ -106,6 +107,13 @@ async function checkout(btn) {
   if (!ids.length) return;
   if (!SHOPIFY.domain || !SHOPIFY.storefrontToken) {
     toast('Płatności uruchamiamy za chwilę — napisz do nas, przyjmiemy zamówienie mailowo.');
+    return;
+  }
+  btn.disabled = true;
+  await syncProducts();   // ID wariantów i aktualna dostępność z Shopify
+  btn.disabled = false;
+  if (ids.some((id) => PRODUCTS[id]?.soldOut)) {
+    toast('Jeden z produktów właśnie się wyprzedał. Usuń go z koszyka, żeby przejść dalej.');
     return;
   }
   const lines = ids.map((id) => ({ merchandiseId: PRODUCTS[id]?.shopifyVariantId, quantity: items[id] }));

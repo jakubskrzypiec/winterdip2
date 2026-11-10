@@ -1114,3 +1114,6 @@ html:not(.in-hero) .logo .logo--dark { display: block; }
 .pd-dips__list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 0; font-family: var(--display); font-weight: 600; font-size: clamp(17px, 1.5vw, 21px); color: var(--snow); }
 .pd-dips__list li:not(:last-child)::after { content: "·"; margin: 0 14px; color: var(--mist); }
 @media (max-width: 760px) { .pd-dips { grid-template-columns: 1fr; } }
+
+/* elementy ukrywane skryptem (np. brak ceny przed obniżką) */
+[hidden] { display: none !important; }

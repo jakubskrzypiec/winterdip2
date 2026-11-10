@@ -4,6 +4,9 @@
 // sama, a potem ładuje main.js (koszyk, galerie, animacje).
 // =========================================================
 import { PRODUCTS, REVIEWS, SHOP } from './data.js';
+import { syncProductsQuick } from './shopify.js';
+
+await syncProductsQuick();
 
 const IMG = (key, n) => `assets/products/winter-dips-${key}-${n}.webp`;
 
@@ -59,12 +62,12 @@ document.getElementById('product-root').innerHTML = `
           <span class="old" data-old-price="${id}" data-sale-only>99 zł</span>
           <span class="save" data-sale-only data-discount="${id}">−24%</span>
         </div>
-        <p class="pdp__omnibus" data-sale-only>Najniższa cena z 30 dni przed obniżką: ${p.lowest30 || p.oldPrice || p.price} zł · cena z VAT</p>
+        ${p.oldPrice > p.price ? `<p class="pdp__omnibus" data-sale-only>Najniższa cena z 30 dni przed obniżką: ${p.lowest30 || p.oldPrice} zł · cena z VAT</p>` : ''}
         <div class="sale-box" data-sale-only>
           <div class="sale-box__head"><span class="sale-box__tag">Wyprzedaż</span><span>Promocja kończy się za</span></div>
           <div class="sale-box__timer" data-sale-countdown data-format="boxes"></div>
         </div>
-        ${p.stock > 0 && p.stock <= 10 ? `<div class="stock-alert" style="--left:${Math.max(8, p.stock * 10)}%">
+        ${!p.soldOut && p.stock > 0 && p.stock <= 10 ? `<div class="stock-alert" style="--left:${Math.max(8, p.stock * 10)}%">
           <p><b>Ostatnie sztuki!</b> Zostało tylko <b>${p.stock}</b> ${p.stock === 1 ? 'sztuka' : p.stock < 5 ? 'sztuki' : 'sztuk'}.</p>
           <div class="stock-alert__bar"><span></span></div>
         </div>` : ''}

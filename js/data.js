@@ -14,21 +14,27 @@ export const SHOP = {
 };
 
 // Kafelki na stronie głównej (kolejność = kolejność na stronie).
-// TODO: nazwy, opisy i zdjęcia kubków do podmiany.
 export const MUGS = ['mug-1', 'mug-2', 'mug-3'];
 
 // ---------- SHOPIFY ----------
 // Kasa działa przez Shopify Storefront API: koszyk ze strony tworzy koszyk
 // w Shopify i przekierowuje klienta do kasy Shopify (płatności, dostawa, faktury).
-// Do uzupełnienia (Shopify → Ustawienia → Aplikacje → Headless / Storefront API):
-//   domain          — np. 'winterdip.myshopify.com'
-//   storefrontToken — publiczny token Storefront API (można go trzymać na stronie)
-//   apiVersion      — aktualna wersja API ze strony Shopify (np. '2026-07')
-// oraz shopifyVariantId przy każdym produkcie: 'gid://shopify/ProductVariant/1234567890'
+// Do uzupełnienia (instrukcja: URUCHOMIENIE.md):
+//   domain          — adres sklepu, np. 'winterdip.myshopify.com'
+//   storefrontToken — publiczny token Storefront API z kanału „Headless”
+//   apiVersion      — wersja Storefront API pokazana przy tokenie (np. '2026-07')
+//   handles         — „uchwyt” (końcówka adresu) każdego produktu w Shopify
+// Ceny, „cena przed obniżką”, dostępność i ID wariantów strona pobiera z Shopify sama;
+// wartości przy produktach poniżej działają tylko, dopóki Shopify nie jest podpięty.
 export const SHOPIFY = {
   domain: '',
   storefrontToken: '',
   apiVersion: '2026-07',
+  handles: {
+    'mug-1': 'kubek-bezowy',
+    'mug-2': 'kubek-czerwony',
+    'mug-3': 'kubek-bialy-cozy-days',
+  },
 };
 
 export const PRODUCTS = {

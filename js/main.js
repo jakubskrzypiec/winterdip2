@@ -1,5 +1,6 @@
 import { initCart, fmt } from './cart.js';
 import { REVIEWS, FAQ, SHOP, PRODUCTS } from './data.js';
+import { syncProducts, shopifyOn, policyUrl } from './shopify.js';
 
 const gsap = window.gsap;
 const ScrollTrigger = window.ScrollTrigger;
@@ -144,11 +145,6 @@ document.querySelector('.newsletter')?.addEventListener('submit', (e) => {
     return true;
   };
   if (tick()) setInterval(tick, 1000);
-  // plakietki rabatu liczone z cen
-  document.querySelectorAll('[data-discount]').forEach((el) => {
-    const p = PRODUCTS[el.dataset.discount];
-    if (p && p.oldPrice > p.price) el.textContent = '−' + Math.round((1 - p.price / p.oldPrice) * 100) + '%'; else el.remove();
-  });
 }
 
 // ---------- christmas deadline ----------
@@ -181,9 +177,31 @@ document.querySelectorAll('.pdp').forEach((pdp) => {
   pdp.querySelector('[data-q="-"]')?.addEventListener('click', () => { qtyEl.textContent = Math.max(1, +qtyEl.textContent - 1); });
   pdp.querySelector('[data-q="+"]')?.addEventListener('click', () => { qtyEl.textContent = Math.min(20, +qtyEl.textContent + 1); });
 });
-document.querySelectorAll('[data-price]').forEach((el) => { el.textContent = fmt(PRODUCTS[el.dataset.price].price); });
-document.querySelectorAll('[data-old-price]').forEach((el) => { const o = PRODUCTS[el.dataset.oldPrice].oldPrice; if (o) el.textContent = fmt(o); else el.remove(); });
-document.querySelectorAll('[data-name]').forEach((el) => { (el.querySelector('a') || el).textContent = PRODUCTS[el.dataset.name].name; });
+// ---------- ceny, rabaty, dostępność (najpierw z data.js, potem z Shopify) ----------
+function applyProducts() {
+  document.querySelectorAll('[data-price]').forEach((el) => { el.textContent = fmt(PRODUCTS[el.dataset.price].price); });
+  document.querySelectorAll('[data-old-price]').forEach((el) => {
+    const p = PRODUCTS[el.dataset.oldPrice];
+    el.hidden = !(p.oldPrice > p.price);
+    if (!el.hidden) el.textContent = fmt(p.oldPrice);
+  });
+  document.querySelectorAll('[data-discount]').forEach((el) => {
+    const p = PRODUCTS[el.dataset.discount];
+    el.hidden = !(p && p.oldPrice > p.price);
+    if (!el.hidden) el.textContent = '−' + Math.round((1 - p.price / p.oldPrice) * 100) + '%';
+  });
+  document.querySelectorAll('[data-name]').forEach((el) => { (el.querySelector('a') || el).textContent = PRODUCTS[el.dataset.name].name; });
+  // wyprzedane w Shopify -> przyciski „Do koszyka” nieaktywne
+  document.querySelectorAll('[data-add]').forEach((b) => {
+    const p = PRODUCTS[b.dataset.add];
+    if (p?.soldOut) { b.disabled = true; b.textContent = 'Wyprzedane'; b.closest('.p-card')?.classList.add('is-sold'); }
+  });
+}
+applyProducts();
+syncProducts().then((ok) => { if (ok) applyProducts(); });
+
+// regulamin i polityki: strony generowane przez Shopify
+if (shopifyOn()) document.querySelectorAll('[data-policy]').forEach((a) => { a.href = policyUrl(a.dataset.policy); a.target = '_blank'; a.rel = 'noopener'; });
 
 const sticky = document.querySelector('.sticky-buy');
 if (sticky) {
