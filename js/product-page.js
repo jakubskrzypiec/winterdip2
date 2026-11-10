@@ -80,9 +80,11 @@ document.getElementById('product-root').innerHTML = `
           <div class="qty"><button data-q="-" aria-label="Mniej">−</button><span id="qty-main">1</span><button data-q="+" aria-label="Więcej">+</button></div>
           <button class="btn btn--primary" data-add="${id}" data-qty-from="#qty-main" data-open-cart>Dodaj do koszyka · <span data-price="${id}">75 zł</span></button>
         </div>
-        <p class="stock-note"><span class="live-dot"></span>Dostępny od ręki · wysyłka w 24 h</p>
-        <div class="bundle-tip"><b>Kup 2 kubki — dostawa gratis.</b> Dwa kubki to ${(p.price * 2)} zł, czyli powyżej progu darmowej dostawy (${SHOP.freeShippingFrom} zł).
-          <button class="bundle-tip__btn" data-add="${otherId}" data-open-cart>+ Dodaj ${other.name.toLowerCase()}</button></div>
+        <p class="stock-note"><span class="live-dot"></span>Realizacja ok. 10 dni · do 5 dni przygotowania + do 3 dni dostawy</p>
+        <div class="bundle-tip">
+          <div><b>Kup 2 kubki — dostawa gratis</b><span>2 × ${p.price} zł = ${p.price * 2} zł, czyli powyżej progu ${SHOP.freeShippingFrom} zł.</span></div>
+          <button class="bundle-tip__btn" data-add="${otherId}" data-open-cart>+ ${other.name}</button>
+        </div>
         <div class="trust-row">
           <div><b>Dostawa</b>Darmowa od 149 zł</div>
           <div><b>Zwrot</b>30 dni bez pytań</div>
@@ -90,7 +92,7 @@ document.getElementById('product-root').innerHTML = `
         </div>
         <div class="acc">
           <details><summary>Wymiary i pielęgnacja</summary><p>Kubek mieści porcję czekoladowego fondue dla jednej osoby. Ceramikę możesz myć w zmywarce, ale polecamy mycie ręczne, żeby szkliwo i napis zostały piękne na lata. Widelczyk myj ręcznie.</p></details>
-          <details><summary>Dostawa i zwroty</summary><p>Wysyłka w 24 h w dni robocze, InPost lub kurier. Darmowa dostawa od 149 zł. 30 dni na zwrot — na prezenty świąteczne do 31 stycznia.</p></details>
+          <details><summary>Dostawa i zwroty</summary><p>Kubek przygotowujemy do wysyłki w ciągu do 5 dni roboczych, a dostawa (InPost lub kurier) trwa do 3 dni — łącznie ok. 10 dni. Darmowa dostawa od 149 zł. 30 dni na zwrot — na prezenty świąteczne do 31 stycznia.</p></details>
         </div>
       </div>
     </div>
@@ -115,7 +117,7 @@ document.getElementById('product-root').innerHTML = `
       </div>
       <div class="pd-dips" data-reveal>
         <h3>Co maczać?</h3>
-        <div class="pd-dips__row">${DIPS.map((d) => `<span>${d}</span>`).join('')}</div>
+        <ul class="pd-dips__list">${DIPS.map((d) => `<li>${d}</li>`).join('')}</ul>
       </div>
     </div>
   </section>

@@ -7,7 +7,7 @@ export const SHOP = {
   freeShippingFrom: 149,
   shippingCost: 14.99,
   // ostatni dzień zamówień z gwarancją dostawy przed Wigilią
-  christmasCutoff: '2026-12-19T23:59:59+01:00',
+  christmasCutoff: '2026-12-12T23:59:59+01:00',   // ok. 10 dni przed Wigilią
   // WYPRZEDAŻ: data końca (jedna dla wszystkich, licznik się nie resetuje).
   // Po tej dacie pasek, licznik i przekreślone ceny znikają same.
   saleEnds: '2026-11-17T23:59:59+01:00',
@@ -113,7 +113,7 @@ export const CITIES = [
 
 export const FAQ = [
   ['Jak działa kubek do fondue?', 'Do otworu w podstawie wkładasz zwykły podgrzewacz (tealight). Płomień utrzymuje czekoladę w płynnej, ciepłej formie przez cały wieczór. Widelczyk wsuwasz w uchwyt, gdy go nie używasz.'],
-  ['Kiedy dostanę zamówienie?', 'Wysyłamy w ciągu 24 h w dni robocze. Kurier lub paczkomat dostarcza zwykle w 1–2 dni. Zamówienia złożone do 19 grudnia dotrą przed Wigilią.'],
+  ['Kiedy dostanę zamówienie?', 'Każdy kubek przygotowujemy do wysyłki w ciągu do 5 dni roboczych, a kurier lub paczkomat dostarcza go w maksymalnie 3 dni. Łącznie paczka jest u Ciebie w około 10 dni. Zamówienia złożone do 12 grudnia dotrą przed Wigilią.'],
   ['Czy wysyłka jest darmowa?', 'Tak — przy zamówieniach od 149 zł. Poniżej tej kwoty wysyłka kosztuje 14,99 zł.'],
   ['Czy kubek można myć w zmywarce?', 'Ceramikę możesz myć w zmywarce, ale polecamy mycie ręczne, żeby napis i szkliwo zostały piękne na lata. Widelczyk myj ręcznie.'],
   ['Jakiej czekolady użyć?', 'Najlepiej sprawdza się czekolada deserowa lub mleczna w kostkach, rozpuszczona z odrobiną śmietanki. Możesz też użyć sera — wtedy masz mini fondue serowe.'],

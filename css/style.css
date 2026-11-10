@@ -1091,3 +1091,26 @@ html:not(.in-hero) .logo .logo--dark { display: block; }
 /* plakietka rabatu: wyraźna, jasny tekst na Berry */
 .pdp__price .save { background: var(--berry); color: #fff; font-family: var(--display); font-weight: 700; font-size: 16px; letter-spacing: .02em; padding: 7px 14px; border-radius: 99px; box-shadow: 0 8px 20px -10px rgba(107,33,44,.7); align-self: center; }
 .badge--red { color: #fff; font-family: var(--display); font-size: 13px; letter-spacing: .04em; }
+
+/* =========================================================
+   v13 — przyciski w kafelkach, dostawa, „Kup 2”, „Co maczać”
+   ========================================================= */
+.btn { white-space: nowrap; text-align: center; line-height: 1; }
+.p-card__actions { flex-wrap: wrap; }
+.p-card__actions .btn { flex: 1 1 130px; min-width: 0; padding: 0 16px; font-size: 15px; }
+.delivery-note { margin: 22px 0 0; text-align: center; font-size: 13px; color: var(--cream-dim); }
+
+.bundle-tip { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 14px 16px; border-radius: 16px; border: 1px dashed rgba(39,54,63,.3); font-size: 14px; line-height: 1.45; }
+.bundle-tip b { display: block; color: var(--cream); font-size: 15px; }
+.bundle-tip span { color: var(--cream-dim); }
+.bundle-tip__btn { flex: none; margin: 0; padding: 10px 16px; border-radius: 99px; background: var(--pine); color: var(--snow); font-weight: 700; font-size: 13px; white-space: nowrap; transition: background .3s; }
+@media (max-width: 480px) { .bundle-tip { flex-direction: column; align-items: stretch; } .bundle-tip__btn { text-align: center; } }
+.drawer__ship { margin: 14px 0 0; font-size: 13px; color: var(--cream-dim); }
+.drawer__ship b { color: var(--berry); }
+
+/* „Co maczać?” — zwykła lista, nie wygląda jak przyciski */
+.pd-dips { display: grid; grid-template-columns: auto 1fr; gap: 12px 40px; align-items: baseline; padding-top: clamp(32px, 4vw, 50px); border-top: 1px solid var(--line); }
+.pd-dips h3 { margin: 0; }
+.pd-dips__list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 0; font-family: var(--display); font-weight: 600; font-size: clamp(17px, 1.5vw, 21px); color: var(--snow); }
+.pd-dips__list li:not(:last-child)::after { content: "·"; margin: 0 14px; color: var(--mist); }
+@media (max-width: 760px) { .pd-dips { grid-template-columns: 1fr; } }

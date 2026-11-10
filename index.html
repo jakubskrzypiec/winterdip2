@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Winterdip — kubek do czekoladowego fondue</title>
-  <meta name="description" content="Winterdip Chocolate… — ceramiczny kubek do fondue z podgrzewaczem. Zimowy rytuał przy kominku. Darmowa dostawa od 149 zł, wysyłka w 24 h, dostawa przed Wigilią.">
+  <meta name="description" content="Winterdip Chocolate… — ceramiczny kubek do fondue z podgrzewaczem. Zimowy rytuał przy kominku. Darmowa dostawa od 149 zł, realizacja ok. 10 dni, dostawa przed Wigilią.">
   <meta name="theme-color" content="#DCE0E8">
   <meta property="og:title" content="Winterdip — zimowy rytuał w jednym kubku">
   <meta property="og:description" content="Ceramiczny kubek do czekoladowego fondue z podgrzewaczem.">
@@ -16,7 +16,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="preload" as="image" href="assets/hero/hero.webp">
   <link rel="stylesheet" href="https://unpkg.com/lenis@1.1.13/dist/lenis.css">
   <link rel="stylesheet" href="css/style.css">
   <script type="importmap">{ "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/" } }</script>
@@ -49,13 +48,13 @@
 
   <main>
     <!-- ================= HERO ================= -->
-    <section class="hero hero--photo" aria-label="Winter Dip — kubek Chocolate… do fondue">
+    <section class="hero" aria-label="Winter Dip — kubek Chocolate… do fondue">
       <div class="hero__sticky">
-        <div class="hero-stage" aria-hidden="true">
-          <img class="hero-stage__img" src="assets/hero/hero.webp" alt="" width="1672" height="941" fetchpriority="high">
-          <div class="hero-stage__shadows"></div>
-          <canvas class="hero-stage__fx"></canvas>
+        <canvas class="hero__canvas" aria-hidden="true"></canvas>
+        <div class="hero__fallback" aria-hidden="true">
+          <div class="fb-mug-wrap"><div class="fb-glow"></div><img class="fb-mug" src="assets/img/mug.webp" alt="Czerwony kubek Chocolate… do fondue z podgrzewaczem"></div>
         </div>
+        <canvas class="hero__snow" aria-hidden="true"></canvas>
         <div class="hero__scrim" aria-hidden="true"></div>
         <div class="hero__overlay">
           <h1 class="hero__headline"><span>Zimowe fondue</span><span><em>w jednym kubku</em></span></h1>
@@ -64,6 +63,7 @@
             <a href="#produkty" class="btn btn--ghost">Zobacz kubki</a>
           </div>
         </div>
+        <div class="hero__loader"></div>
       </div>
     </section>
 
@@ -123,6 +123,7 @@
             </div>
           </article>
         </div>
+        <p class="delivery-note">Realizacja ok. 10 dni: do 5 dni przygotowania i do 3 dni dostawy · darmowa dostawa od 149 zł</p>
       </div>
     </section>
 
@@ -171,7 +172,6 @@
           <h2 class="globe-title">Obsłużyliśmy już<br><b>10 000 klientów</b></h2>
           <p class="globe-sub">na terenie całej Polski</p>
         </div>
-        <span class="demo-badge">Podgląd · dane demo</span>
         <div class="order-feed" aria-live="polite"></div>
       </div>
     </section>

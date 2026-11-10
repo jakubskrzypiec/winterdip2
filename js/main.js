@@ -10,7 +10,7 @@ if (reduced) document.documentElement.classList.add('reduced');
 // ---------- smooth scroll ----------
 let lenis;
 if (!reduced && window.Lenis) {
-  lenis = new window.Lenis({ lerp: 0.09, smoothWheel: true });
+  lenis = new window.Lenis({ lerp: 0.12, wheelMultiplier: 0.75, touchMultiplier: 1, smoothWheel: true });
   lenis.on('scroll', ScrollTrigger.update);
   gsap.ticker.add((t) => lenis.raf(t * 1000));
   gsap.ticker.lagSmoothing(0);

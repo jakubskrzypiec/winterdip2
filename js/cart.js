@@ -80,7 +80,7 @@ function render() {
       <div class="c-item__price">${fmt(p.price * q)}</div>
     </div>`;
   }).join('');
-  if (sum > 0 && left > 0) html += `<p style="font-size:13px;color:var(--cream-dim)">Dostawa: ${fmt(SHOP.shippingCost)}</p>`;
+  if (sum > 0) html += `<p class="drawer__ship">Dostawa: <b>${left > 0 ? fmt(SHOP.shippingCost) : 'gratis'}</b> · realizacja ok. 10 dni</p>`;
   list.innerHTML = html;
 }
 
