@@ -1117,3 +1117,30 @@ html:not(.in-hero) .logo .logo--dark { display: block; }
 
 /* elementy ukrywane skryptem (np. brak ceny przed obniżką) */
 [hidden] { display: none !important; }
+
+/* =========================================================
+   v14 — nagłówek: pełny pasek w kolorze Snowflake, menu bez hamburgera
+   ========================================================= */
+.header, .header.is-scrolled, .in-hero .header, .in-hero .header.is-scrolled {
+  background: var(--snow); backdrop-filter: none; -webkit-backdrop-filter: none;
+  border-bottom: 1px solid rgba(39,54,63,.12);
+}
+.in-hero .header {
+  --cream: #27363f; --cream-dim: rgba(39,54,63,.72); --cream-faint: rgba(39,54,63,.08); --line: rgba(39,54,63,.16);
+  color: var(--pine);
+}
+.in-hero .nav a { text-shadow: none; }
+.in-hero .cart-btn, .cart-btn { background: transparent; color: var(--pine); border-color: rgba(39,54,63,.2); backdrop-filter: none; -webkit-backdrop-filter: none; }
+.logo picture { display: block; }
+.logo img { height: 42px; width: auto; display: block; }
+
+/* telefon: dwa linki od razu w pasku zamiast hamburgera */
+.burger { display: none !important; }
+@media (max-width: 960px) {
+  .header__in { height: 64px; gap: 12px; }
+  .nav, .nav.is-open { display: flex; position: static; flex-direction: row; gap: 18px; padding: 0; margin-left: auto;
+    background: none; border: 0; font-size: 15px; font-weight: 700; }
+  .nav a, .nav.is-open a { padding: 6px 0; border: 0; }
+  .logo img { height: 34px; }
+  .cart-btn { width: 42px; height: 42px; }
+}
