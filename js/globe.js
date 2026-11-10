@@ -1,8 +1,10 @@
 // =========================================================
-// GLOBUS 3D — od razu w rogu, ustawiony na Polskę. Scroll nic nie
-// zmienia, globus lekko podąża za myszką. Widać kontur kraju i miasta.
+// GLOBUS — przerywnik w barwach strony: ciemna kula, kontynenty
+// z kropek (Mist), kontur Polski (Snowflake) i zamówienia.
+// Po najechaniu myszką na kulę globus obraca się za kursorem,
+// po zjechaniu wraca na Polskę. Scroll nic nie zmienia.
 // Zamówienia na żywo: window.WINTERDIP_ORDERS_URL -> JSON
-// [{ city: "Kraków", product: "chocolate-mug", ts: 1731150000000 }]
+// [{ city: "Kraków", product: "mug-1", ts: 1731150000000 }]
 // Bez endpointu działa tryb demo (widoczna plakietka).
 // =========================================================
 import * as THREE from 'three';
@@ -30,66 +32,64 @@ export async function initGlobe(reduced) {
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(35, 1, 0.01, 100);
-  camera.position.set(0, 0, 4.4);
 
   const tilt = new THREE.Group(), spin = new THREE.Group();
   tilt.add(spin); scene.add(tilt);
 
-  // ---------- Ziemia ----------
+  // ---------- kula: ciemny Pine, ląd z kropek w kolorze Mist ----------
+  // zdjęcie Ziemi służy tylko jako maska „ląd / morze”, nie jest widoczne
   const tex = new THREE.TextureLoader().load('assets/img/earth-day.webp');
-  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.colorSpace = THREE.NoColorSpace;   // surowe wartości — tylko do maski
   tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
   const earthMat = new THREE.ShaderMaterial({
     uniforms: { map: { value: tex } },
     vertexShader: `varying vec2 vUv; varying vec3 vN; varying vec3 vV;
       void main(){ vUv=uv; vN=normalize(normalMatrix*normal); vec4 mv=modelViewMatrix*vec4(position,1.); vV=normalize(-mv.xyz); gl_Position=projectionMatrix*mv; }`,
     fragmentShader: `uniform sampler2D map; varying vec2 vUv; varying vec3 vN; varying vec3 vV;
-      // przemalowanie zdjęcia Ziemi na paletę strony:
-      // morze = Pine, ląd = Branch -> Frosty Silver, śnieg i lód = Snowflake
-      const vec3 PINE = vec3(.153,.212,.247), MIST = vec3(.557,.631,.682);
-      const vec3 BRANCH = vec3(.408,.337,.322), SILVER = vec3(.745,.702,.675), SNOW = vec3(.863,.878,.910);
+      const vec3 BASE = vec3(.18,.247,.286), MIST = vec3(.557,.631,.682), SNOW = vec3(.863,.878,.910);
       void main(){
         vec3 t = texture2D(map, vUv).rgb;
-        float lum = dot(t, vec3(.299,.587,.114));
-        float water = smoothstep(.0, .08, t.b - max(t.r, t.g));
-        float ice = smoothstep(.55, .8, lum);
-        vec3 land = mix(BRANCH, SILVER, smoothstep(.06, .38, lum));
-        vec3 sea = mix(PINE * .85, mix(PINE, MIST, .35), smoothstep(.02, .25, lum));
-        vec3 c = mix(land, sea, water);
-        c = mix(c, SNOW, ice);
+        float land = 1. - smoothstep(.02, .07, t.b - max(t.r, t.g));
+        // siatka kropek co ~1,4 stopnia, kropki okrągłe także przy biegunach
+        float lat = (vUv.y - .5) * 3.14159;
+        vec2 cell = vec2(vUv.x * 360. * cos(lat), vUv.y * 180.) / 1.4;
+        float d = length(fract(cell) - .5);
+        float aa = fwidth(d) * 1.2;
+        float dotm = 1. - smoothstep(.27 - aa, .27 + aa, d);
         float facing = max(dot(vN, vV), 0.);
-        float light = .82 + .3 * max(dot(vN, normalize(vec3(-.35,.45,.85))), 0.);
-        c *= light;
-        c += MIST * pow(1. - facing, 3.) * .45;
+        vec3 c = BASE * (.78 + .32 * facing);
+        c = mix(c, mix(MIST, SNOW, .25), dotm * land * (.55 + .45 * facing));
+        c += MIST * pow(1. - facing, 2.6) * .55;
         gl_FragColor = vec4(c, 1.);
       }`,
   });
   spin.add(new THREE.Mesh(new THREE.SphereGeometry(1, 128, 128), earthMat));
 
-  // atmosfera (mglisty błękit z palety)
-  scene.add(new THREE.Mesh(new THREE.SphereGeometry(1.1, 64, 64), new THREE.ShaderMaterial({
+  // poświata wokół kuli (Mist)
+  scene.add(new THREE.Mesh(new THREE.SphereGeometry(1.12, 64, 64), new THREE.ShaderMaterial({
     side: THREE.BackSide, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
     vertexShader: `varying vec3 vN; void main(){ vN=normalize(normalMatrix*normal); gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.); }`,
-    fragmentShader: `varying vec3 vN; void main(){ float i = pow(max(.65 - dot(vN, vec3(0,0,1.)), 0.), 3.); gl_FragColor = vec4(.56,.63,.68,1.) * i * 1.3; }`,
+    fragmentShader: `varying vec3 vN; void main(){ float i = pow(max(.62 - dot(vN, vec3(0,0,1.)), 0.), 3.); gl_FragColor = vec4(.557,.631,.682,1.) * i * .9; }`,
   })));
 
-  // ---------- granice i Polska ----------
+  // ---------- linie: granice, kontur Polski, siatka ----------
   const lineMats = [];
-  const makeLine = (coords, r, color, width, opacity) => {
+  const makeLine = (coords, r, color, width, opacity, dashed = false) => {
     const pts = [];
     for (const [lon, lat] of coords) { const v = latLon(lat, lon, r); pts.push(v.x, v.y, v.z); }
     const g = new LineGeometry(); g.setPositions(pts);
-    const m = new LineMaterial({ color, linewidth: width, transparent: true, opacity, depthWrite: false });
+    const m = new LineMaterial({ color, linewidth: width, transparent: true, opacity, depthWrite: false, dashed, dashSize: 0.012, gapSize: 0.014 });
     lineMats.push(m);
     const l = new Line2(g, m); l.computeLineDistances(); spin.add(l); return l;
   };
-  let plOutline = [], nearLines = [], worldLines = [];
+  // delikatna przerywana siatka południków i równoleżników
+  for (let lat = -60; lat <= 75; lat += 15) makeLine(Array.from({ length: 121 }, (_, i) => [-180 + i * 3, lat]), 1.001, 0x8ea1ae, 0.8, 0.18, true);
+  for (let lon = -180; lon < 180; lon += 15) makeLine(Array.from({ length: 61 }, (_, i) => [lon, -88 + i * 2.93]), 1.001, 0x8ea1ae, 0.8, 0.18, true);
   try {
     const geo = await (await fetch('assets/geo/geo.json')).json();
-    worldLines = geo.borders.map((l) => makeLine(l, 1.0015, 0xdce0e8, 1, 0.45));
-    nearLines = geo.near.map((l) => makeLine(l, 1.002, 0xdce0e8, 1.4, 0.7));
-    plOutline = geo.poland.map((ring) => makeLine([...ring, ring[0]], 1.003, 0xffffff, 2.6, 1));
-    // (bez wypełnienia — sam biały kontur Polski)
+    geo.borders.forEach((l) => makeLine(l, 1.0015, 0x8ea1ae, 0.9, 0.5));
+    geo.near.forEach((l) => makeLine(l, 1.002, 0xdce0e8, 1.1, 0.55));
+    geo.poland.forEach((ring) => makeLine([...ring, ring[0]], 1.003, 0xdce0e8, 2.4, 1));
   } catch (e) { console.warn('geo', e); }
 
   // ---------- miasta ----------
@@ -117,16 +117,24 @@ export async function initGlobe(reduced) {
     city.flash = performance.now();
   }
 
-  // ---------- stały widok na Polskę + lekkie podążanie za myszką ----------
+  // ---------- widok na Polskę; obrót tylko gdy kursor jest nad kulą ----------
   const PL = latLon(52, 19.3);
   const baseY = -Math.atan2(PL.x, PL.z);
   const baseX = 52 * DEG;
   const mobile = () => innerWidth < 960;
-  const mouse = { x: 0, y: 0 }, look = { x: 0, y: 0 };
-  if (!reduced) addEventListener('pointermove', (e) => {
-    mouse.x = (e.clientX / innerWidth) * 2 - 1;
-    mouse.y = (e.clientY / innerHeight) * 2 - 1;
-  }, { passive: true });
+  const target = { x: 0, y: 0 }, look = { x: 0, y: 0 };
+  const globe = { x: 0, y: 0, r: 1 };   // środek i promień kuli na ekranie (px)
+
+  if (!reduced) {
+    sticky.addEventListener('pointermove', (e) => {
+      const b = sticky.getBoundingClientRect();
+      const dx = (e.clientX - b.left - globe.x) / globe.r, dy = (e.clientY - b.top - globe.y) / globe.r;
+      const over = dx * dx + dy * dy < 1;
+      sticky.classList.toggle('is-over-globe', over);
+      target.x = over ? dx : 0; target.y = over ? dy : 0;
+    });
+    sticky.addEventListener('pointerleave', () => { target.x = 0; target.y = 0; sticky.classList.remove('is-over-globe'); });
+  }
 
   function resize() {
     const w = canvas.clientWidth, h = canvas.clientHeight;
@@ -138,23 +146,28 @@ export async function initGlobe(reduced) {
 
   let visible = false;
   new IntersectionObserver(([e]) => { visible = e.isIntersecting; }, { rootMargin: '100px' }).observe(sec);
-  const tmp = new THREE.Vector3();
+  const tmp = new THREE.Vector3(), edge = new THREE.Vector3();
 
   (function loop(now) {
     requestAnimationFrame(loop);
     if (!visible) return;
     const w = canvas.clientWidth, h = canvas.clientHeight;
     const m = mobile();
-    // globus w prawym dolnym rogu (telefon: niżej, na środku)
-    camera.setViewOffset(w, h, m ? 0 : -0.31 * w, m ? -0.12 * h : 0.02 * h, w, h);
-    camera.position.set(0, 0, m ? 2.8 : 2.2);
+    // komputer: kula po prawej; telefon: pod tekstem
+    camera.setViewOffset(w, h, m ? 0 : -0.24 * w, m ? -0.36 * h : 0, w, h);
+    camera.position.set(0, 0, m ? 3.3 : 2.7);
+    camera.updateMatrixWorld();
 
-    // płynne dojście do pozycji myszki + delikatne kołysanie
-    look.x += (mouse.x - look.x) * 0.05;
-    look.y += (mouse.y - look.y) * 0.05;
-    const sway = reduced ? 0 : Math.sin(now * 0.0004) * 0.02;
-    spin.rotation.y = baseY + look.x * 0.16 + sway;
-    tilt.rotation.x = baseX + look.y * 0.1;
+    // środek i promień kuli na ekranie (do wykrywania najechania)
+    tmp.set(0, 0, 0).project(camera);
+    globe.x = ((tmp.x + 1) / 2) * w; globe.y = ((1 - tmp.y) / 2) * h;
+    edge.set(0, 1, 0).project(camera);
+    globe.r = Math.abs(((1 - edge.y) / 2) * h - globe.y) * 1.02;
+
+    look.x += (target.x - look.x) * 0.06;
+    look.y += (target.y - look.y) * 0.06;
+    spin.rotation.y = baseY + look.x * 0.6;
+    tilt.rotation.x = baseX + look.y * 0.35;
 
     renderer.render(scene, camera);
 
