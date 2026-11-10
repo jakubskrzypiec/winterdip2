@@ -1088,3 +1088,6 @@ html:not(.in-hero) .logo .logo--dark { display: block; }
 .bundle-tip b { color: var(--cream); }
 .bundle-tip__btn { display: inline-block; margin-top: 8px; padding: 7px 14px; border-radius: 99px; background: var(--pine); color: var(--snow); font-weight: 700; font-size: 13px; }
 .bundle-tip__btn:hover { background: var(--berry); }
+/* plakietka rabatu: wyraźna, jasny tekst na Berry */
+.pdp__price .save { background: var(--berry); color: #fff; font-family: var(--display); font-weight: 700; font-size: 16px; letter-spacing: .02em; padding: 7px 14px; border-radius: 99px; box-shadow: 0 8px 20px -10px rgba(107,33,44,.7); align-self: center; }
+.badge--red { color: #fff; font-family: var(--display); font-size: 13px; letter-spacing: .04em; }
