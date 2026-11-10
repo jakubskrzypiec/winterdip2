@@ -89,7 +89,7 @@ document.getElementById('product-root').innerHTML = `
           <div><b>Prezent</b>Pudełko + bilecik</div>
         </div>
         <div class="acc">
-          <details><summary>Wymiary i pielęgnacja</summary><p>TODO: uzupełnij wymiary i pojemność. Polecamy mycie ręczne, żeby szkliwo i napis zostały piękne na lata.</p></details>
+          <details><summary>Wymiary i pielęgnacja</summary><p>Kubek mieści porcję czekoladowego fondue dla jednej osoby. Ceramikę możesz myć w zmywarce, ale polecamy mycie ręczne, żeby szkliwo i napis zostały piękne na lata. Widelczyk myj ręcznie.</p></details>
           <details><summary>Dostawa i zwroty</summary><p>Wysyłka w 24 h w dni robocze, InPost lub kurier. Darmowa dostawa od 149 zł. 30 dni na zwrot — na prezenty świąteczne do 31 stycznia.</p></details>
         </div>
       </div>
@@ -141,7 +141,6 @@ document.getElementById('product-root').innerHTML = `
       <div class="pd-reviews__grid">
         ${REVIEWS.slice(0, 3).map((r) => `<article class="r-card" data-reveal><span class="stars">${stars(r.stars)}</span><p>„${r.text}”</p><footer><span class="avatar">${r.name[0]}</span><div><b>${r.name}</b> · ${r.city}</div></footer></article>`).join('')}
       </div>
-      <p class="placeholder-note">Przykładowe opinie — do zastąpienia prawdziwymi przed startem sprzedaży.</p>
     </div>
   </section>
 

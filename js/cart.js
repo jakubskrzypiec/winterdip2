@@ -1,4 +1,4 @@
-import { PRODUCTS, SHOP } from './data.js';
+import { PRODUCTS, SHOP, SHOPIFY } from './data.js';
 
 const KEY = 'winterdip-cart';
 const fmt = (n) => n.toFixed(2).replace('.', ',').replace(',00', '') + ' ' + SHOP.currency;
@@ -80,10 +80,6 @@ function render() {
       <div class="c-item__price">${fmt(p.price * q)}</div>
     </div>`;
   }).join('');
-  if (!items.tealights) {
-    const t = PRODUCTS.tealights;
-    html += `<div class="upsell">${mediaHTML(t)}<div><b>${t.name}</b><small>${t.short} · ${fmt(t.price)}</small></div><button data-add="tealights">+ Dodaj</button></div>`;
-  }
   if (sum > 0 && left > 0) html += `<p style="font-size:13px;color:var(--cream-dim)">Dostawa: ${fmt(SHOP.shippingCost)}</p>`;
   list.innerHTML = html;
 }
@@ -104,6 +100,40 @@ function bump() {
 export function open() { document.documentElement.classList.add('cart-open'); document.querySelector('.drawer')?.setAttribute('aria-hidden', 'false'); }
 export function close() { document.documentElement.classList.remove('cart-open'); document.querySelector('.drawer')?.setAttribute('aria-hidden', 'true'); }
 
+// ---------- kasa: koszyk -> Shopify (Storefront API cartCreate) -> checkoutUrl ----------
+async function checkout(btn) {
+  const ids = Object.keys(items).filter((id) => items[id] > 0);
+  if (!ids.length) return;
+  if (!SHOPIFY.domain || !SHOPIFY.storefrontToken) {
+    toast('Płatności uruchamiamy za chwilę — napisz do nas, przyjmiemy zamówienie mailowo.');
+    return;
+  }
+  const lines = ids.map((id) => ({ merchandiseId: PRODUCTS[id]?.shopifyVariantId, quantity: items[id] }));
+  if (lines.some((l) => !l.merchandiseId)) {
+    toast('Jeden z produktów nie jest jeszcze dostępny w kasie. Usuń go z koszyka albo napisz do nas.');
+    return;
+  }
+  btn.disabled = true;
+  try {
+    const r = await fetch(`https://${SHOPIFY.domain}/api/${SHOPIFY.apiVersion}/graphql.json`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Shopify-Storefront-Access-Token': SHOPIFY.storefrontToken },
+      body: JSON.stringify({
+        query: 'mutation($input: CartInput!) { cartCreate(input: $input) { cart { checkoutUrl } userErrors { message } } }',
+        variables: { input: { lines } },
+      }),
+    });
+    const json = await r.json();
+    const url = json?.data?.cartCreate?.cart?.checkoutUrl;
+    if (!url) throw new Error(json?.data?.cartCreate?.userErrors?.[0]?.message || json?.errors?.[0]?.message || 'brak checkoutUrl');
+    location.href = url;
+  } catch (e) {
+    console.warn('Shopify checkout', e);
+    toast('Nie udało się otworzyć kasy. Spróbuj ponownie za chwilę.');
+    btn.disabled = false;
+  }
+}
+
 export function initCart() {
   buildDrawer();
   render();
@@ -120,10 +150,7 @@ export function initCart() {
     if (t.dataset.rm) setQty(t.dataset.rm, 0);
     if (t.hasAttribute('data-cart-open')) open();
     if (t.hasAttribute('data-cart-close')) close();
-    if (t.hasAttribute('data-checkout')) {
-      // TODO: podpiąć płatności (Shopify / Stripe / Przelewy24)
-      toast('Kasa zostanie podpięta wkrótce — płatności w trakcie konfiguracji.');
-    }
+    if (t.hasAttribute('data-checkout')) checkout(t);
   });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
 }

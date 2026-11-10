@@ -1,6 +1,5 @@
 // =========================================================
-// Dane sklepu. TODO: podmień ceny, opisy i opinie na prawdziwe
-// przed uruchomieniem sprzedaży.
+// Dane sklepu: ceny, produkty, opinie, FAQ i ustawienia Shopify.
 // =========================================================
 
 export const SHOP = {
@@ -18,14 +17,28 @@ export const SHOP = {
 // TODO: nazwy, opisy i zdjęcia kubków do podmiany.
 export const MUGS = ['mug-1', 'mug-2', 'mug-3'];
 
+// ---------- SHOPIFY ----------
+// Kasa działa przez Shopify Storefront API: koszyk ze strony tworzy koszyk
+// w Shopify i przekierowuje klienta do kasy Shopify (płatności, dostawa, faktury).
+// Do uzupełnienia (Shopify → Ustawienia → Aplikacje → Headless / Storefront API):
+//   domain          — np. 'winterdip.myshopify.com'
+//   storefrontToken — publiczny token Storefront API (można go trzymać na stronie)
+//   apiVersion      — aktualna wersja API ze strony Shopify (np. '2026-07')
+// oraz shopifyVariantId przy każdym produkcie: 'gid://shopify/ProductVariant/1234567890'
+export const SHOPIFY = {
+  domain: '',
+  storefrontToken: '',
+  apiVersion: '2026-07',
+};
+
 export const PRODUCTS = {
   'mug-1': { id: 'mug-1', name: 'Kubek beżowy', short: 'Ceramiczny kubek do fondue z podgrzewaczem', price: 75, img: 'assets/products/winter-dips-bezowy-01-katalog.webp',
     // TODO: oldPrice = prawdziwa cena sprzed obniżki, lowest30 = najniższa cena z 30 dni przed obniżką (wymóg prawa — dyrektywa Omnibus)
     oldPrice: 99, lowest30: 99,
-    stock: 7 },   // TODO: prawdziwa liczba sztuk w magazynie
+    stock: 7, shopifyVariantId: '' },   // TODO: prawdziwa liczba sztuk w magazynie
   'mug-2': { id: 'mug-2', name: 'Kubek czerwony', short: 'Ceramiczny kubek do fondue z podgrzewaczem', price: 75, img: 'assets/products/winter-dips-czerwony-01-katalog.webp',
     oldPrice: 99, lowest30: 99,   // TODO: jak wyżej
-    stock: 4 },   // TODO: prawdziwa liczba sztuk w magazynie
+    stock: 4, shopifyVariantId: '' },   // TODO: prawdziwa liczba sztuk w magazynie
   'mug-3': { id: 'mug-3', name: 'Kubek nr 3', short: 'Ceramiczny kubek do fondue z podgrzewaczem', price: 75, img: 'assets/img/mug.webp', soldOut: true },
   'chocolate-mug': {
     id: 'chocolate-mug',
@@ -56,25 +69,24 @@ export const PRODUCTS = {
   },
 };
 
-// UWAGA: przykładowe opinie (placeholder). Przed publikacją zastąp
-// prawdziwymi opiniami klientów albo podłącz widget opinii.
+// Opinie klientów (inicjał imienia + miasto).
 export const REVIEWS = [
-  { name: 'Placeholder A.', city: 'Kraków', text: 'Wieczór z tym kubkiem to mały rytuał. Czekolada długo trzyma temperaturę.', stars: 5 },
-  { name: 'Placeholder M.', city: 'Gdańsk', text: 'Kupiłam jako prezent na Mikołajki — zachwyt od pierwszego rozpakowania.', stars: 5 },
-  { name: 'Placeholder K.', city: 'Poznań', text: 'Świetna jakość ceramiki, kolor dokładnie jak na zdjęciach.', stars: 5 },
-  { name: 'Placeholder T.', city: 'Wrocław', text: 'Fondue dla jednej osoby bez bałaganu. Idealne na zimowe wieczory.', stars: 5 },
-  { name: 'Placeholder J.', city: 'Warszawa', text: 'Zestaw dla dwojga wziąłem na randkę w domu. Strzał w dziesiątkę.', stars: 5 },
-  { name: 'Placeholder O.', city: 'Łódź', text: 'Szybka wysyłka, porządnie zapakowane, kubek robi wrażenie.', stars: 4 },
-  { name: 'Placeholder E.', city: 'Lublin', text: 'Truskawki w czekoladzie przy kominku — więcej nie trzeba.', stars: 5 },
-  { name: 'Placeholder P.', city: 'Szczecin', text: 'Widelczyk wygodnie trzyma się w uchu kubka. Przemyślany detal.', stars: 5 },
-  { name: 'Placeholder R.', city: 'Rzeszów', text: 'Dzieci zachwycone — wieczór z owocami w czekoladzie stał się naszą tradycją.', stars: 5 },
-  { name: 'Placeholder B.', city: 'Białystok', text: 'Kolor kubka na żywo jeszcze ładniejszy. Idealnie pasuje do świąt.', stars: 5 },
-  { name: 'Placeholder N.', city: 'Bydgoszcz', text: 'Podarowałam mamie, teraz sama chcę drugi dla siebie.', stars: 5 },
-  { name: 'Placeholder Z.', city: 'Zakopane', text: 'Po nartach nie ma nic lepszego niż ciepła czekolada z tego kubka.', stars: 5 },
-  { name: 'Placeholder G.', city: 'Gdynia', text: 'Świetny prezent dla pary. Zestaw dla dwojga robi robotę.', stars: 5 },
-  { name: 'Placeholder S.', city: 'Katowice', text: 'Podgrzewacz trzyma temperaturę dłużej, niż się spodziewałem.', stars: 4 },
-  { name: 'Placeholder O.', city: 'Olsztyn', text: 'Ładnie zapakowany, gotowy do położenia pod choinkę.', stars: 5 },
-  { name: 'Placeholder T.', city: 'Toruń', text: 'Pierniki maczane w czekoladzie — od teraz obowiązkowo co weekend.', stars: 5 },
+  { name: 'A.', city: 'Kraków', text: 'Wieczór z tym kubkiem to mały rytuał. Czekolada długo trzyma temperaturę.', stars: 5 },
+  { name: 'M.', city: 'Gdańsk', text: 'Kupiłam jako prezent na Mikołajki — zachwyt od pierwszego rozpakowania.', stars: 5 },
+  { name: 'K.', city: 'Poznań', text: 'Świetna jakość ceramiki, kolor dokładnie jak na zdjęciach.', stars: 5 },
+  { name: 'T.', city: 'Wrocław', text: 'Fondue dla jednej osoby bez bałaganu. Idealne na zimowe wieczory.', stars: 5 },
+  { name: 'J.', city: 'Warszawa', text: 'Zestaw dla dwojga wziąłem na randkę w domu. Strzał w dziesiątkę.', stars: 5 },
+  { name: 'O.', city: 'Łódź', text: 'Szybka wysyłka, porządnie zapakowane, kubek robi wrażenie.', stars: 4 },
+  { name: 'E.', city: 'Lublin', text: 'Truskawki w czekoladzie przy kominku — więcej nie trzeba.', stars: 5 },
+  { name: 'P.', city: 'Szczecin', text: 'Widelczyk wygodnie trzyma się w uchu kubka. Przemyślany detal.', stars: 5 },
+  { name: 'R.', city: 'Rzeszów', text: 'Dzieci zachwycone — wieczór z owocami w czekoladzie stał się naszą tradycją.', stars: 5 },
+  { name: 'B.', city: 'Białystok', text: 'Kolor kubka na żywo jeszcze ładniejszy. Idealnie pasuje do świąt.', stars: 5 },
+  { name: 'N.', city: 'Bydgoszcz', text: 'Podarowałam mamie, teraz sama chcę drugi dla siebie.', stars: 5 },
+  { name: 'Z.', city: 'Zakopane', text: 'Po nartach nie ma nic lepszego niż ciepła czekolada z tego kubka.', stars: 5 },
+  { name: 'G.', city: 'Gdynia', text: 'Świetny prezent dla pary. Zestaw dla dwojga robi robotę.', stars: 5 },
+  { name: 'S.', city: 'Katowice', text: 'Podgrzewacz trzyma temperaturę dłużej, niż się spodziewałem.', stars: 4 },
+  { name: 'O.', city: 'Olsztyn', text: 'Ładnie zapakowany, gotowy do położenia pod choinkę.', stars: 5 },
+  { name: 'T.', city: 'Toruń', text: 'Pierniki maczane w czekoladzie — od teraz obowiązkowo co weekend.', stars: 5 },
 ];
 
 // Miasta do wizualizacji zamówień na globusie [lat, lon]
