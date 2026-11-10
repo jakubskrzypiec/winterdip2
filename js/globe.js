@@ -44,13 +44,23 @@ export async function initGlobe(reduced) {
     vertexShader: `varying vec2 vUv; varying vec3 vN; varying vec3 vV;
       void main(){ vUv=uv; vN=normalize(normalMatrix*normal); vec4 mv=modelViewMatrix*vec4(position,1.); vV=normalize(-mv.xyz); gl_Position=projectionMatrix*mv; }`,
     fragmentShader: `uniform sampler2D map; varying vec2 vUv; varying vec3 vN; varying vec3 vV;
+      // przemalowanie zdjęcia Ziemi na paletę strony:
+      // morze = Pine, ląd = Branch -> Frosty Silver, śnieg i lód = Snowflake
+      const vec3 PINE = vec3(.153,.212,.247), MIST = vec3(.557,.631,.682);
+      const vec3 BRANCH = vec3(.408,.337,.322), SILVER = vec3(.745,.702,.675), SNOW = vec3(.863,.878,.910);
       void main(){
-        vec3 c = texture2D(map, vUv).rgb;
+        vec3 t = texture2D(map, vUv).rgb;
+        float lum = dot(t, vec3(.299,.587,.114));
+        float water = smoothstep(.0, .08, t.b - max(t.r, t.g));
+        float ice = smoothstep(.55, .8, lum);
+        vec3 land = mix(BRANCH, SILVER, smoothstep(.06, .38, lum));
+        vec3 sea = mix(PINE * .85, mix(PINE, MIST, .35), smoothstep(.02, .25, lum));
+        vec3 c = mix(land, sea, water);
+        c = mix(c, SNOW, ice);
         float facing = max(dot(vN, vV), 0.);
-        float light = .8 + .45 * max(dot(vN, normalize(vec3(-.35,.45,.85))), 0.);
+        float light = .82 + .3 * max(dot(vN, normalize(vec3(-.35,.45,.85))), 0.);
         c *= light;
-        c = pow(c, vec3(.88)) * 1.12;
-        c += vec3(.56,.63,.68) * pow(1. - facing, 3.) * .4;
+        c += MIST * pow(1. - facing, 3.) * .45;
         gl_FragColor = vec4(c, 1.);
       }`,
   });
@@ -73,19 +83,13 @@ export async function initGlobe(reduced) {
     lineMats.push(m);
     const l = new Line2(g, m); l.computeLineDistances(); spin.add(l); return l;
   };
-  let plOutline = [], plFill = null, nearLines = [], worldLines = [];
+  let plOutline = [], nearLines = [], worldLines = [];
   try {
     const geo = await (await fetch('assets/geo/geo.json')).json();
-    worldLines = geo.borders.map((l) => makeLine(l, 1.0015, 0xdce0e8, 1, 0.35));
+    worldLines = geo.borders.map((l) => makeLine(l, 1.0015, 0xdce0e8, 1, 0.45));
     nearLines = geo.near.map((l) => makeLine(l, 1.002, 0xdce0e8, 1.4, 0.7));
     plOutline = geo.poland.map((ring) => makeLine([...ring, ring[0]], 1.003, 0xffffff, 2.6, 1));
-    const ring = geo.poland.reduce((a, b) => (b.length > a.length ? b : a));
-    const shape = new THREE.Shape(ring.map(([lon, lat]) => new THREE.Vector2(lon, lat)));
-    const sg = new THREE.ShapeGeometry(shape);
-    const pos = sg.attributes.position;
-    for (let i = 0; i < pos.count; i++) { const v = latLon(pos.getY(i), pos.getX(i), 1.004); pos.setXYZ(i, v.x, v.y, v.z); }
-    plFill = new THREE.Mesh(sg, new THREE.MeshBasicMaterial({ color: 0x6b212c, transparent: true, opacity: 0.55, side: THREE.DoubleSide, depthWrite: false }));
-    spin.add(plFill);
+    // (bez wypełnienia — sam biały kontur Polski)
   } catch (e) { console.warn('geo', e); }
 
   // ---------- miasta ----------
@@ -142,8 +146,8 @@ export async function initGlobe(reduced) {
     const w = canvas.clientWidth, h = canvas.clientHeight;
     const m = mobile();
     // globus w prawym dolnym rogu (telefon: niżej, na środku)
-    camera.setViewOffset(w, h, m ? 0 : -0.22 * w, m ? -0.1 * h : 0.02 * h, w, h);
-    camera.position.set(0, 0, m ? 3.4 : 2.75);
+    camera.setViewOffset(w, h, m ? 0 : -0.31 * w, m ? -0.12 * h : 0.02 * h, w, h);
+    camera.position.set(0, 0, m ? 2.8 : 2.2);
 
     // płynne dojście do pozycji myszki + delikatne kołysanie
     look.x += (mouse.x - look.x) * 0.05;
