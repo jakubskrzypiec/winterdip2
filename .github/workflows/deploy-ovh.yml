@@ -1,0 +1,35 @@
+# Wysyła stronę na hosting OVH (winterdip.pl) po każdej zmianie w gałęzi main.
+# Hasło FTP jest w ustawieniach repo: Settings → Secrets and variables → Actions → FTP_PASSWORD.
+name: Wdrożenie na OVH
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+concurrency:
+  group: deploy-ovh
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Wysyłka przez FTP (tylko zmienione pliki)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ftp.cluster129.hosting.ovh.net
+          username: wintera
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          port: 21
+          server-dir: www/
+          exclude: |
+            **/.git*
+            **/.git*/**
+            .github/**
+            tools/**
+            README.md
+            URUCHOMIENIE.md
