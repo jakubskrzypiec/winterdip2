@@ -39,7 +39,7 @@ export const PRODUCTS = {
   'mug-2': { id: 'mug-2', name: 'Kubek czerwony', short: 'Ceramiczny kubek do fondue z podgrzewaczem', price: 75, img: 'assets/products/winter-dips-czerwony-01-katalog.webp',
     oldPrice: 99, lowest30: 99,   // TODO: jak wyżej
     stock: 4, shopifyVariantId: '' },   // TODO: prawdziwa liczba sztuk w magazynie
-  'mug-3': { id: 'mug-3', name: 'Kubek nr 3', short: 'Ceramiczny kubek do fondue z podgrzewaczem', price: 75, img: 'assets/img/mug.webp', soldOut: true },
+  'mug-3': { id: 'mug-3', name: 'Kubek biały Cozy days', short: 'Biała ceramika, dwa widelczyki w komplecie', price: 75, img: 'assets/products/winter-dips-bialy-01-katalog.webp', soldOut: true },
   'chocolate-mug': {
     id: 'chocolate-mug',
     name: 'Chocolate… kubek do fondue',
