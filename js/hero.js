@@ -57,9 +57,9 @@ export async function initHero(reduced) {
     puffs.push({
       src, x: src.x + (Math.random() - 0.5) * src.w * 0.7, y: src.y,
       age: 0, life: 3.6 + Math.random() * 2.4,
-      vy: 26 + Math.random() * 18, r0: 10 + Math.random() * 10,
-      ph: Math.random() * 6.28, f: 0.6 + Math.random() * 0.8, sway: 10 + Math.random() * 16,
-      a: 0.045 + Math.random() * 0.04,
+      vy: 34 + Math.random() * 22, r0: 12 + Math.random() * 10,
+      ph: Math.random() * 6.28, f: 0.6 + Math.random() * 0.8, sway: 18 + Math.random() * 22,
+      a: 0.09 + Math.random() * 0.07,
     });
   }
 
@@ -81,14 +81,14 @@ export async function initHero(reduced) {
       const f = reduced ? 0.5 : noise(t, i * 10);
       const gx = c.glow.x * s, gy = c.glow.y * s, gr = c.glow.r * s * (0.92 + f * 0.16);
       const glow = ctx.createRadialGradient(gx, gy, 0, gx, gy, gr);
-      glow.addColorStop(0, `rgba(255,170,70,${0.16 + f * 0.14})`);
+      glow.addColorStop(0, `rgba(255,165,60,${0.18 + f * 0.3})`);
       glow.addColorStop(1, 'rgba(255,140,40,0)');
       ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(gx, gy, gr, 0, 6.29); ctx.fill();
 
       // płomyk: jasny rdzeń, lekko się wydłuża i przechyla
-      const fh = 20 * s * (0.85 + f * 0.35), fw = 6 * s * (0.9 + f * 0.15);
+      const fh = 22 * s * (0.75 + f * 0.6), fw = 6.5 * s * (0.85 + f * 0.25);
       const fx = c.x * s + Math.sin(t * 5 + i) * 0.8 * s, fy = c.y * s;
-      ctx.save(); ctx.translate(fx, fy); ctx.rotate(Math.sin(t * 3.1 + i * 2) * 0.06);
+      ctx.save(); ctx.translate(fx, fy); ctx.rotate(Math.sin(t * 3.1 + i * 2) * 0.12 + Math.sin(t * 7.7 + i) * 0.05);
       const fl = ctx.createRadialGradient(0, fh * 0.15, 0, 0, 0, fh);
       fl.addColorStop(0, `rgba(255,250,225,${0.55 + f * 0.3})`);
       fl.addColorStop(0.45, `rgba(255,200,110,${0.25 + f * 0.2})`);
@@ -101,7 +101,7 @@ export async function initHero(reduced) {
     // para
     if (!reduced) {
       acc += dt;
-      while (acc > 0.24) { acc -= 0.24; STEAM.forEach(spawn); }
+      while (acc > 0.16) { acc -= 0.16; STEAM.forEach(spawn); }
     }
     for (let i = puffs.length - 1; i >= 0; i--) {
       const p = puffs[i];

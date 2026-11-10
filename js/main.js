@@ -154,7 +154,7 @@ document.querySelectorAll('.pdp').forEach((pdp) => {
 });
 document.querySelectorAll('[data-price]').forEach((el) => { el.textContent = fmt(PRODUCTS[el.dataset.price].price); });
 document.querySelectorAll('[data-old-price]').forEach((el) => { const o = PRODUCTS[el.dataset.oldPrice].oldPrice; if (o) el.textContent = fmt(o); else el.remove(); });
-document.querySelectorAll('[data-name]').forEach((el) => { el.textContent = PRODUCTS[el.dataset.name].name; });
+document.querySelectorAll('[data-name]').forEach((el) => { (el.querySelector('a') || el).textContent = PRODUCTS[el.dataset.name].name; });
 
 const sticky = document.querySelector('.sticky-buy');
 if (sticky) {
