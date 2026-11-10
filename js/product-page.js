@@ -10,8 +10,8 @@ const IMG = (key, n) => `assets/products/winter-dips-${key}-${n}.webp`;
 const INFO = {
   'mug-1': {
     key: 'bezowy', color: 'Beżowy', swatch: '#efe3cc',
-    // zdjęcia do „Jak to działa” (TODO: beżowe wersje kroków, gdy będą)
-    steps: [IMG('bezowy', '02-fondue'), IMG('oba', '02-fondue'), IMG('bezowy', '03-maczanie')],
+    // zdjęcia do „Jak to działa” (na razie te same co przy czerwonym; TODO: beżowe wersje kroków)
+    steps: [IMG('czerwony', 'krok-1'), IMG('czerwony', 'krok-2'), IMG('czerwony', 'krok-3')],
     lead: 'Kremowa ceramika z czekoladowym wnętrzem. Podgrzewacz w podstawie trzyma czekoladę płynną przez cały wieczór, a widelczyk ma swoje miejsce przy uchu kubka.',
     bullets: ['Ceramika w kremowym beżu z brązowym wnętrzem', 'Otwór na podgrzewacz — czekolada płynna przez cały wieczór', 'Widelczyk do fondue w komplecie', 'Eleganckie pudełko — gotowe pod choinkę'],
   },
