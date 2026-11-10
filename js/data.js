@@ -27,9 +27,9 @@ export const MUGS = ['mug-1', 'mug-2', 'mug-3'];
 // Ceny, „cena przed obniżką”, dostępność i ID wariantów strona pobiera z Shopify sama;
 // wartości przy produktach poniżej działają tylko, dopóki Shopify nie jest podpięty.
 export const SHOPIFY = {
-  domain: '',
-  storefrontToken: '',
-  apiVersion: '2026-07',
+  domain: 'wmqk7f-cr.myshopify.com',
+  storefrontToken: '6a8d238aa8741fc11ef2d95db0ed99ec',   // publiczny token (Headless → Storefront API)
+  apiVersion: '2026-10',
   handles: {
     'mug-1': 'kubek-bezowy',
     'mug-2': 'kubek-czerwony',
