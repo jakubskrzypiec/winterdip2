@@ -10,11 +10,14 @@ const IMG = (key, n) => `assets/products/winter-dips-${key}-${n}.webp`;
 const INFO = {
   'mug-1': {
     key: 'bezowy', color: 'Beżowy', swatch: '#efe3cc',
+    // zdjęcia do „Jak to działa” (TODO: beżowe wersje kroków, gdy będą)
+    steps: [IMG('bezowy', '02-fondue'), IMG('oba', '02-fondue'), IMG('bezowy', '03-maczanie')],
     lead: 'Kremowa ceramika z czekoladowym wnętrzem. Podgrzewacz w podstawie trzyma czekoladę płynną przez cały wieczór, a widelczyk ma swoje miejsce przy uchu kubka.',
     bullets: ['Ceramika w kremowym beżu z brązowym wnętrzem', 'Otwór na podgrzewacz — czekolada płynna przez cały wieczór', 'Widelczyk do fondue w komplecie', 'Eleganckie pudełko — gotowe pod choinkę'],
   },
   'mug-2': {
     key: 'czerwony', color: 'Czerwony', swatch: '#c8102e',
+    steps: [IMG('czerwony', 'krok-1'), IMG('czerwony', 'krok-2'), IMG('czerwony', 'krok-3')],
     lead: 'Głęboka, świąteczna czerwień i jasne wnętrze. Świeczka pod spodem, płynna czekolada na górze i widelczyk zawsze pod ręką.',
     bullets: ['Ceramika w świątecznej czerwieni z jasnym wnętrzem', 'Otwór na podgrzewacz — czekolada płynna przez cały wieczór', 'Widelczyk do fondue w komplecie', 'Eleganckie pudełko — gotowe pod choinkę'],
   },
@@ -97,9 +100,9 @@ document.getElementById('product-root').innerHTML = `
     <div class="container">
       <div class="section__head"><div><span class="eyebrow">Jak to działa</span><h2 class="display h2" data-split>Trzy kroki<br>do fondue</h2></div></div>
       <div class="pd-steps__grid">
-        <article class="pd-step" data-reveal><img src="${IMG(info.key, '02-fondue')}" alt="Rozpuszczona czekolada w kubku" loading="lazy"><span>01</span><h3>Wlej czekoladę</h3><p>Rozpuść kostki czekolady z odrobiną śmietanki i przelej do kubka.</p></article>
-        <article class="pd-step" data-reveal=".1"><img src="${IMG('oba', '02-fondue')}" alt="Zapalone świeczki w kubkach" loading="lazy"><span>02</span><h3>Zapal podgrzewacz</h3><p>Wsuń zwykły tealight do otworu w podstawie. Czekolada zostaje płynna przez cały wieczór.</p></article>
-        <article class="pd-step" data-reveal=".2"><img src="${IMG(info.key, '03-maczanie')}" alt="Truskawka maczana w czekoladzie" loading="lazy"><span>03</span><h3>Maczaj i delektuj się</h3><p>Nabij owoc na widelczyk i zanurz. Widelczyk odkładasz na uchu kubka.</p></article>
+        <article class="pd-step" data-reveal><img src="${info.steps[0]}" alt="Kostki czekolady wkładane do kubka" loading="lazy"><span>01</span><h3>Wrzuć kostki czekolady</h3><p>Włóż do kubka kilka kostek ulubionej czekolady. Nie musisz niczego wcześniej roztapiać.</p></article>
+        <article class="pd-step" data-reveal=".1"><img src="${info.steps[1]}" alt="Podgrzewacz wsuwany do otworu w kubku" loading="lazy"><span>02</span><h3>Zapal podgrzewacz</h3><p>Wsuń tealight do otworu w podstawie i zapal. Czekolada sama się roztopi i zostanie płynna przez cały wieczór.</p></article>
+        <article class="pd-step" data-reveal=".2"><img src="${info.steps[2]}" alt="Truskawka maczana w roztopionej czekoladzie" loading="lazy"><span>03</span><h3>Maczaj i delektuj się</h3><p>Nabij owoc na widelczyk i zanurz w czekoladzie. Widelczyk odkładasz na uchu kubka.</p></article>
       </div>
     </div>
   </section>
