@@ -60,7 +60,7 @@ export async function initHero(reduced) {
   const blobs = new Array(N);
   const bitmaps = new Map();          // indeks -> ImageBitmap
   const pending = new Set();
-  const WINDOW = 24;                  // ile klatek przed bieżącą trzymamy gotowych (za nią: 1/3)
+  const WINDOW = 30;                  // ile klatek przed bieżącą trzymamy gotowych (za nią: 1/3)
   const useBitmap = 'createImageBitmap' in window;
 
   // ---------- scroll -> docelowa pozycja ----------
@@ -73,7 +73,8 @@ export async function initHero(reduced) {
   // ---------- rozmiar canvasa (bez nadmiarowej rozdzielczości) ----------
   let cw = 0, ch = 0, decodeW = 1280, dirty = true;
   function resize() {
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.25);
+    const full = (src.width || 1920) * 1.1;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2, Math.max(1, full / canvas.clientWidth));
     cw = canvas.width = Math.round(canvas.clientWidth * dpr);
     ch = canvas.height = Math.round(canvas.clientHeight * dpr);
     // klatka 16:9 dopasowana „cover” — dekodujemy dokładnie w potrzebnej szerokości
@@ -92,7 +93,7 @@ export async function initHero(reduced) {
     try {
       let img;
       if (useBitmap) {
-        // klatki są już w rozmiarze strony (1280 px) — zmniejszamy tylko, gdy ekran jest mniejszy
+        // pełna rozdzielczość klatki; zmniejszamy tylko, gdy ekran jest wyraźnie mniejszy
         img = (src.width || 1920) > decodeW * 1.15
           ? await createImageBitmap(blobs[i], { resizeWidth: decodeW, resizeQuality: 'medium' })
           : await createImageBitmap(blobs[i]);
@@ -126,14 +127,29 @@ export async function initHero(reduced) {
     }
     return null;
   }
-  let lastImg = null;
-  function draw(i) {
-    const img = nearest(i);
-    if (!img || (img === lastImg && !dirty)) return;
-    lastImg = img; dirty = false;
+  let lastKey = '';
+  function blit(img, alpha) {
     const s = Math.max(cw / img.width, ch / img.height);
     const w = img.width * s, h = img.height * s;
+    ctx.globalAlpha = alpha;
     ctx.drawImage(img, (cw - w) / 2, (ch - h) / 2, w, h);
+  }
+  // pos = pozycja z ułamkiem; między klatkami delikatnie je przenikamy,
+  // dzięki czemu ruch jest ciągły zamiast „klatka po klatce”
+  function draw(pos) {
+    const a = Math.max(0, Math.min(N - 1, Math.floor(pos)));
+    const b = Math.min(N - 1, a + 1);
+    let t = pos - a;
+    const imgA = bitmaps.get(a) || nearest(a);
+    if (!imgA) return;
+    const imgB = t > 0.02 && b !== a ? bitmaps.get(b) : null;
+    if (!imgB) t = 0;
+    const key = a + ':' + (imgB ? Math.round(t * 16) : 0);
+    if (key === lastKey && !dirty) return;
+    lastKey = key; dirty = false;
+    blit(imgA, 1);
+    if (imgB) blit(imgB, Math.round(t * 16) / 16);
+    ctx.globalAlpha = 1;
   }
 
   let heroVisible = true;
@@ -142,10 +158,10 @@ export async function initHero(reduced) {
     requestAnimationFrame(loop);
     if (!heroVisible) return;
     const diff = target - current;
-    current = reduced || Math.abs(diff) < 0.01 ? target : current + diff * 0.35;
+    current = reduced || Math.abs(diff) < 0.005 ? target : current + diff * 0.25;
     const i = Math.max(0, Math.min(N - 1, Math.round(current)));
     keepWindow(i);
-    draw(i);
+    draw(Math.max(0, Math.min(N - 1, current)));
   })();
 
   // ---------- pobieranie: najpierw co 16. klatka (szybki podgląd), potem gęściej ----------
