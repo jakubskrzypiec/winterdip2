@@ -1,52 +1,36 @@
-# Winter Dip
+# Winterdip
 
-Świąteczny landing page kubków do gorącej czekolady. Film jest przewijany scrollem: klatki rysuje canvas, a steruje nimi GSAP ScrollTrigger z Lenis. Stack to Vite i czysty JS.
+Landing page i sklep dla kubka do czekoladowego fondue **Chocolate…**. Strona jest statyczna (HTML + CSS + JS), bez kroku budowania.
 
-## Uruchomienie
+## Struktura
+- `index.html`: landing (hero sterowany scrollem → produkty → opinie → galeria → globus z zamówieniami → FAQ → kontakt → stopka)
+- `produkty.html`: podstrona sprzedażowa z 2 produktami, porównaniem i przyklejonym paskiem zakupu
+- `js/data.js`: **tu edytujesz ceny, produkty, opinie, FAQ i datę świątecznej wysyłki**
+- `js/hero.js`: odtwarzacz klatek na `<canvas>` (scroll scrubbing) z fallbackiem
+- `js/globe.js`: globus 3D (Three.js) z zamówieniami na żywo
+- `js/cart.js`: koszyk (localStorage) z paskiem darmowej dostawy i upsellem
 
-Potrzebny jest Node.js, a do cięcia filmu także ffmpeg.
+## Film w hero
+1. Wygeneruj film w Kling (10 s, 16:9, statyczna kamera).
+2. `bash tools/extract-frames.sh film.mp4`
+3. Powstaje `assets/hero/` z klatkami i `frames.json`. Hero automatycznie przełącza się z fallbacku na film.
 
-```bash
-npm install
-npm run dev
+## Zamówienia na żywo (globus)
+Domyślnie działa **tryb demo** z widoczną plakietką. Żeby pokazać prawdziwe zamówienia, ustaw przed `main.js`:
+```html
+<script>window.WINTERDIP_ORDERS_URL = 'https://twoj-backend/orders.json'</script>
 ```
+Endpoint ma zwracać `[{ "city": "Kraków", "product": "chocolate-mug", "ts": 1731150000000 }]`. Najlepiej podpiąć go pod webhook sklepu (Shopify lub Stripe).
 
-Strona działa pod `http://localhost:5173`.
+## Przed startem sprzedaży
+- [ ] Prawdziwe ceny, wymiary i pojemność (`js/data.js`, `produkty.html`)
+- [ ] Prawdziwe opinie klientów zamiast placeholderów
+- [ ] Podpięta kasa (Shopify, Stripe lub Przelewy24): przycisk „Przejdź do kasy” w `js/cart.js`
+- [ ] Endpoint zamówień dla globusa
+- [ ] Potwierdzone warunki: wysyłka 24 h, 30 dni na zwrot, termin świąteczny
+- [ ] Regulamin i polityka prywatności, e-mail i social media w stopce
 
-## Teksty i ustawienia
-
-Wszystko jest w [`src/content.js`](src/content.js): teksty, linki przycisków, meta tagi, adres strony (`siteUrl`), długość scrolla oraz czasy pojawiania się tekstów podane w sekundach filmu.
-
-Przed publikacją uzupełnij:
-
-- `links.collection` i `links.buy`: adresy ze sklepu (teraz prowadzą do sekcji na stronie),
-- `meta.siteUrl`: adres strony, potrzebny do obrazu OG.
-
-## Podmiana filmu
-
-1. Zapisz nowy film jako `assets/video.mp4`.
-2. Potnij go na klatki:
-
-   ```bash
-   npm run frames
-   ```
-
-   Można też wskazać inny plik: `npm run frames -- sciezka/do/filmu.mp4`.
-3. Jeśli momenty w filmie się zmieniły, popraw `from` i `to` w `stages` w `src/content.js`.
-4. Sprawdź stronę i zrób commit.
-
-Skrypt usuwa stare klatki, tworzy nowe w `public/frames/`, aktualizuje `manifest.json` (strona czyta z niego liczbę klatek i czas trwania) oraz `public/og-image.jpg`. Liczbę klatek, szerokość i jakość ustawisz w `VARIANTS` w `scripts/cut-frames.mjs`.
-
-Film powinien mieć kubek na środku kadru i statyczną kamerę. Na ekranach pionowych widać środek kadru.
-
-## Publikacja
-
+## Lokalnie
 ```bash
-npm run build
+npx http-server -p 5173 -c-1
 ```
-
-Wrzuć zawartość katalogu `dist/` na dowolny hosting statyczny. Ścieżki są względne, więc strona działa także w podkatalogu.
-
-## Testowanie
-
-Gdy system ma wyłączone animacje (`prefers-reduced-motion`), strona pokazuje statyczną klatkę finałową z tekstami. Dodaj `?motion=on` do adresu, żeby mimo to zobaczyć animację.
