@@ -69,5 +69,5 @@ jobs:
           } > commands.lftp
           n=$(wc -l < upload.txt)
           if [ "$n" -eq 0 ] && [ ! -s delete.txt ]; then echo "Brak zmian strony do wysłania."; exit 0; fi
-          lftp -u "wintera,$FTP_PASSWORD" sftp://ftp.cluster129.hosting.ovh.net:22 -f commands.lftp
+          lftp -u "wintera,$FTP_PASSWORD" -e "source commands.lftp" sftp://ftp.cluster129.hosting.ovh.net:22
           echo "Wysłano $n plików."
