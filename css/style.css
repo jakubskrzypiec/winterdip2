@@ -17,7 +17,7 @@
   --ice: #8fd3f4;
   --ice-deep: #2fa6e0;
   --line: rgba(246, 233, 215, 0.12);
-  --display: "Baloo 2", system-ui, sans-serif;
+  --display: "Poppins", system-ui, sans-serif;
   --serif: var(--display);
   --sans: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
@@ -549,13 +549,13 @@ button { font: inherit; color: inherit; cursor: pointer; border: 0; background: 
 .split-line > span, .fb-mug { will-change: auto; }
 
 /* =========================================================
-   FONT v3 — Baloo 2 (nagłówki, przyciski), Nunito (tekst)
+   FONT v3 — Poppins (nagłówki, przyciski), Nunito (tekst)
    ========================================================= */
 .display, .hero__headline, .p-card__name, .pdp__title, .compare thead th,
 .price__now, .pdp__price .now, .reviews__score, .globe-stats b, .g-text p,
-.contact__links a, .marquee__item, .city-label { font-family: var(--display); font-weight: 800; letter-spacing: -0.01em; }
+.contact__links a, .marquee__item, .city-label { font-family: var(--display); font-weight: 700; letter-spacing: -0.02em; }
 .display, .hero__headline { line-height: 1.0; }
-.btn { font-family: var(--display); font-weight: 800; font-size: 16px; letter-spacing: 0; padding-top: 2px; }
+.btn { font-family: var(--display); font-weight: 700; font-size: 16px; letter-spacing: 0; padding-top: 2px; }
 .h2 { font-size: clamp(40px, 6vw, 90px); }
 .hero__headline { font-size: clamp(42px, 4.4vw, 76px); }
 .p-card__name { font-size: clamp(26px, 2.4vw, 34px); }
