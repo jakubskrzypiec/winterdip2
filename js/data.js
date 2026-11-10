@@ -16,8 +16,8 @@ export const SHOP = {
 export const MUGS = ['mug-1', 'mug-2', 'mug-3'];
 
 export const PRODUCTS = {
-  'mug-1': { id: 'mug-1', name: 'Kubek nr 1', short: 'Ceramiczny kubek do fondue z podgrzewaczem', price: 75, img: 'assets/img/mug.webp' },
-  'mug-2': { id: 'mug-2', name: 'Kubek nr 2', short: 'Ceramiczny kubek do fondue z podgrzewaczem', price: 75, img: 'assets/img/mug.webp' },
+  'mug-1': { id: 'mug-1', name: 'Kubek beżowy', short: 'Ceramiczny kubek do fondue z podgrzewaczem', price: 75, img: 'assets/products/winter-dips-bezowy-01-katalog.webp' },
+  'mug-2': { id: 'mug-2', name: 'Kubek czerwony', short: 'Ceramiczny kubek do fondue z podgrzewaczem', price: 75, img: 'assets/products/winter-dips-czerwony-01-katalog.webp' },
   'mug-3': { id: 'mug-3', name: 'Kubek nr 3', short: 'Ceramiczny kubek do fondue z podgrzewaczem', price: 75, img: 'assets/img/mug.webp', soldOut: true },
   'chocolate-mug': {
     id: 'chocolate-mug',

@@ -16,12 +16,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="preload" as="image" href="assets/img/mug.webp">
+  <link rel="preload" as="image" href="assets/hero/hero.webp">
   <link rel="stylesheet" href="https://unpkg.com/lenis@1.1.13/dist/lenis.css">
   <link rel="stylesheet" href="css/style.css">
   <script type="importmap">{ "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/" } }</script>
   <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"Product","name":"Chocolate… kubek do fondue","brand":{"@type":"Brand","name":"Winterdip"},"image":"assets/img/mug.webp","description":"Ceramiczny kubek do czekoladowego fondue z podgrzewaczem i widelczykiem.","offers":{"@type":"Offer","priceCurrency":"PLN","price":"75","availability":"https://schema.org/InStock"}}
+  {"@context":"https://schema.org","@type":"Product","name":"Chocolate… kubek do fondue","brand":{"@type":"Brand","name":"Winterdip"},"image":"assets/products/winter-dips-oba-01-porownanie.webp","description":"Ceramiczny kubek do czekoladowego fondue z podgrzewaczem i widelczykiem.","offers":{"@type":"Offer","priceCurrency":"PLN","price":"75","availability":"https://schema.org/InStock"}}
   </script>
 </head>
 <body>
@@ -49,13 +49,13 @@
 
   <main>
     <!-- ================= HERO ================= -->
-    <section class="hero" aria-label="Winter Dip — kubek Chocolate… do fondue">
+    <section class="hero hero--photo" aria-label="Winter Dip — kubek Chocolate… do fondue">
       <div class="hero__sticky">
-        <canvas class="hero__canvas" aria-hidden="true"></canvas>
-        <div class="hero__fallback" aria-hidden="true">
-          <div class="fb-mug-wrap"><div class="fb-glow"></div><img class="fb-mug" src="assets/img/mug.webp" alt="Czerwony kubek Chocolate… do fondue z podgrzewaczem"></div>
+        <div class="hero-stage" aria-hidden="true">
+          <img class="hero-stage__img" src="assets/hero/hero.webp" alt="" width="1672" height="941" fetchpriority="high">
+          <div class="hero-stage__shadows"></div>
+          <canvas class="hero-stage__fx"></canvas>
         </div>
-        <canvas class="hero__snow" aria-hidden="true"></canvas>
         <div class="hero__scrim" aria-hidden="true"></div>
         <div class="hero__overlay">
           <h1 class="hero__headline"><span>Zimowe fondue</span><span><em>w jednym kubku</em></span></h1>
@@ -64,7 +64,6 @@
             <a href="#produkty" class="btn btn--ghost">Zobacz kubki</a>
           </div>
         </div>
-        <div class="hero__loader"></div>
       </div>
     </section>
 
@@ -82,10 +81,10 @@
         <div class="products-grid products-grid--3">
           <article class="p-card" data-tilt data-reveal="0.0">
             
-            <div class="p-card__media"><div class="ph"><span>Zdjęcie kubka</span><small>kubek nr 1</small></div></div>
+            <div class="p-card__media"><img class="p-card__photo" src="assets/products/winter-dips-bezowy-01-katalog.webp" alt="Beżowy kubek Chocolat… do fondue z widelczykiem" loading="lazy" width="1200" height="1200"></div>
             <div class="p-card__body">
               <div class="p-card__top">
-                <div><h3 class="p-card__name" data-name="mug-1">Kubek nr 1</h3><p class="p-card__desc">Ceramiczny kubek do fondue z podgrzewaczem</p></div>
+                <div><h3 class="p-card__name" data-name="mug-1">Kubek beżowy</h3><p class="p-card__desc">Ceramiczny kubek do fondue z podgrzewaczem</p></div>
                 <div class="price"><span class="price__now" data-price="mug-1">75 zł</span></div>
               </div>
               <div class="p-card__actions">
@@ -95,10 +94,10 @@
           </article>
           <article class="p-card" data-tilt data-reveal="0.1">
             
-            <div class="p-card__media"><div class="ph"><span>Zdjęcie kubka</span><small>kubek nr 2</small></div></div>
+            <div class="p-card__media"><img class="p-card__photo" src="assets/products/winter-dips-czerwony-01-katalog.webp" alt="Czerwony kubek Chocolat… do fondue z widelczykiem" loading="lazy" width="1200" height="1200"></div>
             <div class="p-card__body">
               <div class="p-card__top">
-                <div><h3 class="p-card__name" data-name="mug-2">Kubek nr 2</h3><p class="p-card__desc">Ceramiczny kubek do fondue z podgrzewaczem</p></div>
+                <div><h3 class="p-card__name" data-name="mug-2">Kubek czerwony</h3><p class="p-card__desc">Ceramiczny kubek do fondue z podgrzewaczem</p></div>
                 <div class="price"><span class="price__now" data-price="mug-2">75 zł</span></div>
               </div>
               <div class="p-card__actions">
@@ -151,11 +150,11 @@
           </div>
         </div>
         <div class="g-grid" data-reveal>
-          <figure class="g-tile g-tile--big"><div class="ph"><span>Zdjęcie produktu</span><small>01</small></div></figure>
-          <figure class="g-tile"><div class="ph"><span>Zdjęcie produktu</span><small>02</small></div></figure>
-          <figure class="g-tile"><div class="ph"><span>Zdjęcie produktu</span><small>03</small></div></figure>
-          <figure class="g-tile"><div class="ph"><span>Zdjęcie produktu</span><small>04</small></div></figure>
-          <figure class="g-tile"><div class="ph"><span>Zdjęcie produktu</span><small>05</small></div></figure>
+          <figure class="g-tile g-tile--big"><img src="assets/products/winter-dips-oba-02-fondue.webp" alt="Dwa kubki do fondue z zapalonymi świeczkami" loading="lazy" width="1200" height="1200"></figure>
+          <figure class="g-tile"><img src="assets/products/winter-dips-bezowy-02-fondue.webp" alt="Beżowy kubek z rozpuszczoną czekoladą" loading="lazy" width="1200" height="1200"></figure>
+          <figure class="g-tile"><img src="assets/products/winter-dips-czerwony-03-maczanie.webp" alt="Truskawka maczana w czekoladzie z czerwonego kubka" loading="lazy" width="1200" height="1200"></figure>
+          <figure class="g-tile"><img src="assets/products/winter-dips-bezowy-03-maczanie.webp" alt="Truskawka maczana w czekoladzie z beżowego kubka" loading="lazy" width="1200" height="1200"></figure>
+          <figure class="g-tile"><img src="assets/products/winter-dips-czerwony-02-fondue.webp" alt="Czerwony kubek z rozpuszczoną czekoladą" loading="lazy" width="1200" height="1200"></figure>
         </div>
       </div>
     </section>
@@ -213,7 +212,7 @@
           <p style="color:var(--cream-dim);margin:0;max-width:40ch">Zimowe przepisy na fondue i pierwszeństwo przy nowych kolekcjach.</p>
           <form class="newsletter"><input type="email" placeholder="Twój e-mail" required aria-label="E-mail"><button class="btn btn--primary">Zapisz</button></form>
         </div>
-        <div><h4>Sklep</h4><ul><li><a href="produkty.html">Wszystkie produkty</a></li><li><a href="produkty.html#chocolate-mug">Kubek Chocolate…</a></li><li><a href="produkty.html#chocolate-duo">Zestaw dla dwojga</a></li></ul></div>
+        <div><h4>Sklep</h4><ul><li><a href="produkty.html">Wszystkie produkty</a></li><li><a href="produkty.html#mug-1">Kubek beżowy</a></li><li><a href="produkty.html#mug-2">Kubek czerwony</a></li></ul></div>
         <div><h4>Pomoc</h4><ul><li><a href="#faq">FAQ</a></li><li><a href="#">Dostawa i zwroty</a></li><li><a href="#">Regulamin</a></li><li><a href="#">Polityka prywatności</a></li></ul></div>
         <div><h4>Kontakt</h4><ul><li><a href="mailto:kontakt@winterdip.pl">kontakt@winterdip.pl</a></li><li><a href="#">Instagram</a></li><li><a href="#">TikTok</a></li></ul></div>
       </div>

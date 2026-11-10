@@ -140,6 +140,10 @@ document.querySelectorAll('.pdp').forEach((pdp) => {
   pdp.querySelectorAll('.pdp__thumbs button').forEach((b) => b.addEventListener('click', () => {
     pdp.querySelectorAll('.pdp__thumbs button').forEach((x) => x.classList.remove('is-active'));
     b.classList.add('is-active');
+    if (b.dataset.src) {   // galeria zdjęć: płynna podmiana zdjęcia
+      gsap.to(main, { opacity: 0, duration: 0.2, onComplete: () => { main.src = b.dataset.src; main.alt = b.getAttribute('aria-label'); gsap.to(main, { opacity: 1, duration: 0.35 }); } });
+      return;
+    }
     const v = b.dataset.view;
     const views = { front: { scale: 1, x: 0, y: 0, rotate: 0 }, candle: { scale: 2.1, x: '18%', y: '-38%', rotate: 0 }, top: { scale: 1.9, x: '12%', y: '40%', rotate: 0 }, fork: { scale: 1.8, x: '-30%', y: '30%', rotate: -6 } };
     gsap.to(main, { ...views[v], duration: 1, ease: 'expo.inOut' });
