@@ -91,6 +91,6 @@ i ID wariantów, a „Przejdź do kasy” otworzy kasę Shopify.
 - Zrób zamówienie testowe: sprawdź płatność, maila do klienta i to, czy zamówienie pojawiło się w Zendrop.
 - **Wyprzedaż:** data końca jest w `SHOP.saleEnds`, a najniższa cena z 30 dni (wymóg prawa) w `lowest30`
   przy produktach w `js/data.js`. Wpisz prawdziwe wartości.
-- **Kontakt:** sprawdź, czy `kontakt@winterdip.pl` działa, i podaj linki do Instagrama i TikToka.
+- **Kontakt:** sprawdź, czy `winterrdip@gmail.com` działa, i podaj linki do Instagrama i TikToka.
 - **Opcjonalnie:** własna domena (np. `winterdip.pl`) — podepnij ją do GitHub Pages, a kasę zostaw na Shopify
   (np. `sklep.winterdip.pl`).
