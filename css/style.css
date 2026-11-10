@@ -874,11 +874,3 @@ html:not(.in-hero) .logo .logo--dark { display: block; }
 /* menu: aktywna podstrona */
 .nav a[aria-current="page"] { color: var(--cream); }
 .nav a[aria-current="page"]::after { transform: scaleX(1); }
-/* globus przybliżony: jasne przejście pod tekstem po lewej */
-@media (min-width: 961px) {
-  .globe-sec__sticky::before { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
-    background: linear-gradient(90deg, #dce0e8 0%, #dce0e8 26%, rgba(220,224,232,.85) 36%, rgba(220,224,232,0) 52%); }
-}
-@media (max-width: 960px) {
-  .globe-sec__sticky::before { height: 100%; background: linear-gradient(180deg, #dce0e8 0%, #dce0e8 30%, rgba(220,224,232,.8) 34%, rgba(220,224,232,0) 42%); }
-}

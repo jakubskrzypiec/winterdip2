@@ -92,8 +92,8 @@ export async function initGlobe(reduced) {
   const dotTex = makeDotTexture();
   const markers = CITIES.map((c) => {
     const pos = latLon(c.lat, c.lon, 1.006);
-    const m = new THREE.Sprite(new THREE.SpriteMaterial({ map: dotTex, color: 0xfff2dc, transparent: true, depthWrite: false }));
-    m.position.copy(pos); m.scale.setScalar(0.012 + c.w * 0.0008);
+    const m = new THREE.Sprite(new THREE.SpriteMaterial({ map: dotTex, color: 0xffffff, transparent: true, depthWrite: false }));
+    m.position.copy(pos); m.scale.setScalar(dotSize(c));
     spin.add(m);
     const label = document.createElement('span');
     label.className = 'pl-label'; label.textContent = c.name;
@@ -102,14 +102,14 @@ export async function initGlobe(reduced) {
   });
 
   function pulse(city) {
-    const ring = new THREE.Mesh(new THREE.RingGeometry(0.002, 0.004, 48), new THREE.MeshBasicMaterial({ color: 0xdce0e8, transparent: true, side: THREE.DoubleSide, depthWrite: false }));
+    const ring = new THREE.Mesh(new THREE.RingGeometry(0.0022, 0.003, 64), new THREE.MeshBasicMaterial({ color: 0xdce0e8, transparent: true, side: THREE.DoubleSide, depthWrite: false }));
     ring.position.copy(city.pos.clone().multiplyScalar(1.001));
     ring.lookAt(city.pos.clone().multiplyScalar(2));
     spin.add(ring);
     const o = { t: 0 };
     gsap.to(o, { t: 1, duration: 2.2, ease: 'power2.out', onUpdate: () => { ring.scale.setScalar(1 + o.t * 8); ring.material.opacity = 1 - o.t; },
       onComplete: () => { spin.remove(ring); ring.geometry.dispose(); } });
-    gsap.fromTo(city.sprite.scale, { x: 0.04, y: 0.04 }, { x: 0.012 + city.w * 0.0008, y: 0.012 + city.w * 0.0008, duration: 1.2, ease: 'expo.out' });
+    gsap.fromTo(city.sprite.scale, { x: dotSize(city) * 1.8, y: dotSize(city) * 1.8 }, { x: dotSize(city), y: dotSize(city), duration: 1.2, ease: 'expo.out' });
     city.flash = performance.now();
   }
 
@@ -142,15 +142,15 @@ export async function initGlobe(reduced) {
     const w = canvas.clientWidth, h = canvas.clientHeight;
     const m = mobile();
     // globus w prawym dolnym rogu (telefon: niżej, na środku)
-    camera.setViewOffset(w, h, m ? 0 : -0.2 * w, m ? -0.19 * h : 0, w, h);
-    camera.position.set(0, 0, m ? 1.75 : 1.5);
+    camera.setViewOffset(w, h, m ? 0 : -0.22 * w, m ? -0.1 * h : 0.02 * h, w, h);
+    camera.position.set(0, 0, m ? 3.4 : 2.75);
 
     // płynne dojście do pozycji myszki + delikatne kołysanie
     look.x += (mouse.x - look.x) * 0.05;
     look.y += (mouse.y - look.y) * 0.05;
     const sway = reduced ? 0 : Math.sin(now * 0.0004) * 0.02;
-    spin.rotation.y = baseY + look.x * 0.06 + sway * 0.5;
-    tilt.rotation.x = baseX + look.y * 0.04;
+    spin.rotation.y = baseY + look.x * 0.16 + sway;
+    tilt.rotation.x = baseX + look.y * 0.1;
 
     renderer.render(scene, camera);
 
@@ -159,7 +159,7 @@ export async function initGlobe(reduced) {
       const facing = tmp.clone().normalize().dot(camera.position.clone().normalize()) > 0.2;
       tmp.project(camera);
       const flash = c.flash && now - c.flash < 2200;
-      c.label.style.opacity = facing && (c.w >= 4 || flash) ? 1 : 0;
+      c.label.style.opacity = facing && (c.w >= 10 || flash) ? 1 : 0;
       c.label.style.left = ((tmp.x + 1) / 2) * w + 'px';
       c.label.style.top = ((1 - tmp.y) / 2) * h + 'px';
     }
@@ -168,13 +168,21 @@ export async function initGlobe(reduced) {
   initFeed(sec, pulse, markers);
 }
 
+// rozmiar kropki miasta (większe miasto = większa kropka)
+function dotSize(c) { return 0.009 + c.w * 0.0005; }
+
+// ostra kropka: biała (Snowflake) z obwódką Berry, rysowana w wysokiej rozdzielczości
 function makeDotTexture() {
-  const c = document.createElement('canvas'); c.width = c.height = 64;
-  const g = c.getContext('2d');
-  const grd = g.createRadialGradient(32, 32, 0, 32, 32, 32);
-  grd.addColorStop(0, 'rgba(255,255,255,1)'); grd.addColorStop(0.3, 'rgba(255,214,150,.95)'); grd.addColorStop(1, 'rgba(242,176,94,0)');
-  g.fillStyle = grd; g.fillRect(0, 0, 64, 64);
-  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+  const S = 256, c = document.createElement('canvas'); c.width = c.height = S;
+  const g = c.getContext('2d'), mid = S / 2;
+  const halo = g.createRadialGradient(mid, mid, S * 0.18, mid, mid, S * 0.5);
+  halo.addColorStop(0, 'rgba(220,224,232,.45)'); halo.addColorStop(1, 'rgba(220,224,232,0)');
+  g.fillStyle = halo; g.fillRect(0, 0, S, S);
+  g.beginPath(); g.arc(mid, mid, S * 0.26, 0, Math.PI * 2); g.fillStyle = '#6b212c'; g.fill();
+  g.beginPath(); g.arc(mid, mid, S * 0.18, 0, Math.PI * 2); g.fillStyle = '#dce0e8'; g.fill();
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+  t.generateMipmaps = true; t.minFilter = THREE.LinearMipmapLinearFilter; t.anisotropy = 8;
+  return t;
 }
 
 // ---------------- feed zamówień ----------------
