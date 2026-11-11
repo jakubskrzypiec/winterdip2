@@ -46,6 +46,34 @@ jobs:
           echo "Do wysłania: $(wc -l < upload.txt), do usunięcia: $(wc -l < delete.txt)"
           cat upload.txt delete.txt | head -50
 
+      - name: Konfiguracja panelu /admin (z sekretów)
+        env:
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+          SHOPIFY_ADMIN_TOKEN: ${{ secrets.SHOPIFY_ADMIN_TOKEN }}
+          META_TOKEN: ${{ secrets.META_TOKEN }}
+        run: |
+          # admin/config.php nie jest w repozytorium — powstaje tu z sekretów GitHub
+          # i jest wysyłany przy każdym wdrożeniu (tokeny nie trafiają do kodu)
+          if [ -n "$ADMIN_PASSWORD" ]; then
+            cat > gen.php <<'PHP'
+          <?php
+          $c = [
+            'ADMIN_PASSWORD' => getenv('ADMIN_PASSWORD'),
+            'SHOPIFY_ADMIN_TOKEN' => getenv('SHOPIFY_ADMIN_TOKEN'),
+            'META_TOKEN' => getenv('META_TOKEN'),
+            'SHOPIFY_DOMAIN' => 'wmqk7f-cr.myshopify.com',
+            'META_AD_ACCOUNT' => '1960712965203736',
+          ];
+          echo "<?php\nreturn " . var_export($c, true) . ";\n";
+          PHP
+            php gen.php > admin/config.php
+            rm gen.php
+            echo "admin/config.php" >> upload.txt
+            echo "Konfiguracja panelu gotowa."
+          else
+            echo "Brak sekretu ADMIN_PASSWORD — panel bez konfiguracji."
+          fi
+
       - name: Wysyłka przez SFTP
         env:
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
@@ -68,7 +96,7 @@ jobs:
               # kopia repo (www/.git, ~80 MB) z dawnej integracji Git w OVH zajmowała prawie cały limit 100 MB
               echo "rm -r -f www/.git"
               echo "du -h --max-depth=2 www"
-              echo "mirror -R -v --delete --only-missing --no-perms --parallel=4 -x '(^|/)\.' site www"
+              echo "mirror -R -v --delete --only-missing --no-perms --parallel=4 -x '(^|/)\.' -x '^admin/data/' -x '^admin/config\.php$' site www"
             fi
             while IFS= read -r f; do
               [ -n "$f" ] || continue
