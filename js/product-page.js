@@ -83,7 +83,7 @@ document.getElementById('product-root').innerHTML = `
           <div class="qty"><button data-q="-" aria-label="Mniej">−</button><span id="qty-main">1</span><button data-q="+" aria-label="Więcej">+</button></div>
           <button class="btn btn--primary" data-add="${id}" data-qty-from="#qty-main" data-open-cart>Dodaj do koszyka · <span data-price="${id}">75 zł</span></button>
         </div>
-        <p class="stock-note"><span class="live-dot"></span>Realizacja ok. 10 dni · do 5 dni przygotowania + do 3 dni dostawy</p>
+        <p class="stock-note"><span class="live-dot"></span>Dostawa ok. 10–14 dni · zamów do 8 grudnia, zdążymy przed Wigilią</p>
         <div class="bundle-tip">
           <div><b>Kup 2 kubki — dostawa gratis</b><span>2 × ${p.price} zł = ${p.price * 2} zł, czyli powyżej progu ${SHOP.freeShippingFrom} zł.</span></div>
           <button class="bundle-tip__btn" data-add="${otherId}" data-open-cart>+ ${other.name}</button>
@@ -95,7 +95,7 @@ document.getElementById('product-root').innerHTML = `
         </div>
         <div class="acc">
           <details><summary>Wymiary i pielęgnacja</summary><p>Kubek mieści porcję czekoladowego fondue dla jednej osoby. Ceramikę możesz myć w zmywarce, ale polecamy mycie ręczne, żeby szkliwo i napis zostały piękne na lata. Widelczyk myj ręcznie.</p></details>
-          <details><summary>Dostawa i zwroty</summary><p>Kubek przygotowujemy do wysyłki w ciągu do 5 dni roboczych, a dostawa (InPost lub kurier) trwa do 3 dni — łącznie ok. 10 dni. Darmowa dostawa od 149 zł. 30 dni na zwrot — na prezenty świąteczne do 31 stycznia.</p></details>
+          <details><summary>Dostawa i zwroty</summary><p>Kubek wysyłamy z magazynu naszego partnera — paczka jest u Ciebie zwykle w 10–14 dni, a numer do śledzenia dostajesz mailem. Darmowa dostawa od 149 zł. 30 dni na zwrot — na prezenty świąteczne do 31 stycznia.</p></details>
         </div>
       </div>
     </div>
