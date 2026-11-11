@@ -1295,3 +1295,14 @@ html:not(.in-hero) .logo .logo--dark { display: block; }
 .cine-ch--intro::before { content: ""; position: absolute; z-index: -1; left: -14vw; right: -10vw; top: -30%; bottom: -40%;
   background: radial-gradient(closest-side, rgba(220,224,232,.92) 0%, rgba(220,224,232,.75) 45%, rgba(220,224,232,0) 100%); pointer-events: none; }
 @media (max-width: 760px) { .cine-ch--intro::before { display: none; } }
+
+/* v17 — telefon: dwa kubki u góry, napis i przyciski na dole hero */
+@media (max-width: 760px) {
+  .hero--cine .hero__still img { object-position: 50% 0%; animation-name: cine-kb-m; }
+  .cine-ch--intro { top: auto; bottom: max(22px, env(safe-area-inset-bottom)); left: var(--gutter); right: var(--gutter); display: block; }
+  .cine-ch--intro .cine-title { font-size: clamp(34px, 10.2vw, 46px); }
+  .cine-ch--intro .hero__btns { margin-top: 20px; display: flex; gap: 10px; }
+  .cine-veil { background:
+      linear-gradient(0deg, rgba(220,224,232,.96) 0%, rgba(220,224,232,.82) 26%, rgba(220,224,232,0) 48%); }
+}
+@keyframes cine-kb-m { from { transform: scale(1.02); transform-origin: 50% 25%; } to { transform: scale(1.08); transform-origin: 50% 25%; } }
