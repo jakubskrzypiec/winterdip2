@@ -65,7 +65,8 @@ jobs:
             if [ "$MODE" = "full" ]; then
               # usuwa z serwera pliki, których nie ma w repo (pomija pliki ukryte, np. .ovhconfig)
               # i wysyła brakujące — zwalnia miejsce na hostingu
-              echo "mirror -R --delete --only-missing --no-perms --parallel=4 -x '(^|/)\.' site www"
+              echo "du -h --max-depth=3 www"
+              echo "mirror -R -v --delete --only-missing --no-perms --parallel=4 -x '(^|/)\.' site www"
             fi
             while IFS= read -r f; do
               [ -n "$f" ] || continue
