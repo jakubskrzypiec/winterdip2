@@ -16,6 +16,15 @@ export const SHOP = {
 // Kafelki na stronie głównej (kolejność = kolejność na stronie).
 export const MUGS = ['mug-1', 'mug-2', 'mug-3'];
 
+// ---------- ŚLEDZENIE REKLAM ----------
+// ID pikseli (to nie są hasła — są publiczne). Puste = wyłączone.
+//   metaPixel   — Meta Events Manager → Źródła danych → Pixel ID (sam numer)
+//   tiktokPixel — TikTok Ads Manager → Assets → Events → Web → Pixel ID
+export const TRACKING = {
+  metaPixel: '',
+  tiktokPixel: '',
+};
+
 // ---------- SHOPIFY ----------
 // Kasa działa przez Shopify Storefront API: koszyk ze strony tworzy koszyk
 // w Shopify i przekierowuje klienta do kasy Shopify (płatności, dostawa, faktury).

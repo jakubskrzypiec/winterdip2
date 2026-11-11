@@ -1317,3 +1317,16 @@ html:not(.in-hero) .logo .logo--dark { display: block; }
   .cine-veil { background: linear-gradient(0deg, rgba(212,220,236,.97) 0%, rgba(212,220,236,.85) 24%, rgba(212,220,236,0) 42%); }
 }
 @keyframes cine-kb-w { from { transform: scale(1); } to { transform: scale(1.025) translateY(-.6%); } }
+
+/* v19 — baner zgody na cookies */
+.consent { position: fixed; z-index: 120; left: 16px; right: 16px; bottom: 16px; max-width: 560px; margin-left: auto;
+  padding: 20px 22px; border-radius: 20px; background: var(--snow); color: var(--pine);
+  border: 1px solid rgba(39,54,63,.14); box-shadow: 0 24px 60px -24px rgba(39,54,63,.55);
+  opacity: 0; transform: translateY(16px); transition: opacity .4s var(--ease), transform .5s var(--ease); }
+.consent.is-in { opacity: 1; transform: none; }
+.consent p { margin: 0; font-size: 14px; line-height: 1.55; color: rgba(39,54,63,.85); }
+.consent p b { display: block; margin-bottom: 4px; font-family: var(--display); font-size: 16px; color: var(--pine); }
+.consent__btns { display: flex; gap: 10px; justify-content: flex-end; margin-top: 14px; }
+.consent .btn { --h: 44px; padding: 0 18px; font-size: 14px; }
+.consent .btn--ghost { color: var(--pine); border-color: rgba(39,54,63,.3); }
+@media (max-width: 560px) { .consent__btns .btn { flex: 1 1 0; } }

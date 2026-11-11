@@ -1,6 +1,9 @@
 import { initCart, fmt } from './cart.js';
 import { REVIEWS, FAQ, SHOP, PRODUCTS } from './data.js';
 import { syncProducts, shopifyOn, policyUrl } from './shopify.js';
+import { initTracking } from './tracking.js';
+
+initTracking();
 
 const gsap = window.gsap;
 const ScrollTrigger = window.ScrollTrigger;

@@ -5,6 +5,7 @@
 // =========================================================
 import { PRODUCTS, REVIEWS, SHOP } from './data.js';
 import { syncProductsQuick } from './shopify.js';
+import { track } from './tracking.js';
 
 await syncProductsQuick();
 
@@ -39,6 +40,7 @@ const p = PRODUCTS[id], info = INFO[id];
 const otherId = id === 'mug-1' ? 'mug-2' : 'mug-1';
 const other = PRODUCTS[otherId], otherInfo = INFO[otherId];
 document.title = `${p.name} — Winterdip`;
+track('ViewContent', { content_ids: [id], content_name: p.name, content_type: 'product', value: p.price });
 
 const shots = [['01-katalog', 'Kubek z przodu'], ['02-fondue', 'Kubek z czekoladą i świeczką'], ['03-maczanie', 'Maczanie truskawki w czekoladzie'], ['04-z-gory', 'Kubek z góry z widelczykiem i czekoladą'], ['05-detal-uchwytu', 'Widelczyk wsunięty w ucho kubka'], ['06-zimowy-wieczor', 'Kubek na zimowy wieczór z przekąskami']];
 const stars = (n) => '★'.repeat(n) + '☆'.repeat(5 - n);

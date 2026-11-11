@@ -1,5 +1,6 @@
 import { PRODUCTS, SHOP, SHOPIFY } from './data.js';
 import { syncProducts, gql } from './shopify.js';
+import { track } from './tracking.js';
 
 const KEY = 'winterdip-cart';
 const fmt = (n) => n.toFixed(2).replace('.', ',').replace(',00', '') + ' ' + SHOP.currency;
@@ -23,6 +24,7 @@ export function add(id, qty = 1) {
   items[id] = (items[id] || 0) + qty;
   save(); render(); bump();
   toast(`Dodano: ${PRODUCTS[id].name}`);
+  track('AddToCart', { content_ids: [id], content_name: PRODUCTS[id].name, content_type: 'product', value: PRODUCTS[id].price * qty });
 }
 function setQty(id, q) {
   if (q <= 0) delete items[id]; else items[id] = q;
@@ -134,7 +136,8 @@ async function checkout(btn) {
     const json = await r.json();
     const url = json?.data?.cartCreate?.cart?.checkoutUrl;
     if (!url) throw new Error(json?.data?.cartCreate?.userErrors?.[0]?.message || json?.errors?.[0]?.message || 'brak checkoutUrl');
-    location.href = url;
+    track('InitiateCheckout', { content_ids: ids, num_items: count(), value: subtotal() });
+    setTimeout(() => { location.href = url; }, 250);
   } catch (e) {
     console.warn('Shopify checkout', e);
     toast('Nie udało się otworzyć kasy. Spróbuj ponownie za chwilę.');
