@@ -60,7 +60,7 @@ initCart();
 
 // ---------- landing-only ----------
 if (document.querySelector('.hero')) {
-  import('./hero.js').then((m) => m.initHero(reduced));
+  import('./hero.js?v=19').then((m) => m.initHero(reduced));
 }
 if (document.querySelector('.globe-sec')) {
   import('./globe.js').then((m) => m.initGlobe(reduced)).catch((e) => console.warn('Globe disabled', e));

@@ -78,7 +78,7 @@ export async function initHero(reduced) {
     cw = canvas.width = Math.round(canvas.clientWidth * dpr);
     ch = canvas.height = Math.round(canvas.clientHeight * dpr);
     // klatka 16:9 dopasowana „cover” — dekodujemy dokładnie w potrzebnej szerokości
-    decodeW = Math.min(src.width || 1920, Math.ceil(Math.max(cw * 0.72, ch * 16 / 9)));
+    decodeW = Math.min(src.width || 1920, Math.ceil(Math.max(cw, ch * 16 / 9)));
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
     bitmaps.forEach((b) => b.close && b.close()); bitmaps.clear();
@@ -131,8 +131,6 @@ export async function initHero(reduced) {
   // Kadr: cały film mieści się w wysokości pod paskiem nagłówka (bez mocnego przybliżenia).
   // Gdy ekran jest szerszy niż film, boki wypełnia jednolite tło w kolorze filmu,
   // a ostra klatka ma miękko wygaszone krawędzie — bez widocznych pasów.
-  let bgGrad = null;
-  const soft = document.createElement('canvas'); const fctx = soft.getContext('2d');
   // wysokość paska u góry (ogłoszenie + nagłówek) mierzona raz przy zmianie rozmiaru —
   // stała podczas scrolla, więc kadr nie skacze, gdy pasek się przesuwa
   let topCss = 0;
@@ -143,40 +141,16 @@ export async function initHero(reduced) {
   }
   measureTop();
   addEventListener('resize', measureTop);
-  // base = true: pierwsza warstwa (z tłem); false: warstwa przenikania (sama klatka)
-  function blit(img, alpha, base) {
-    const top = topCss * (cw / canvas.clientWidth || 1), ah = ch - top;
-    const sc = Math.max(ah / img.height, (cw / img.width) * 0.72);
+  // film zawsze wypełnia cały ekran (cover), bez pasów i rozmytych boków;
+  // kadr wyrównany do obszaru pod paskiem, lekko w dół, żeby kubek nie był ucięty
+  function blit(img, alpha) {
+    const top = topCss * (cw / canvas.clientWidth || 1);
+    const sc = Math.max(ch / img.height, cw / img.width);
     const w = Math.round(img.width * sc), h = Math.round(img.height * sc);
-    const x = Math.round((cw - w) / 2), y = Math.round(top + (ah - h) / 2);
-    const needBg = w < cw || y > 0;
-    if (needBg && base) {
-      // stałe tło w kolorze tła filmu (góra ciemniejsza, dół jaśniejszy)
-      if (!bgGrad || bgGrad.h !== ch) {
-        bgGrad = ctx.createLinearGradient(0, 0, 0, ch); bgGrad.h = ch;
-        bgGrad.addColorStop(0, '#8c96a0'); bgGrad.addColorStop(0.5, '#a3acb5'); bgGrad.addColorStop(1, '#cdd0d6');
-      }
-      ctx.globalAlpha = 1;
-      ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, cw, ch);
-    }
+    const x = Math.round((cw - w) / 2);
+    const y = Math.round(Math.min(0, Math.max(ch - h, top + (ch - top - h) * 0.45)));
     ctx.globalAlpha = alpha;
-    if (w < cw) {
-      // miękko wygaszone boki klatki
-      if (soft.width !== w || soft.height !== h) { soft.width = w; soft.height = h; }
-      fctx.globalCompositeOperation = 'source-over';
-      fctx.clearRect(0, 0, w, h);
-      fctx.drawImage(img, 0, 0, w, h);
-      fctx.globalCompositeOperation = 'destination-in';
-      if (!soft.g || soft.g.w !== w) {
-        soft.g = fctx.createLinearGradient(0, 0, w, 0); soft.g.w = w;
-        soft.g.addColorStop(0, 'rgba(0,0,0,0)'); soft.g.addColorStop(0.14, '#000');
-        soft.g.addColorStop(0.86, '#000'); soft.g.addColorStop(1, 'rgba(0,0,0,0)');
-      }
-      fctx.fillStyle = soft.g; fctx.fillRect(0, 0, w, h);
-      ctx.drawImage(soft, x, y);
-    } else {
-      ctx.drawImage(img, x, y, w, h);
-    }
+    ctx.drawImage(img, x, y, w, h);
   }
   // pos = pozycja z ułamkiem; między klatkami delikatnie je przenikamy,
   // dzięki czemu ruch jest ciągły zamiast „klatka po klatce”
@@ -191,8 +165,8 @@ export async function initHero(reduced) {
     const key = a + ':' + (imgB ? Math.round(t * 16) : 0);
     if (key === lastKey && !dirty) return;
     lastKey = key; dirty = false;
-    blit(imgA, 1, true);
-    if (imgB) blit(imgB, Math.round(t * 16) / 16, false);
+    blit(imgA, 1);
+    if (imgB) blit(imgB, Math.round(t * 16) / 16);
     ctx.globalAlpha = 1;
   }
 
