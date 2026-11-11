@@ -133,32 +133,46 @@ export async function initHero(reduced) {
   // a ostra klatka ma miękko wygaszone krawędzie — bez widocznych pasów.
   let bgGrad = null;
   const soft = document.createElement('canvas'); const fctx = soft.getContext('2d');
-  function topPx() {
-    const h = document.querySelector('.header');
-    return Math.max(0, h ? h.getBoundingClientRect().bottom : 0) * (cw / canvas.clientWidth || 1);
+  // wysokość paska u góry (ogłoszenie + nagłówek) mierzona raz przy zmianie rozmiaru —
+  // stała podczas scrolla, więc kadr nie skacze, gdy pasek się przesuwa
+  let topCss = 0;
+  function measureTop() {
+    const ann = document.querySelector('.announce');
+    const hd = document.querySelector('.header');
+    topCss = (ann ? ann.offsetHeight : 0) + (hd ? hd.offsetHeight : 0);
   }
-  function blit(img, alpha) {
-    const top = topPx(), ah = ch - top;
-    const s = Math.max(ah / img.height, (cw / img.width) * 0.72);
-    const w = Math.round(img.width * s), h = Math.round(img.height * s);
+  measureTop();
+  addEventListener('resize', measureTop);
+  // base = true: pierwsza warstwa (z tłem); false: warstwa przenikania (sama klatka)
+  function blit(img, alpha, base) {
+    const top = topCss * (cw / canvas.clientWidth || 1), ah = ch - top;
+    const sc = Math.max(ah / img.height, (cw / img.width) * 0.72);
+    const w = Math.round(img.width * sc), h = Math.round(img.height * sc);
     const x = Math.round((cw - w) / 2), y = Math.round(top + (ah - h) / 2);
-    ctx.globalAlpha = alpha;
-    if (w < cw || y > 0) {
-      // stałe tło w kolorze tła filmu (góra ciemniejsza, dół jaśniejszy) — bez migających plam ze wstęg
+    const needBg = w < cw || y > 0;
+    if (needBg && base) {
+      // stałe tło w kolorze tła filmu (góra ciemniejsza, dół jaśniejszy)
       if (!bgGrad || bgGrad.h !== ch) {
         bgGrad = ctx.createLinearGradient(0, 0, 0, ch); bgGrad.h = ch;
         bgGrad.addColorStop(0, '#8c96a0'); bgGrad.addColorStop(0.5, '#a3acb5'); bgGrad.addColorStop(1, '#cdd0d6');
       }
+      ctx.globalAlpha = 1;
       ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, cw, ch);
+    }
+    ctx.globalAlpha = alpha;
+    if (w < cw) {
+      // miękko wygaszone boki klatki
       if (soft.width !== w || soft.height !== h) { soft.width = w; soft.height = h; }
       fctx.globalCompositeOperation = 'source-over';
+      fctx.clearRect(0, 0, w, h);
       fctx.drawImage(img, 0, 0, w, h);
       fctx.globalCompositeOperation = 'destination-in';
-      const g = fctx.createLinearGradient(0, 0, w, 0);
-      const e = w < cw ? 0.14 : 0;
-      g.addColorStop(0, e ? 'rgba(0,0,0,0)' : '#000'); g.addColorStop(e || 0.0001, '#000');
-      g.addColorStop(1 - (e || 0.0001), '#000'); g.addColorStop(1, e ? 'rgba(0,0,0,0)' : '#000');
-      fctx.fillStyle = g; fctx.fillRect(0, 0, w, h);
+      if (!soft.g || soft.g.w !== w) {
+        soft.g = fctx.createLinearGradient(0, 0, w, 0); soft.g.w = w;
+        soft.g.addColorStop(0, 'rgba(0,0,0,0)'); soft.g.addColorStop(0.14, '#000');
+        soft.g.addColorStop(0.86, '#000'); soft.g.addColorStop(1, 'rgba(0,0,0,0)');
+      }
+      fctx.fillStyle = soft.g; fctx.fillRect(0, 0, w, h);
       ctx.drawImage(soft, x, y);
     } else {
       ctx.drawImage(img, x, y, w, h);
@@ -177,8 +191,8 @@ export async function initHero(reduced) {
     const key = a + ':' + (imgB ? Math.round(t * 16) : 0);
     if (key === lastKey && !dirty) return;
     lastKey = key; dirty = false;
-    blit(imgA, 1);
-    if (imgB) blit(imgB, Math.round(t * 16) / 16);
+    blit(imgA, 1, true);
+    if (imgB) blit(imgB, Math.round(t * 16) / 16, false);
     ctx.globalAlpha = 1;
   }
 
