@@ -5,3 +5,10 @@ RewriteCond %{HTTPS} off
 RewriteRule ^(.*)$ https://winterdip.pl/$1 [R=301,L]
 RewriteCond %{HTTP_HOST} ^www\.winterdip\.pl$ [NC]
 RewriteRule ^(.*)$ https://winterdip.pl/$1 [R=301,L]
+
+# strony HTML zawsze sprawdzane na nowo (pliki CSS/JS mają w adresie numer wersji ?v=)
+<IfModule mod_headers.c>
+  <FilesMatch "\.html$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
+</IfModule>
