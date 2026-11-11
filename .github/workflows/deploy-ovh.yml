@@ -24,7 +24,13 @@ jobs:
           fetch-depth: 0
 
       - name: Instalacja lftp
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq lftp
+        # ponawia przy chwilowych problemach z siecią na serwerach GitHuba
+        run: |
+          for i in 1 2 3 4; do
+            sudo apt-get update -qq && sudo apt-get install -y -qq lftp && break
+            echo "Próba $i nieudana, czekam..."; sleep 20
+          done
+          command -v lftp
 
       - name: Lista plików do wysłania
         id: files

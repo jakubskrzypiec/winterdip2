@@ -78,7 +78,11 @@ if (!isset($seen[$marker])) {
   $d['funnel'][$type] = ($d['funnel'][$type] ?? 0) + 1;
 }
 
-if ($type === 'pv') { $d['pv']++; $d['pages'][$path] = ($d['pages'][$path] ?? 0) + 1; }
+if ($type === 'pv') {
+  $d['pv']++; $d['pages'][$path] = ($d['pages'][$path] ?? 0) + 1;
+  $h = (int)(new DateTime('now', $tz))->format('G');
+  $d['hours'][$h] = ($d['hours'][$h] ?? 0) + 1;
+}
 else $d[$type]++;
 if ($product !== '' && $type !== 'pv') {
   $d['products'][$product] ??= ['view' => 0, 'add' => 0, 'checkout' => 0];
