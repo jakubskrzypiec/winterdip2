@@ -113,15 +113,16 @@ foreach ($ra['json']['data'] ?? [] as $a) {
   if (!empty($a['creative']['effective_object_story_id'])) $adFb[$a['creative']['effective_object_story_id']] = $a['name'];
   if (!empty($a['creative']['effective_instagram_media_id'])) $adIg[$a['creative']['effective_instagram_media_id']] = $a['name'];
 }
-if ($adFb) {
-  $r = g('', ['ids' => implode(',', array_keys($adFb)), 'fields' => $fbFields], $pt);
-  if ($r['code'] === 200) foreach ($r['json'] ?? [] as $id => $p) $addFb($p, $adFb[$id] ?? null);
-  else $errors[] = 'Reklamy (Facebook): ' . gerr($r);
+// (zbiorcze ?ids= jest wycofane w nowych wersjach API — pobieramy po kolei, reklam jest kilka)
+foreach (array_slice($adFb, 0, 15, true) as $id => $name) {
+  $r = g((string)$id, ['fields' => $fbFields], $pt);
+  if ($r['code'] === 200 && isset($r['json']['id'])) $addFb($r['json'], $name);
+  else { $errors[] = 'Reklama „' . $name . '” (Facebook): ' . gerr($r); }
 }
-if ($adIg) {
-  $r = g('', ['ids' => implode(',', array_keys($adIg)), 'fields' => $igFields], $pt);
-  if ($r['code'] === 200) foreach ($r['json'] ?? [] as $id => $m) $addIg($m, $adIg[$id] ?? null);
-  else $errors[] = 'Reklamy (Instagram): ' . gerr($r);
+foreach (array_slice($adIg, 0, 15, true) as $id => $name) {
+  $r = g((string)$id, ['fields' => $igFields], $pt);
+  if ($r['code'] === 200 && isset($r['json']['id'])) $addIg($r['json'], $name);
+  else { $errors[] = 'Reklama „' . $name . '” (Instagram): ' . gerr($r); }
 }
 
 // 2) posty strony na Facebooku
