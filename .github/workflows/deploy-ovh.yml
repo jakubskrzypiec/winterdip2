@@ -65,7 +65,9 @@ jobs:
             if [ "$MODE" = "full" ]; then
               # usuwa z serwera pliki, których nie ma w repo (pomija pliki ukryte, np. .ovhconfig)
               # i wysyła brakujące — zwalnia miejsce na hostingu
-              echo "du -h --max-depth=3 www"
+              # kopia repo (www/.git, ~80 MB) z dawnej integracji Git w OVH zajmowała prawie cały limit 100 MB
+              echo "rm -r -f www/.git"
+              echo "du -h --max-depth=2 www"
               echo "mirror -R -v --delete --only-missing --no-perms --parallel=4 -x '(^|/)\.' site www"
             fi
             while IFS= read -r f; do
