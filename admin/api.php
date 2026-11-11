@@ -19,12 +19,29 @@ for ($d = $since; $d <= $until; $d = $d->modify('+1 day')) $dates[] = $d->format
 $sinceS = $since->format('Y-m-d'); $untilS = $until->format('Y-m-d');
 
 // ---------------- Shopify ----------------
+// Token Admin API: stały (SHOPIFY_ADMIN_TOKEN) albo pobierany z Client ID + Client secret
+// aplikacji z Dev Dashboard (client credentials — ważny 24 h, trzymany w cache).
+function shopify_token(string $domain, string &$error): string {
+  if (($t = cfg('SHOPIFY_ADMIN_TOKEN')) !== '') return $t;
+  $id = cfg('SHOPIFY_CLIENT_ID'); $secret = cfg('SHOPIFY_CLIENT_SECRET');
+  if ($id === '' || $secret === '') { $error = 'Brak kluczy Shopify (SHOPIFY_CLIENT_ID i SHOPIFY_CLIENT_SECRET).'; return ''; }
+  $c = cache_get('shopify-token', 20 * 3600);
+  if (is_array($c) && !empty($c['t'])) return $c['t'];
+  $r = http_json("https://$domain/admin/oauth/access_token", ['Content-Type: application/x-www-form-urlencoded'],
+    http_build_query(['grant_type' => 'client_credentials', 'client_id' => $id, 'client_secret' => $secret]));
+  $t = $r['json']['access_token'] ?? '';
+  if ($t === '') { $error = 'Shopify: nie udało się pobrać tokenu (HTTP ' . $r['code'] . ' ' . ($r['json']['error_description'] ?? $r['json']['error'] ?? $r['error']) . ').'; return ''; }
+  cache_set('shopify-token', ['t' => $t]);
+  return $t;
+}
+
 function shopify_data(string $since, array $dates, bool $fresh): array {
-  $token = cfg('SHOPIFY_ADMIN_TOKEN');
-  if ($token === '') return ['ok' => false, 'error' => 'Brak klucza Shopify (SHOPIFY_ADMIN_TOKEN).'];
+  $domain = cfg('SHOPIFY_DOMAIN', 'wmqk7f-cr.myshopify.com');
   $key = 'shopify-' . $since;
   if (!$fresh && ($c = cache_get($key, 300))) return $c;
-  $domain = cfg('SHOPIFY_DOMAIN', 'wmqk7f-cr.myshopify.com');
+  $err = '';
+  $token = shopify_token($domain, $err);
+  if ($token === '') return ['ok' => false, 'error' => $err];
   $ver = cfg('SHOPIFY_API_VERSION', '2026-10');
   $orders = []; $after = null;
   for ($page = 0; $page < 8; $page++) {

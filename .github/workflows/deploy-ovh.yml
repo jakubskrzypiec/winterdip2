@@ -50,6 +50,8 @@ jobs:
         env:
           ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
           SHOPIFY_ADMIN_TOKEN: ${{ secrets.SHOPIFY_ADMIN_TOKEN }}
+          SHOPIFY_CLIENT_ID: ${{ secrets.SHOPIFY_CLIENT_ID }}
+          SHOPIFY_CLIENT_SECRET: ${{ secrets.SHOPIFY_CLIENT_SECRET }}
           META_TOKEN: ${{ secrets.META_TOKEN }}
         run: |
           # admin/config.php nie jest w repozytorium — powstaje tu z sekretów GitHub
@@ -60,6 +62,8 @@ jobs:
           $c = [
             'ADMIN_PASSWORD' => getenv('ADMIN_PASSWORD'),
             'SHOPIFY_ADMIN_TOKEN' => getenv('SHOPIFY_ADMIN_TOKEN'),
+            'SHOPIFY_CLIENT_ID' => getenv('SHOPIFY_CLIENT_ID'),
+            'SHOPIFY_CLIENT_SECRET' => getenv('SHOPIFY_CLIENT_SECRET'),
             'META_TOKEN' => getenv('META_TOKEN'),
             'SHOPIFY_DOMAIN' => 'wmqk7f-cr.myshopify.com',
             'META_AD_ACCOUNT' => '1960712965203736',
