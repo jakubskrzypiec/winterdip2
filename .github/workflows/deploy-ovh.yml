@@ -25,12 +25,14 @@ jobs:
 
       - name: Instalacja lftp
         # ponawia przy chwilowych problemach z siecią na serwerach GitHuba
+        # (gdy serwery Ubuntu nie odpowiadają, wysyłka idzie zapasowo przez curl — patrz niżej)
         run: |
-          for i in 1 2 3 4; do
-            sudo apt-get update -qq && sudo apt-get install -y -qq lftp && break
-            echo "Próba $i nieudana, czekam..."; sleep 20
+          for i in 1 2; do
+            sudo apt-get update -qq -o Acquire::Retries=1 -o Acquire::http::Timeout=20 && sudo apt-get install -y -qq -o Acquire::Retries=1 -o Acquire::http::Timeout=20 lftp && break
+            echo "Próba $i nieudana, czekam..."; sleep 10
           done
-          command -v lftp
+          command -v lftp || echo "lftp niedostępny — użyję curl (SFTP)."
+          curl -V | head -2
 
       - name: Lista plików do wysłania
         id: files
@@ -123,5 +125,16 @@ jobs:
           } > commands.lftp
           n=$(wc -l < upload.txt)
           if [ "$n" -eq 0 ] && [ ! -s delete.txt ]; then echo "Brak zmian strony do wysłania."; exit 0; fi
-          lftp -u "wintera,$FTP_PASSWORD" -e "source commands.lftp" sftp://ftp.cluster129.hosting.ovh.net:22
+          if command -v lftp >/dev/null; then
+            lftp -u "wintera,$FTP_PASSWORD" -e "source commands.lftp" sftp://ftp.cluster129.hosting.ovh.net:22
+          else
+            # zapasowo: curl przez SFTP (bez sprzątania serwera i bez usuwania plików)
+            fail=0
+            while IFS= read -r f; do
+              [ -n "$f" ] || continue
+              curl -sS -k --ftp-create-dirs --retry 3 -T "$f" -u "wintera:$FTP_PASSWORD" "sftp://ftp.cluster129.hosting.ovh.net/~/www/$f" || { echo "Nie wysłano: $f"; fail=1; }
+            done < upload.txt
+            [ -s delete.txt ] && echo "Uwaga: pliki do usunięcia pominięte (brak lftp): $(cat delete.txt | tr '\n' ' ')"
+            [ "$fail" = 0 ] || exit 1
+          fi
           echo "Wysłano $n plików."
