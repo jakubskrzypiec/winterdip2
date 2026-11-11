@@ -1,0 +1,7 @@
+# Wymuszenie HTTPS i jednego adresu (bez www) na hostingu OVH
+RewriteEngine On
+RewriteCond %{HTTP:X-Forwarded-Proto} !https
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://winterdip.pl/$1 [R=301,L]
+RewriteCond %{HTTP_HOST} ^www\.winterdip\.pl$ [NC]
+RewriteRule ^(.*)$ https://winterdip.pl/$1 [R=301,L]
