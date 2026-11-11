@@ -3,7 +3,7 @@ declare(strict_types=1);
 require __DIR__ . '/lib.php';
 header('X-Robots-Tag: noindex, nofollow');
 header('Cache-Control: no-store');
-header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; frame-ancestors 'none'");
+header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://*.fbcdn.net https://*.cdninstagram.com; connect-src 'self'; frame-ancestors 'none'");
 
 $error = '';
 if (isset($_GET['logout'])) { logout(); header('Location: ./'); exit; }
@@ -163,6 +163,30 @@ details summary{cursor:pointer;font-weight:800;font-size:13px;color:var(--pine-2
 .login input{width:100%;padding:14px 16px;border-radius:14px;border:1px solid var(--line);font:700 16px Nunito;margin:16px 0}
 .err{color:var(--berry);font-weight:800;font-size:14px}
 .loading .num{opacity:.4}
+/* rolki + komentarze */
+.badge{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;border-radius:99px;background:var(--berry-l);color:#fff;font:900 11px Nunito;margin-left:4px;vertical-align:1px}
+.thumb{width:38px;height:54px;border-radius:8px;object-fit:cover;background:var(--snow-2);display:block;flex:none}
+.adname{display:flex;gap:10px;align-items:center}
+.cm{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;padding:14px 0;border-bottom:1px solid var(--line);align-items:start}
+.cm:last-child{border-bottom:0}
+.cm .av{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font:800 15px Poppins;color:#fff;background:var(--pine)}
+.cm .av.ig{background:linear-gradient(135deg,#f58529,#dd2a7b,#8134af)}
+.cm .av.fb{background:#1877f2}
+.cm .meta{font-size:12px;color:var(--pine-2);font-weight:700;margin-top:2px}
+.cm .txt{margin-top:4px;font-weight:600;white-space:pre-wrap;word-break:break-word}
+.cm.flag{background:linear-gradient(90deg,rgba(163,23,43,.06),transparent 60%)}
+.cm.hid .txt{opacity:.5}
+.cm .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.cm .acts button,.cm .acts a{border:1px solid var(--line);background:#fff;border-radius:99px;padding:6px 11px;font-weight:800;font-size:12px;color:var(--pine);text-decoration:none;white-space:nowrap}
+.cm .acts .del{color:var(--berry)}
+.cm .acts button:disabled{opacity:.4;cursor:default}
+.posts{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.post{border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;background:#fff;text-decoration:none;color:inherit}
+.post .pimg{aspect-ratio:4/5;background:var(--snow-2) center/cover no-repeat;position:relative}
+.post .pimg .pill{position:absolute;left:10px;top:10px}
+.post .pb{padding:12px 14px;font-size:13px;font-weight:700;display:flex;flex-direction:column;gap:6px;flex:1}
+.post .pb p{margin:0;color:var(--pine-2);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+@media (max-width:640px){.cm{grid-template-columns:auto minmax(0,1fr)}.cm .acts{grid-column:1/-1;justify-content:flex-start}#cm-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 [hidden]{display:none!important}
 @media (max-width:1100px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.g21,.g12,.g111,.insights{grid-template-columns:minmax(0,1fr)}.flex-layout{grid-template-columns:minmax(0,1fr)}.stage{margin:0 auto}}
 @media (max-width:640px){header .wrap{flex-wrap:wrap;height:auto;padding:10px 20px}.live{order:5;width:100%;justify-content:center}.kpi .num{font-size:24px}.tabs{margin-left:0}}
@@ -184,7 +208,7 @@ details summary{cursor:pointer;font-weight:800;font-size:13px;color:var(--pine-2
 <header>
   <div class="wrap">
     <div class="brand"><div class="logo-chip"><img src="../assets/brand/logo-red.webp" alt="Winter Dip"></div><span>Panel</span></div>
-    <div class="tabs"><button data-tab="overview" class="on">📊 Przegląd</button><button data-tab="flex">✨ Flex</button></div>
+    <div class="tabs"><button data-tab="overview" class="on">📊 Przegląd</button><button data-tab="comments">💬 Komentarze <b class="badge" id="cm-badge" hidden></b></button><button data-tab="flex">✨ Flex</button></div>
     <div class="sp"></div>
     <div class="live" title="Odświeżane co 45 s"><i></i><span id="live-text">Na żywo…</span></div>
     <button class="hbtn" id="notif-btn" title="Powiadomienia o nowych zamówieniach">🔔</button>
@@ -258,7 +282,8 @@ details summary{cursor:pointer;font-weight:800;font-size:13px;color:var(--pine-2
   </div>
 
   <div class="grid">
-    <div class="card"><h2>📣 Kampanie reklamowe</h2><div id="campaigns"></div></div>
+    <div class="card"><h2>📣 Kampanie reklamowe</h2><div id="campaigns"></div>
+      <h2 style="margin-top:22px">🎬 Rolki (reklamy) <small>status prosto z Meta · wyniki w wybranym okresie</small></h2><div id="ads"></div></div>
   </div>
 
   <div class="grid g21">
@@ -266,6 +291,26 @@ details summary{cursor:pointer;font-weight:800;font-size:13px;color:var(--pine-2
     <div class="card"><h2>📄 Najczęściej oglądane</h2><div class="list" id="pages"></div></div>
   </div>
   <p class="muted" style="margin-top:22px;font-size:13px;font-weight:600">Sprzedaż: Shopify (bez zamówień testowych i anulowanych). Reklamy: Meta, konto Winter Dip. Ruch: własny licznik strony bez cookies. Strzałki ▲▼ porównują z poprzednim okresem tej samej długości. Koszty i cel zapisują się w tej przeglądarce.</p>
+</section>
+
+<!-- ================= KOMENTARZE ================= -->
+<section id="tab-comments" hidden>
+  <div class="top">
+    <div><h1>💬 Komentarze i posty</h1><p id="cm-period">Facebook i Instagram — także komentarze pod reklamami.</p></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <div class="ranges" id="cm-filter"><button data-f="flag" class="on">⚠️ Do sprawdzenia</button><button data-f="all">Wszystkie</button><button data-f="hidden">🙈 Ukryte</button><button data-f="posts">🖼️ Posty</button></div>
+      <button class="ghost" id="cm-refresh">↻ Odśwież</button>
+    </div>
+  </div>
+  <div id="cm-notes"></div>
+  <div class="kpis" style="grid-template-columns:repeat(4,minmax(0,1fr))" id="cm-kpis">
+    <div class="card kpi"><div class="label">🖼️ Posty i reklamy</div><div class="num" id="cm-k-posts">—</div></div>
+    <div class="card kpi"><div class="label">💬 Komentarze</div><div class="num" id="cm-k-all">—</div></div>
+    <div class="card kpi hero"><div class="label">⚠️ Do sprawdzenia</div><div class="num" id="cm-k-flag">—</div></div>
+    <div class="card kpi"><div class="label">🙈 Ukryte</div><div class="num" id="cm-k-hidden">—</div></div>
+  </div>
+  <div class="card" style="margin-top:14px"><div id="cm-list"><p class="empty">Ładowanie…</p></div></div>
+  <p class="muted" style="margin-top:16px;font-size:13px;font-weight:600">🙈 <b>Ukryj</b> = komentarz widzi tylko jego autor i jego znajomi, nikt inny nie wie, że go schowano — najlepsze na hejt pod reklamami. 🗑 <b>Usuń</b> = znika na zawsze (autor może to zauważyć). „Do sprawdzenia” to automatyczna podpowiedź po słowach typu „oszustwo”, „nie przyszło”, przekleństwa — zawsze przeczytaj przed decyzją.</p>
 </section>
 
 <!-- ================= FLEX ================= -->
@@ -429,6 +474,16 @@ function render(d) {
 
   $('campaigns').innerHTML = !m.ok ? '<p class="empty">Podłącz klucz Meta, żeby zobaczyć kampanie.</p>' : (m.campaigns.length ? `<table><tr><th>Kampania</th><th class="r">Wydatki</th><th class="r">Wyświetlenia</th><th class="r">Kliknięcia</th><th class="r">CPC</th><th class="r">Zakupy</th><th class="r">ROAS</th></tr>${m.campaigns.map((c) => `<tr><td><b>${esc(c.name)}</b></td><td class="r">${zl(c.spend)}</td><td class="r">${num(c.impressions)}</td><td class="r">${num(c.clicks)}</td><td class="r">${c.clicks ? zl(c.spend / c.clicks) : '—'}</td><td class="r">${num(c.purchases)}</td><td class="r"><span class="pill ${c.spend && c.value / c.spend >= 1.5 ? 'ok' : (c.spend ? 'bad' : '')}">${c.spend ? num(c.value / c.spend, 2) + '×' : '—'}</span></td></tr>`).join('')}</table>` : '<p class="empty">Brak kampanii w tym okresie — pierwsza kampania pojawi się tu automatycznie.</p>');
 
+  const AST = { ACTIVE: ['✅ aktywna', 'ok'], IN_PROCESS: ['⏳ przetwarzanie', ''], PENDING_REVIEW: ['⏳ sprawdzana przez Meta', ''], PREAPPROVED: ['⏳ wstępnie zatwierdzona', ''], DISAPPROVED: ['⛔ odrzucona', 'bad'], WITH_ISSUES: ['⚠️ problem', 'bad'], PAUSED: ['⏸ wstrzymana', ''], CAMPAIGN_PAUSED: ['⏸ kampania wstrzymana', ''], ADSET_PAUSED: ['⏸ zestaw wstrzymany', ''], PENDING_BILLING_INFO: ['💳 brak płatności', 'bad'] };
+  const ads = m.ok ? (m.ads || []) : [];
+  const bestAd = ads.filter((a) => a.clicks > 0).sort((a, b) => (b.checkouts - a.checkouts) || (b.clicks / b.impressions - a.clicks / a.impressions))[0];
+  $('ads').innerHTML = !m.ok ? '' : (ads.length ? `<table><tr><th>Rolka</th><th>Status</th><th class="r">Wydatki</th><th class="r">Wyśw.</th><th class="r">Klik.</th><th class="r">CTR</th><th class="r">CPC</th><th class="r">Do kasy</th><th class="r">Zakupy</th></tr>${ads.map((a) => {
+    const st = AST[a.status] || [a.status ? a.status.toLowerCase() : '—', ''];
+    const ctr = a.impressions ? a.clicks / a.impressions * 100 : null;
+    const thumb = /^https:\/\//.test(a.thumb) ? `<img class="thumb" src="${esc(a.thumb)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : '<span class="thumb"></span>';
+    return `<tr><td><div class="adname">${thumb}<div><b>${esc(a.name)}</b>${bestAd && bestAd.id === a.id ? ' <span class="pill ok">🏆 najlepsza</span>' : ''}<div class="muted" style="font-size:12px">${esc(a.campaign)}</div></div></div></td><td><span class="pill ${st[1]}">${esc(st[0])}</span></td><td class="r">${zl(a.spend)}</td><td class="r">${num(a.impressions)}</td><td class="r">${num(a.clicks)}</td><td class="r">${pct(ctr)}</td><td class="r">${a.clicks ? zl(a.spend / a.clicks) : '—'}</td><td class="r">${num(a.checkouts)}</td><td class="r"><b>${num(a.purchases)}</b></td></tr>`;
+  }).join('')}</table>` : '<p class="empty">Brak reklam na koncie.</p>');
+
   const ST = { PAID: 'opłacone', PENDING: 'oczekuje', REFUNDED: 'zwrócone', PARTIALLY_REFUNDED: 'częściowy zwrot', AUTHORIZED: 'autoryzowane' };
   $('orders').innerHTML = !s.ok ? '<p class="empty">Podłącz klucz Shopify, żeby zobaczyć zamówienia.</p>' : (s.orders.length ? `<table><tr><th>Nr</th><th>Kiedy</th><th>Produkty</th><th class="r">Kwota</th><th>Status</th></tr>${s.orders.map((o) => `<tr${o.counted ? '' : ' class="muted"'}><td><b>${esc(o.name)}</b></td><td>${new Date(o.date).toLocaleString('pl-PL', { day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit' })}</td><td>${esc(o.items)}</td><td class="r"><b>${zl(o.total)}</b></td><td><span class="pill ${o.status === 'PAID' ? 'ok' : (o.counted ? '' : 'bad')}">${esc(ST[o.status] || o.status)}</span> ${o.counted ? `<span class="pill">${o.fulfillment === 'FULFILLED' ? '🚚 wysłane' : '⏳ do wysyłki'}</span>` : ''}</td></tr>`).join('')}</table>` : '<p class="empty">Brak zamówień w tym okresie — pierwsze pojawi się tu od razu (i zadzwoni 🔔).</p>');
 
@@ -492,11 +547,78 @@ function renderInsights(d) {
 // ---- zakładki, zakres ----
 $$('.tabs button').forEach((b) => b.addEventListener('click', () => {
   $$('.tabs button').forEach((x) => x.classList.toggle('on', x === b));
-  $('tab-overview').hidden = b.dataset.tab !== 'overview';
-  $('tab-flex').hidden = b.dataset.tab !== 'flex';
+  ['overview', 'comments', 'flex'].forEach((t) => ($('tab-' + t).hidden = b.dataset.tab !== t));
   store.set('tab', b.dataset.tab);
   if (b.dataset.tab === 'flex') loadFlex();
+  if (b.dataset.tab === 'comments') loadComments();
 }));
+
+// ================= KOMENTARZE =================
+let CM = null, cmFilter = 'flag';
+async function loadComments(fresh = false) {
+  try {
+    const r = await fetch('comments.php' + (fresh ? '?fresh=1' : ''), { cache: 'no-store' });
+    if (r.status === 401) { location.reload(); return; }
+    CM = await r.json();
+  } catch { CM = { ok: false, error: 'Nie udało się pobrać komentarzy. Spróbuj odświeżyć.' }; }
+  renderComments();
+}
+const ago = (iso) => { const s = (Date.now() - new Date(iso)) / 1000; return s < 3600 ? `${Math.max(1, Math.round(s / 60))} min temu` : s < 86400 ? `${Math.round(s / 3600)} godz. temu` : new Date(iso).toLocaleString('pl-PL', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }); };
+const safeUrl = (u) => /^https:\/\//.test(u || '') ? esc(u) : '';
+function renderComments() {
+  const d = CM; if (!d) return;
+  const badge = $('cm-badge');
+  if (!d.ok) {
+    badge.hidden = true;
+    $('cm-notes').innerHTML = `<div class="note">⚠️ ${esc(d.error)}${d.needsPerms ? '<br>Klucz Meta trzeba wygenerować ponownie z uprawnieniami do strony i Instagrama (pages_read_engagement, pages_read_user_content, pages_manage_engagement, instagram_basic, instagram_manage_comments).' : ''}</div>`;
+    $('cm-list').innerHTML = '<p class="empty">Brak dostępu do komentarzy.</p>';
+    return;
+  }
+  const sm = d.summary;
+  badge.hidden = !sm.flagged; badge.textContent = sm.flagged;
+  $('cm-period').textContent = `Strona ${d.page}${d.ig ? ' · Instagram @' + d.ig : ''} · stan na ${d.generated}`;
+  $('cm-notes').innerHTML = (d.errors || []).map((e) => `<div class="note">⚠️ ${esc(e)}</div>`).join('');
+  $('cm-k-posts').textContent = num(sm.posts); $('cm-k-all').textContent = num(sm.comments);
+  $('cm-k-flag').textContent = num(sm.flagged); $('cm-k-hidden').textContent = num(sm.hidden);
+  $$('#cm-filter button').forEach((b) => b.classList.toggle('on', b.dataset.f === cmFilter));
+
+  if (cmFilter === 'posts') {
+    $('cm-list').innerHTML = d.posts.length ? `<div class="posts">${d.posts.map((p) => {
+      const neg = p.comments.filter((c) => c.flag && !c.hidden).length;
+      return `<a class="post" href="${safeUrl(p.link)}" target="_blank" rel="noopener"><div class="pimg" style="${safeUrl(p.img) ? `background-image:url('${safeUrl(p.img)}')` : ''}"><span class="pill ${p.ad ? 'bad' : ''}">${p.platform === 'ig' ? '📸 Instagram' : '📘 Facebook'}${p.ad ? ' · 📣 ' + esc(p.ad) : ''}</span></div><div class="pb"><p>${esc(p.text || '(bez opisu)')}</p><div class="row" style="font-size:12px"><span class="muted">${p.time ? ago(p.time) : ''}</span><span>💬 ${num(p.count)}${neg ? ` · <span style="color:var(--berry)">⚠️ ${neg}</span>` : ''}</span></div></div></a>`;
+    }).join('')}</div>` : '<p class="empty">Brak postów.</p>';
+    return;
+  }
+  const rows = [];
+  d.posts.forEach((p) => p.comments.forEach((c) => rows.push({ ...c, post: p })));
+  const list = rows.filter((c) => cmFilter === 'all' ? true : cmFilter === 'hidden' ? c.hidden : (c.flag && !c.hidden)).sort((a, b) => strcmpDesc(a.time, b.time));
+  const emptyMsg = { flag: '🎉 Nic do sprawdzenia — brak podejrzanych komentarzy.', all: 'Jeszcze nikt nie skomentował.', hidden: 'Brak ukrytych komentarzy.' }[cmFilter];
+  $('cm-list').innerHTML = list.length ? list.map((c) => {
+    const p = c.post, where = p.ad ? `📣 reklama „${esc(p.ad)}”` : `post: ${esc((p.text || '').slice(0, 50) || '(bez opisu)')}${(p.text || '').length > 50 ? '…' : ''}`;
+    return `<div class="cm${c.flag ? ' flag' : ''}${c.hidden ? ' hid' : ''}" data-id="${esc(c.id)}" data-pl="${p.platform}">
+      <div class="av ${p.platform}">${esc((c.author.replace('@', '')[0] || '?').toUpperCase())}</div>
+      <div><b>${esc(c.author)}</b> ${c.flag ? '<span class="pill bad">⚠️ do sprawdzenia</span>' : ''} ${c.hidden ? '<span class="pill">🙈 ukryty</span>' : ''}
+        <div class="meta">${p.platform === 'ig' ? '📸 Instagram' : '📘 Facebook'} · ${c.time ? ago(c.time) : ''} · ${where}</div>
+        <div class="txt">${esc(c.text || '(naklejka lub zdjęcie)')}</div></div>
+      <div class="acts">${c.hidden ? `<button data-a="unhide" ${c.canHide ? '' : 'disabled'}>👁 Pokaż</button>` : `<button data-a="hide" ${c.canHide ? '' : 'disabled'}>🙈 Ukryj</button>`}<button class="del" data-a="delete" ${c.canDelete ? '' : 'disabled'}>🗑 Usuń</button>${safeUrl(c.link) ? `<a href="${safeUrl(c.link)}" target="_blank" rel="noopener">↗ Otwórz</a>` : ''}</div>
+    </div>`;
+  }).join('') : `<p class="empty">${emptyMsg}</p>`;
+}
+function strcmpDesc(a, b) { return a < b ? 1 : a > b ? -1 : 0; }
+$('cm-list').addEventListener('click', async (e) => {
+  const b = e.target.closest('button[data-a]'); if (!b) return;
+  const row = b.closest('.cm'), action = b.dataset.a;
+  if (action === 'delete' && !confirm('Usunąć ten komentarz na zawsze? Tego nie da się cofnąć.\n\nTip: „Ukryj” jest bezpieczniejsze — autor nie zauważy.')) return;
+  $$('button', row).forEach((x) => (x.disabled = true)); b.textContent = '…';
+  try {
+    const r = await fetch('comments.php', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-WD': '1' }, body: JSON.stringify({ action, platform: row.dataset.pl, id: row.dataset.id }) });
+    const j = await r.json();
+    if (!j.ok) throw new Error(j.error || 'Błąd');
+  } catch (err) { alert('Nie udało się: ' + err.message); }
+  loadComments(true);
+});
+$$('#cm-filter button').forEach((b) => b.addEventListener('click', () => { cmFilter = b.dataset.f; renderComments(); }));
+$('cm-refresh').addEventListener('click', () => { $('cm-list').innerHTML = '<p class="empty">Ładowanie…</p>'; loadComments(true); });
 $$('#ranges button').forEach((b) => b.addEventListener('click', () => { $$('#ranges button').forEach((x) => x.classList.toggle('on', x === b)); range = b.dataset.r; load(); }));
 $('refresh').addEventListener('click', () => { load(true); pollLive(true); });
 
@@ -631,10 +753,11 @@ $('fx-png').addEventListener('click', async () => {
 });
 
 // ================= start =================
-load(); loadMonth(); pollLive();
+load(); loadMonth(); pollLive(); loadComments();
 setInterval(() => load(), 5 * 60 * 1000);
 setInterval(() => pollLive(), 45 * 1000);
-if (store.get('tab', 'overview') === 'flex') $$('.tabs button')[1].click();
+setInterval(() => loadComments(), 4 * 60 * 1000);
+{ const t = store.get('tab', 'overview'); const btn = $$('.tabs button').find((b) => b.dataset.tab === t); if (btn && t !== 'overview') btn.click(); }
 </script>
 <?php endif; ?>
 </body>

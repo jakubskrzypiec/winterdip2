@@ -188,7 +188,31 @@ function meta_data(string $since, string $until, string $prevSince, string $prev
       'clicks' => (int)($row['inline_link_clicks'] ?? 0), 'purchases' => $purch($row, 'actions'), 'value' => $purch($row, 'action_values')];
   }
   usort($campaigns, fn($a, $b) => $b['spend'] <=> $a['spend']);
-  $out = ['ok' => true, 'totals' => $tot, 'prev' => $prev, 'daily' => $daily, 'campaigns' => $campaigns];
+
+  // reklamy (rolki): status z konta + wyniki z okresu
+  $ads = [];
+  $ra = http_json("https://graph.facebook.com/$ver/act_$acct/ads?" . http_build_query([
+    'fields' => 'id,name,effective_status,campaign{name},creative{thumbnail_url}', 'limit' => 60, 'access_token' => $token]));
+  foreach ($ra['json']['data'] ?? [] as $a) {
+    if (in_array($a['effective_status'] ?? '', ['DELETED', 'ARCHIVED'], true)) continue;
+    $ads[$a['id']] = ['id' => $a['id'], 'name' => $a['name'], 'status' => $a['effective_status'] ?? '', 'campaign' => $a['campaign']['name'] ?? '',
+      'thumb' => $a['creative']['thumbnail_url'] ?? '', 'spend' => 0.0, 'impressions' => 0, 'clicks' => 0, 'checkouts' => 0.0, 'purchases' => 0.0, 'value' => 0.0];
+  }
+  $rl = $get(['level' => 'ad', 'fields' => 'ad_id,ad_name,spend,impressions,inline_link_clicks,actions,action_values', 'time_range' => $tr, 'limit' => 100]);
+  foreach ($rl['json']['data'] ?? [] as $row) {
+    $id = $row['ad_id'];
+    $ads[$id] ??= ['id' => $id, 'name' => $row['ad_name'], 'status' => '', 'campaign' => '', 'thumb' => '', 'spend' => 0.0, 'impressions' => 0, 'clicks' => 0, 'checkouts' => 0.0, 'purchases' => 0.0, 'value' => 0.0];
+    $ads[$id]['spend'] += (float)$row['spend'];
+    $ads[$id]['impressions'] += (int)$row['impressions'];
+    $ads[$id]['clicks'] += (int)($row['inline_link_clicks'] ?? 0);
+    $ads[$id]['checkouts'] += $act($row, 'offsite_conversion.fb_pixel_initiate_checkout');
+    $ads[$id]['purchases'] += $purch($row, 'actions');
+    $ads[$id]['value'] += $purch($row, 'action_values');
+  }
+  $ads = array_values($ads);
+  usort($ads, fn($a, $b) => [$b['spend'], $a['name']] <=> [$a['spend'], $b['name']]);
+
+  $out = ['ok' => true, 'totals' => $tot, 'prev' => $prev, 'daily' => $daily, 'campaigns' => $campaigns, 'ads' => $ads];
   cache_set($key, $out);
   return $out;
 }

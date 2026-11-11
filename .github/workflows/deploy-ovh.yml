@@ -54,6 +54,9 @@ jobs:
           echo "Do wysłania: $(wc -l < upload.txt), do usunięcia: $(wc -l < delete.txt)"
           cat upload.txt delete.txt | head -50
 
+      - name: Sprawdzenie składni PHP
+        run: for f in admin/*.php api/*.php; do php -l "$f" || exit 1; done
+
       - name: Konfiguracja panelu /admin (z sekretów)
         env:
           ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}

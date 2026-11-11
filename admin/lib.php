@@ -53,13 +53,18 @@ function cache_set(string $key, $value): void {
   @file_put_contents(DATA_DIR . '/cache-' . preg_replace('/[^a-z0-9_\-]/i', '', $key) . '.json', json_encode($value), LOCK_EX);
 }
 
-function http_json(string $url, array $headers = [], ?string $body = null): array {
+function cache_del(string $key): void {
+  @unlink(DATA_DIR . '/cache-' . preg_replace('/[^a-z0-9_\-]/i', '', $key) . '.json');
+}
+
+function http_json(string $url, array $headers = [], ?string $body = null, string $method = ''): array {
   $ch = curl_init($url);
   curl_setopt_array($ch, [
     CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 20, CURLOPT_CONNECTTIMEOUT => 8,
     CURLOPT_HTTPHEADER => $headers,
   ]);
   if ($body !== null) { curl_setopt($ch, CURLOPT_POST, true); curl_setopt($ch, CURLOPT_POSTFIELDS, $body); }
+  if ($method !== '') curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
   $res = curl_exec($ch);
   $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
   $err = curl_error($ch);
