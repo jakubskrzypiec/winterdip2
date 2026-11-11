@@ -1275,3 +1275,23 @@ html:not(.in-hero) .logo .logo--dark { display: block; }
   .pdp__thumbs--photo { grid-template-columns: repeat(3, 1fr); }
   .cine-ch--intro { top: 118px; }
 }
+
+/* v16 — hero: jeden napis w lewym dolnym rogu przez całą animację */
+.cine-ch--intro { left: var(--gutter); bottom: clamp(44px, 8vh, 100px); max-width: none; transform: none; }
+.cine-ch--intro .cine-title { font-size: clamp(44px, 4.8vw, 88px); line-height: 1; letter-spacing: -.025em; }
+.cine-ch--intro .cine-line { white-space: nowrap; padding: .02em 0 .1em; }
+.cine-ch--intro .hero__btns { margin-top: clamp(24px, 3.4vh, 38px); gap: 14px; }
+.cine-veil { background:
+  radial-gradient(52% 60% at 0% 100%, rgba(220,224,232,.85) 0%, rgba(220,224,232,.45) 45%, rgba(220,224,232,0) 75%),
+  radial-gradient(140% 100% at 50% 45%, transparent 62%, rgba(39,54,63,.18) 100%); }
+@media (max-width: 760px) {
+  .cine-ch--intro { top: 118px; bottom: 22px; }
+  .cine-ch--intro .cine-title { font-size: clamp(36px, 11vw, 50px); }
+  .cine-veil { background:
+      linear-gradient(180deg, rgba(220,224,232,.94) 0%, rgba(220,224,232,.6) 22%, rgba(220,224,232,0) 38%),
+      linear-gradient(0deg, rgba(220,224,232,.85) 0%, rgba(220,224,232,0) 22%); }
+}
+/* miękka jasna poświata pod napisem — czytelny także na wstęgach */
+.cine-ch--intro::before { content: ""; position: absolute; z-index: -1; left: -14vw; right: -10vw; top: -30%; bottom: -40%;
+  background: radial-gradient(closest-side, rgba(220,224,232,.92) 0%, rgba(220,224,232,.75) 45%, rgba(220,224,232,0) 100%); pointer-events: none; }
+@media (max-width: 760px) { .cine-ch--intro::before { display: none; } }

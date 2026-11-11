@@ -78,7 +78,7 @@ export async function initHero(reduced) {
     cw = canvas.width = Math.round(canvas.clientWidth * dpr);
     ch = canvas.height = Math.round(canvas.clientHeight * dpr);
     // klatka 16:9 dopasowana „cover” — dekodujemy dokładnie w potrzebnej szerokości
-    decodeW = Math.min(src.width || 1920, Math.ceil(Math.max(cw, ch * 16 / 9)));
+    decodeW = Math.min(src.width || 1920, Math.ceil(Math.max(cw * 0.72, ch * 16 / 9)));
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
     bitmaps.forEach((b) => b.close && b.close()); bitmaps.clear();
@@ -128,11 +128,38 @@ export async function initHero(reduced) {
     return null;
   }
   let lastKey = '';
+  // Kadr: cały film mieści się w wysokości pod paskiem nagłówka (bez mocnego przybliżenia).
+  // Gdy ekran jest szerszy niż film, boki wypełnia rozmyta kopia klatki,
+  // a ostra klatka ma miękko wygaszone krawędzie — bez widocznych pasów.
+  const small = document.createElement('canvas'); small.width = 32; small.height = 18;
+  const sctx = small.getContext('2d');
+  const soft = document.createElement('canvas'); const fctx = soft.getContext('2d');
+  function topPx() {
+    const h = document.querySelector('.header');
+    return Math.max(0, h ? h.getBoundingClientRect().bottom : 0) * (cw / canvas.clientWidth || 1);
+  }
   function blit(img, alpha) {
-    const s = Math.max(cw / img.width, ch / img.height);
-    const w = img.width * s, h = img.height * s;
+    const top = topPx(), ah = ch - top;
+    const s = Math.max(ah / img.height, (cw / img.width) * 0.72);
+    const w = Math.round(img.width * s), h = Math.round(img.height * s);
+    const x = Math.round((cw - w) / 2), y = Math.round(top + (ah - h) / 2);
     ctx.globalAlpha = alpha;
-    ctx.drawImage(img, (cw - w) / 2, (ch - h) / 2, w, h);
+    if (w < cw || y > 0) {
+      sctx.drawImage(img, 0, 0, 32, 18);
+      ctx.drawImage(small, 0, 0, cw, ch);
+      if (soft.width !== w || soft.height !== h) { soft.width = w; soft.height = h; }
+      fctx.globalCompositeOperation = 'source-over';
+      fctx.drawImage(img, 0, 0, w, h);
+      fctx.globalCompositeOperation = 'destination-in';
+      const g = fctx.createLinearGradient(0, 0, w, 0);
+      const e = w < cw ? 0.09 : 0;
+      g.addColorStop(0, e ? 'rgba(0,0,0,0)' : '#000'); g.addColorStop(e || 0.0001, '#000');
+      g.addColorStop(1 - (e || 0.0001), '#000'); g.addColorStop(1, e ? 'rgba(0,0,0,0)' : '#000');
+      fctx.fillStyle = g; fctx.fillRect(0, 0, w, h);
+      ctx.drawImage(soft, x, y);
+    } else {
+      ctx.drawImage(img, x, y, w, h);
+    }
   }
   // pos = pozycja z ułamkiem; między klatkami delikatnie je przenikamy,
   // dzięki czemu ruch jest ciągły zamiast „klatka po klatce”

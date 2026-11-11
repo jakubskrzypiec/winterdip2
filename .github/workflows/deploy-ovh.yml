@@ -49,12 +49,24 @@ jobs:
       - name: Wysyłka przez SFTP
         env:
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          MODE: ${{ steps.files.outputs.mode }}
         run: |
+          # pełna wysyłka: kopia strony w katalogu site/ do sprzątania serwera
+          if [ "$MODE" = "full" ]; then
+            mkdir -p site
+            while IFS= read -r f; do mkdir -p "site/$(dirname "$f")"; cp "$f" "site/$f"; done < upload.txt
+          fi
           {
             echo "set sftp:auto-confirm yes"
             echo "set net:max-retries 3"
             echo "set net:timeout 30"
             echo "set cmd:fail-exit no"
+            echo "du -s -h www"
+            if [ "$MODE" = "full" ]; then
+              # usuwa z serwera pliki, których nie ma w repo (pomija pliki ukryte, np. .ovhconfig)
+              # i wysyła brakujące — zwalnia miejsce na hostingu
+              echo "mirror -R --delete --only-missing --no-perms --parallel=4 -x '(^|/)\.' site www"
+            fi
             while IFS= read -r f; do
               [ -n "$f" ] || continue
               d=$(dirname "$f")
@@ -65,6 +77,7 @@ jobs:
             while IFS= read -r f; do
               [ -n "$f" ] && echo "rm -f \"www/$f\""
             done < delete.txt
+            echo "du -s -h www"
             echo "bye"
           } > commands.lftp
           n=$(wc -l < upload.txt)
