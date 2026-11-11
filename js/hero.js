@@ -129,10 +129,9 @@ export async function initHero(reduced) {
   }
   let lastKey = '';
   // Kadr: cały film mieści się w wysokości pod paskiem nagłówka (bez mocnego przybliżenia).
-  // Gdy ekran jest szerszy niż film, boki wypełnia rozmyta kopia klatki,
+  // Gdy ekran jest szerszy niż film, boki wypełnia jednolite tło w kolorze filmu,
   // a ostra klatka ma miękko wygaszone krawędzie — bez widocznych pasów.
-  const small = document.createElement('canvas'); small.width = 32; small.height = 18;
-  const sctx = small.getContext('2d');
+  let bgGrad = null;
   const soft = document.createElement('canvas'); const fctx = soft.getContext('2d');
   function topPx() {
     const h = document.querySelector('.header');
@@ -145,14 +144,18 @@ export async function initHero(reduced) {
     const x = Math.round((cw - w) / 2), y = Math.round(top + (ah - h) / 2);
     ctx.globalAlpha = alpha;
     if (w < cw || y > 0) {
-      sctx.drawImage(img, 0, 0, 32, 18);
-      ctx.drawImage(small, 0, 0, cw, ch);
+      // stałe tło w kolorze tła filmu (góra ciemniejsza, dół jaśniejszy) — bez migających plam ze wstęg
+      if (!bgGrad || bgGrad.h !== ch) {
+        bgGrad = ctx.createLinearGradient(0, 0, 0, ch); bgGrad.h = ch;
+        bgGrad.addColorStop(0, '#8c96a0'); bgGrad.addColorStop(0.5, '#a3acb5'); bgGrad.addColorStop(1, '#cdd0d6');
+      }
+      ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, cw, ch);
       if (soft.width !== w || soft.height !== h) { soft.width = w; soft.height = h; }
       fctx.globalCompositeOperation = 'source-over';
       fctx.drawImage(img, 0, 0, w, h);
       fctx.globalCompositeOperation = 'destination-in';
       const g = fctx.createLinearGradient(0, 0, w, 0);
-      const e = w < cw ? 0.09 : 0;
+      const e = w < cw ? 0.14 : 0;
       g.addColorStop(0, e ? 'rgba(0,0,0,0)' : '#000'); g.addColorStop(e || 0.0001, '#000');
       g.addColorStop(1 - (e || 0.0001), '#000'); g.addColorStop(1, e ? 'rgba(0,0,0,0)' : '#000');
       fctx.fillStyle = g; fctx.fillRect(0, 0, w, h);
