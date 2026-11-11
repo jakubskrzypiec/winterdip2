@@ -189,7 +189,7 @@ details summary{cursor:pointer;font-weight:800;font-size:13px;color:var(--pine-2
 @media (max-width:640px){.cm{grid-template-columns:auto minmax(0,1fr)}.cm .acts{grid-column:1/-1;justify-content:flex-start}#cm-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 [hidden]{display:none!important}
 @media (max-width:1100px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.g21,.g12,.g111,.insights{grid-template-columns:minmax(0,1fr)}.flex-layout{grid-template-columns:minmax(0,1fr)}.stage{margin:0 auto}}
-@media (max-width:640px){header .wrap{flex-wrap:wrap;height:auto;padding:10px 20px}.live{order:5;width:100%;justify-content:center}.kpi .num{font-size:24px}.tabs{margin-left:0}}
+@media (max-width:640px){header{position:static}header .wrap{flex-wrap:wrap;height:auto;padding:10px 20px}.live{order:5;width:100%;justify-content:center}.kpi .num{font-size:24px}.tabs{margin-left:0}}
 </style>
 </head>
 <body>
