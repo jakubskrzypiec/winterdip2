@@ -45,7 +45,7 @@ function buildDrawer() {
       <div class="drawer__total"><span>Razem</span><span class="drawer__sum">0 zł</span></div>
       <button class="btn btn--primary btn--block" data-checkout>Przejdź do kasy
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></button>
-      <div class="drawer__trust"><span>🔒 Bezpieczne płatności</span><span>↩ 30 dni na zwrot</span><span>🎁 Pakowanie na prezent</span></div>
+      <div class="drawer__trust"><span>🔒 Bezpieczne płatności</span><span>↩ 30 dni na zwrot</span><span>📦 Numer do śledzenia</span></div>
     </div>
   </aside>
   <div class="toast-add" role="status" aria-live="polite"></div>`;

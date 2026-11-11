@@ -26,12 +26,13 @@ export async function initHero(reduced) {
   syncInHero();
 
   initHeroSnow(hero.querySelector('.hero__snow'), reduced);
-  if (!reduced) {
-    const ov = hero.querySelector('.hero__overlay');
-    if (ov) {
-      gsap.from(ov.querySelectorAll('.hero__headline > span'), { y: 50, opacity: 0, duration: 1.3, stagger: 0.1, ease: 'expo.out', delay: 0.3 });
-      gsap.from(ov.querySelectorAll('.hero__kicker, .hero__lead, .hero__btns'), { opacity: 0, y: 24, duration: 1.1, stagger: 0.12, ease: 'expo.out', delay: 0.5 });
-    }
+  const chapters = initChapters(hero, reduced);
+
+  // telefon: zamiast filmu pionowe zdjęcie (lekko, bez pobierania ~25 MB klatek)
+  if (matchMedia('(max-width: 760px)').matches) {
+    hero.classList.add('is-still');
+    if (loader) loader.style.opacity = 0;
+    return;
   }
 
   let manifest = null;
@@ -46,8 +47,7 @@ export async function initHero(reduced) {
     return;
   }
 
-  const mobile = matchMedia('(max-width: 760px)').matches && manifest.mobile;
-  const src = mobile ? manifest.mobile : manifest;
+  const src = manifest;
   const N = src.count;
   const url = (i) => `assets/hero/${src.dir}/${String(i + 1).padStart(4, '0')}.${src.ext || 'webp'}`;
   const ctx = canvas.getContext('2d', { alpha: false });
@@ -67,7 +67,7 @@ export async function initHero(reduced) {
   let target = 0, current = 0, dir = 1;
   ScrollTrigger.create({
     trigger: hero, start: 'top top', end: 'bottom bottom',
-    onUpdate: (self) => { target = self.progress * (N - 1); dir = self.direction || dir; },
+    onUpdate: (self) => { target = self.progress * (N - 1); dir = self.direction || dir; chapters(self.progress); },
   });
 
   // ---------- rozmiar canvasa (bez nadmiarowej rozdzielczości) ----------
@@ -178,6 +178,49 @@ export async function initHero(reduced) {
   await load(order[cursor++]); // pierwsza klatka od razu
   await decode(0); dirty = true;
   for (let k = 0; k < 6; k++) worker();
+}
+
+// ---------- napisy-rozdziały nad filmem ----------
+// Każdy rozdział ma zakres scrolla (data-from / data-to). Wchodzi słowo po słowie,
+// a w trakcie lekko „płynie” w górę (paralaksa). Pasek z prawej pokazuje postęp.
+function initChapters(hero, reduced) {
+  const chs = [...hero.querySelectorAll('.cine-ch')];
+  // podział tytułów na słowa (maska + opóźnienie dla każdego słowa)
+  chs.forEach((ch) => {
+    let i = 0;
+    ch.querySelectorAll('.cine-line').forEach((line) => {
+      const walk = (node) => {
+        [...node.childNodes].forEach((n) => {
+          if (n.nodeType === 3) {
+            const frag = document.createDocumentFragment();
+            n.textContent.split(/(\s+)/).forEach((w) => {
+              if (!w) return;
+              if (/^\s+$/.test(w)) { frag.append(w); return; }
+              const sp = document.createElement('span');
+              sp.className = 'cine-w'; sp.style.setProperty('--i', i++); sp.textContent = w;
+              frag.append(sp);
+            });
+            n.replaceWith(frag);
+          } else if (n.nodeType === 1) walk(n);
+        });
+      };
+      walk(line);
+    });
+  });
+  const rail = hero.querySelector('.cine-rail i');
+  const cue = hero.querySelector('.cine-cue');
+  // pierwszy rozdział wchodzi po załadowaniu strony
+  if (!reduced) { chs[0]?.classList.remove('is-in'); requestAnimationFrame(() => setTimeout(() => chs[0]?.classList.add('is-in'), 250)); }
+  return function update(p) {
+    chs.forEach((ch) => {
+      const a = +ch.dataset.from, b = +ch.dataset.to;
+      const on = p >= a && p < b;
+      ch.classList.toggle('is-in', on);
+      if (on) ch.style.setProperty('--lp', ((p - a) / (b - a)).toFixed(3));
+    });
+    if (rail) rail.style.transform = `scaleY(${p.toFixed(4)})`;
+    if (cue) cue.classList.toggle('is-hidden', p > 0.02);
+  };
 }
 
 // ---------- śnieg nad filmem: pada CAŁY CZAS, także bez scrollowania ----------

@@ -16,20 +16,20 @@ const INFO = {
     // zdjęcia do „Jak to działa” (na razie te same co przy czerwonym; TODO: beżowe wersje kroków)
     steps: [IMG('czerwony', 'krok-1'), IMG('czerwony', 'krok-2'), IMG('czerwony', 'krok-3')],
     lead: 'Kremowa ceramika z czekoladowym wnętrzem. Podgrzewacz w podstawie trzyma czekoladę płynną przez cały wieczór, a widelczyk ma swoje miejsce przy uchu kubka.',
-    bullets: ['Ceramika w kremowym beżu z brązowym wnętrzem', 'Otwór na podgrzewacz — czekolada płynna przez cały wieczór', 'Widelczyk do fondue w komplecie', 'Eleganckie pudełko — gotowe pod choinkę'],
+    bullets: ['Ceramika w kremowym beżu z brązowym wnętrzem', 'Otwór na podgrzewacz — czekolada płynna przez cały wieczór', 'Widelczyk do fondue w komplecie', 'Świetny pomysł na prezent pod choinkę'],
   },
   'mug-2': {
     key: 'czerwony', color: 'Czerwony', swatch: '#c8102e',
     steps: [IMG('czerwony', 'krok-1'), IMG('czerwony', 'krok-2'), IMG('czerwony', 'krok-3')],
     lead: 'Głęboka, świąteczna czerwień i jasne wnętrze. Świeczka pod spodem, płynna czekolada na górze i widelczyk zawsze pod ręką.',
-    bullets: ['Ceramika w świątecznej czerwieni z jasnym wnętrzem', 'Otwór na podgrzewacz — czekolada płynna przez cały wieczór', 'Widelczyk do fondue w komplecie', 'Eleganckie pudełko — gotowe pod choinkę'],
+    bullets: ['Ceramika w świątecznej czerwieni z jasnym wnętrzem', 'Otwór na podgrzewacz — czekolada płynna przez cały wieczór', 'Widelczyk do fondue w komplecie', 'Świetny pomysł na prezent pod choinkę'],
   },
 };
 
 const OCCASIONS = [
   ['Randka w domu', 'Dwa kubki, przygaszone światło i truskawki w czekoladzie. Wieczór, który pamięta się dłużej niż kolacja na mieście.'],
   ['Wieczór z filmem', 'Koc, ulubiony serial i ciepła czekolada pod ręką. Bez gotowania i bez zmywania garnków.'],
-  ['Prezent pod choinkę', 'Kubek przychodzi w eleganckim pudełku. Wystarczy dołożyć tabliczkę czekolady i gotowe.'],
+  ['Prezent pod choinkę', 'Kubek z tabliczką ulubionej czekolady to gotowy prezent na święta.'],
   ['Spotkanie ze znajomymi', 'Każdy ma swój kubek i swoją porcję. Mini fondue dla jednej osoby, bez wspólnego garnka.'],
 ];
 const DIPS = ['Truskawki', 'Banany', 'Pierniki', 'Ciastka', 'Pianki', 'Precelki', 'Mandarynki', 'Biszkopty', 'Ananas', 'Gofry'];
@@ -40,7 +40,7 @@ const otherId = id === 'mug-1' ? 'mug-2' : 'mug-1';
 const other = PRODUCTS[otherId], otherInfo = INFO[otherId];
 document.title = `${p.name} — Winterdip`;
 
-const shots = [['01-katalog', 'Kubek z przodu'], ['02-fondue', 'Kubek z czekoladą i świeczką'], ['03-maczanie', 'Maczanie truskawki w czekoladzie']];
+const shots = [['01-katalog', 'Kubek z przodu'], ['02-fondue', 'Kubek z czekoladą i świeczką'], ['03-maczanie', 'Maczanie truskawki w czekoladzie'], ['04-z-gory', 'Kubek z góry z widelczykiem i czekoladą'], ['05-detal-uchwytu', 'Widelczyk wsunięty w ucho kubka'], ['06-zimowy-wieczor', 'Kubek na zimowy wieczór z przekąskami']];
 const stars = (n) => '★'.repeat(n) + '☆'.repeat(5 - n);
 
 document.getElementById('product-root').innerHTML = `
@@ -91,7 +91,7 @@ document.getElementById('product-root').innerHTML = `
         <div class="trust-row">
           <div><b>Dostawa</b>Darmowa od 149 zł</div>
           <div><b>Zwrot</b>30 dni bez pytań</div>
-          <div><b>Prezent</b>Pudełko + bilecik</div>
+          <div><b>Śledzenie</b>Numer przesyłki mailem</div>
         </div>
         <div class="acc">
           <details><summary>Wymiary i pielęgnacja</summary><p>Kubek mieści porcję czekoladowego fondue dla jednej osoby. Ceramikę możesz myć w zmywarce, ale polecamy mycie ręczne, żeby szkliwo i napis zostały piękne na lata. Widelczyk myj ręcznie.</p></details>
@@ -128,14 +128,14 @@ document.getElementById('product-root').innerHTML = `
   <section class="section pd-box">
     <div class="container pd-box__grid">
       <div>
-        <span class="eyebrow">W pudełku</span>
+        <span class="eyebrow">W zestawie</span>
         <h2 class="display h2" data-split style="margin-top:20px">Wszystko,<br>czego trzeba</h2>
       </div>
       <ul class="pd-box__list" data-reveal>
         <li><b>Kubek Chocolat…</b><span>ceramika, kolor ${info.color.toLowerCase()}</span></li>
         <li><b>Widelczyk do fondue</b><span>stal nierdzewna z uchwytem</span></li>
-        <li><b>Podgrzewacz</b><span>zwykły tealight, na start</span></li>
-        <li><b>Pudełko prezentowe</b><span>gotowe pod choinkę</span></li>
+        <li><b>Wymiary</b><span>ok. 13 × 10 × 12 cm, porcja dla jednej osoby</span></li>
+        <li><b>Podgrzewacz</b><span>pasuje każdy zwykły tealight (brak w zestawie)</span></li>
       </ul>
     </div>
   </section>

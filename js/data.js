@@ -124,5 +124,5 @@ export const FAQ = [
   ['Czy kubek można myć w zmywarce?', 'Ceramikę możesz myć w zmywarce, ale polecamy mycie ręczne, żeby napis i szkliwo zostały piękne na lata. Widelczyk myj ręcznie.'],
   ['Jakiej czekolady użyć?', 'Najlepiej sprawdza się czekolada deserowa lub mleczna w kostkach, rozpuszczona z odrobiną śmietanki. Możesz też użyć sera — wtedy masz mini fondue serowe.'],
   ['Czy mogę zwrócić produkt?', 'Masz 30 dni na zwrot bez podawania przyczyny. Na prezenty kupione w listopadzie i grudniu termin zwrotu liczymy do 31 stycznia.'],
-  ['Czy pakujecie na prezent?', 'Każdy kubek trafia do eleganckiego pudełka. Przy zamówieniu możesz dodać darmowy bilecik z życzeniami.'],
+  ['Czy kubek nadaje się na prezent?', 'Tak — to jeden z ulubionych prezentów na Mikołajki i święta. Kubek przychodzi w bezpiecznym opakowaniu wysyłkowym, a przy zamówieniu możesz od razu podać adres osoby, którą chcesz obdarować.'],
 ];
