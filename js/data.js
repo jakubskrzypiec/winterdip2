@@ -21,7 +21,7 @@ export const MUGS = ['mug-1', 'mug-2', 'mug-3'];
 //   metaPixel   — Meta Events Manager → Źródła danych → Pixel ID (sam numer)
 //   tiktokPixel — TikTok Ads Manager → Assets → Events → Web → Pixel ID
 export const TRACKING = {
-  metaPixel: '',
+  metaPixel: '1110812538488174',
   tiktokPixel: '',
 };
 

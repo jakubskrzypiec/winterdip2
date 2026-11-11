@@ -6,7 +6,7 @@
 // InitiateCheckout. Zakup (Purchase) liczy kasa Shopify przez aplikację
 // „Facebook i Instagram” / „TikTok” w Shopify.
 // =========================================================
-import { TRACKING } from './data.js';
+import { TRACKING } from './data.js?v=22';
 
 const KEY = 'winterdip-consent';
 const on = () => !!(TRACKING.metaPixel || TRACKING.tiktokPixel);
