@@ -8,7 +8,7 @@ header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-i
 $error = '';
 if (isset($_GET['logout'])) { logout(); header('Location: ./'); exit; }
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  if (try_login((string)($_POST['password'] ?? ''))) { header('Location: ./'); exit; }
+  if (try_login((string)($_POST['password'] ?? ''), !empty($_POST['remember']))) { header('Location: ./'); exit; }
   $error = cfg('ADMIN_PASSWORD') === '' ? 'Panel nie ma jeszcze ustawionego hasła (ADMIN_PASSWORD).' : 'Nieprawidłowe hasło.';
 }
 $in = logged_in();
@@ -200,6 +200,7 @@ details summary{cursor:pointer;font-weight:800;font-size:13px;color:var(--pine-2
     <h1 style="margin:0;font-size:22px">Panel sklepu</h1>
     <p class="muted" style="margin:6px 0 0;font-weight:700">Sprzedaż, reklamy i ruch w jednym miejscu</p>
     <input type="password" name="password" placeholder="Hasło" autofocus required>
+    <label style="display:flex;align-items:center;justify-content:center;gap:8px;font-weight:800;font-size:14px;margin:-4px 0 14px;cursor:pointer"><input type="checkbox" name="remember" value="1" checked style="width:18px;height:18px;margin:0;accent-color:var(--berry)"> Zapamiętaj mnie na 30 dni</label>
     <?php if ($error): ?><p class="err"><?= htmlspecialchars($error) ?></p><?php endif; ?>
     <button class="btn" style="width:100%">Zaloguj</button>
   </form>

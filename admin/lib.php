@@ -26,22 +26,48 @@ function start_session(): void {
   session_start();
 }
 
-function logged_in(): bool {
-  start_session();
-  return !empty($_SESSION['ok']) && ($_SESSION['exp'] ?? 0) > time();
+// „Zapamiętaj mnie”: podpisane ciasteczko ważne 30 dni (podpis z hasła panelu —
+// zmiana hasła w sekretach unieważnia wszystkie zapamiętane urządzenia).
+const REMEMBER_COOKIE = 'wd_remember';
+const REMEMBER_DAYS = 30;
+function remember_sig(int $exp): string { return hash_hmac('sha256', 'wd-remember|' . $exp, 'wd|' . cfg('ADMIN_PASSWORD')); }
+function remember_set(): void {
+  $exp = time() + REMEMBER_DAYS * 86400;
+  setcookie(REMEMBER_COOKIE, $exp . '.' . remember_sig($exp), ['expires' => $exp, 'path' => '/admin/', 'secure' => true, 'httponly' => true, 'samesite' => 'Strict']);
+}
+function remember_valid(): bool {
+  $v = (string)($_COOKIE[REMEMBER_COOKIE] ?? '');
+  if (cfg('ADMIN_PASSWORD') === '' || !preg_match('/^(\d{10})\.([a-f0-9]{64})$/', $v, $m)) return false;
+  return (int)$m[1] > time() && hash_equals(remember_sig((int)$m[1]), $m[2]);
 }
 
-function try_login(string $password): bool {
+function logged_in(): bool {
+  start_session();
+  if (!empty($_SESSION['ok']) && ($_SESSION['exp'] ?? 0) > time()) return true;
+  if (remember_valid()) {
+    session_regenerate_id(true);
+    $_SESSION['ok'] = true;
+    $_SESSION['exp'] = time() + 12 * 3600;
+    return true;
+  }
+  return false;
+}
+
+function try_login(string $password, bool $remember = false): bool {
   start_session();
   $real = cfg('ADMIN_PASSWORD');
   if ($real === '' || !hash_equals($real, $password)) { sleep(2); return false; }
   session_regenerate_id(true);
   $_SESSION['ok'] = true;
   $_SESSION['exp'] = time() + 12 * 3600;
+  if ($remember) remember_set();
   return true;
 }
 
-function logout(): void { start_session(); $_SESSION = []; session_destroy(); }
+function logout(): void {
+  start_session(); $_SESSION = []; session_destroy();
+  setcookie(REMEMBER_COOKIE, '', ['expires' => time() - 3600, 'path' => '/admin/', 'secure' => true, 'httponly' => true, 'samesite' => 'Strict']);
+}
 
 function cache_get(string $key, int $ttl) {
   $f = DATA_DIR . '/cache-' . preg_replace('/[^a-z0-9_\-]/i', '', $key) . '.json';
