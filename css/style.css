@@ -1330,3 +1330,16 @@ html:not(.in-hero) .logo .logo--dark { display: block; }
 .consent .btn { --h: 44px; padding: 0 18px; font-size: 14px; }
 .consent .btn--ghost { color: var(--pine); border-color: rgba(39,54,63,.3); }
 @media (max-width: 560px) { .consent__btns .btn { flex: 1 1 0; } }
+
+/* ===== v24: darmowa dostawa — mocno wyróżniona ===== */
+.hero__ship { display: inline-flex; align-items: center; gap: 8px; margin: 14px 0 0; padding: 8px 14px; border-radius: 999px; font: 700 14px/1.2 var(--sans); color: #fff; background: rgba(107,33,44,.78); border: 1px solid rgba(255,255,255,.28); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); box-shadow: 0 10px 24px -14px rgba(0,0,0,.6); }
+.hero__ship b { font-weight: 900; letter-spacing: .01em; }
+.hero__ship span { font-size: 16px; }
+@media (max-width: 760px) { .hero__ship { align-self: center; font-size: 13px; } }
+.ship-pill { display: inline-flex; align-items: center; gap: 6px; margin: 10px 0 0; padding: 6px 12px; border-radius: 999px; background: var(--berry, #6b212c); color: #fff; font: 800 13px/1.1 var(--sans); letter-spacing: .01em; width: max-content; }
+.free-ship { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 16px; color: #fff; background: radial-gradient(120% 140% at 100% 0%, #8d2a39 0%, #6b212c 50%, #4a1620 100%); box-shadow: 0 16px 30px -20px rgba(107,33,44,.9); }
+.free-ship__ic { font-size: 28px; line-height: 1; flex: none; }
+.free-ship b { display: block; font: 800 18px/1.2 var(--display); }
+.free-ship span { font: 600 14px/1.35 var(--sans); opacity: .92; }
+.free-ship span span { opacity: 1; font-weight: 900; }
+.delivery-note b { color: var(--berry, #6b212c); font-weight: 900; }

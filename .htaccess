@@ -10,9 +10,10 @@ RewriteRule ^(.*)$ https://winterdip.pl/$1 [R=301,L]
 RewriteRule ^admin/(data/|lib\.php|config\.php) - [F,L]
 Options -Indexes
 
-# strony HTML zawsze sprawdzane na nowo (pliki CSS/JS mają w adresie numer wersji ?v=)
+# HTML, CSS i JS zawsze sprawdzane na nowo (moduły JS importują się bez numeru wersji,
+# więc bez tego telefon mógłby trzymać starą wersję; serwer odpowiada wtedy szybkim 304)
 <IfModule mod_headers.c>
-  <FilesMatch "\.html$">
+  <FilesMatch "\.(html|js|css)$">
     Header set Cache-Control "no-cache, must-revalidate"
   </FilesMatch>
 </IfModule>

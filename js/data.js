@@ -4,8 +4,8 @@
 
 export const SHOP = {
   currency: 'zł',
-  freeShippingFrom: 149,
-  shippingCost: 14.99,
+  freeShippingFrom: 0,     // 0 = dostawa zawsze darmowa (w Shopify stawka 0 zł)
+  shippingCost: 0,
   // ostatni dzień zamówień z gwarancją dostawy przed Wigilią
   christmasCutoff: '2026-12-08T23:59:59+01:00',   // dostawa 10–14 dni + zapas
   // WYPRZEDAŻ: data końca (jedna dla wszystkich, licznik się nie resetuje).
@@ -129,7 +129,7 @@ export const CITIES = [
 export const FAQ = [
   ['Jak działa kubek do fondue?', 'Do otworu w podstawie wkładasz zwykły podgrzewacz (tealight). Płomień utrzymuje czekoladę w płynnej, ciepłej formie przez cały wieczór. Widelczyk wsuwasz w uchwyt, gdy go nie używasz.'],
   ['Kiedy dostanę zamówienie?', 'Paczka jest u Ciebie zwykle w 10–14 dni od zamówienia, a numer do śledzenia przesyłki wysyłamy mailem. Zamówienia złożone do 8 grudnia dotrą przed Wigilią.'],
-  ['Czy wysyłka jest darmowa?', 'Tak — przy zamówieniach od 149 zł. Poniżej tej kwoty wysyłka kosztuje 14,99 zł.'],
+  ['Czy wysyłka jest darmowa?', 'Tak — dostawa jest zawsze darmowa, nawet przy jednym kubku. Cena na stronie to cena końcowa, w kasie nic nie dopłacasz.'],
   ['Czy kubek można myć w zmywarce?', 'Ceramikę możesz myć w zmywarce, ale polecamy mycie ręczne, żeby napis i szkliwo zostały piękne na lata. Widelczyk myj ręcznie.'],
   ['Jakiej czekolady użyć?', 'Najlepiej sprawdza się czekolada deserowa lub mleczna w kostkach, rozpuszczona z odrobiną śmietanki. Możesz też użyć sera — wtedy masz mini fondue serowe.'],
   ['Czy mogę zwrócić produkt?', 'Masz 30 dni na zwrot bez podawania przyczyny. Na prezenty kupione w listopadzie i grudniu termin zwrotu liczymy do 31 stycznia.'],

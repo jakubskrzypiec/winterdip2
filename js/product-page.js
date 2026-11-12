@@ -87,19 +87,20 @@ document.getElementById('product-root').innerHTML = `
           <div class="qty"><button data-q="-" aria-label="Mniej">−</button><span id="qty-main">1</span><button data-q="+" aria-label="Więcej">+</button></div>
           <button class="btn btn--primary" data-add="${id}" data-qty-from="#qty-main" data-open-cart>Dodaj do koszyka · <span data-price="${id}">75 zł</span></button>
         </div>
+        <div class="free-ship"><span class="free-ship__ic">🚚</span><div><b>Darmowa dostawa</b><span>Płacisz <span data-price="${id}">75 zł</span> i nic więcej — bez dopłat w kasie.</span></div></div>
         <p class="stock-note"><span class="live-dot"></span>Dostawa ok. 10–14 dni · zamów do 8 grudnia, zdążymy przed Wigilią</p>
         <div class="bundle-tip">
-          <div><b>Kup 2 kubki — dostawa gratis</b><span>2 × ${p.price} zł = ${p.price * 2} zł, czyli powyżej progu ${SHOP.freeShippingFrom} zł.</span></div>
+          <div><b>Weź drugi na prezent</b><span>Drugi kolor dla bliskiej osoby — dostawa też gratis.</span></div>
           <button class="bundle-tip__btn" data-add="${otherId}" data-open-cart>+ ${other.name}</button>
         </div>
         <div class="trust-row">
-          <div><b>Dostawa</b>Darmowa od 149 zł</div>
+          <div><b>Dostawa</b>Zawsze darmowa</div>
           <div><b>Zwrot</b>30 dni bez pytań</div>
           <div><b>Śledzenie</b>Numer przesyłki mailem</div>
         </div>
         <div class="acc">
           <details><summary>Wymiary i pielęgnacja</summary><p>Kubek mieści porcję czekoladowego fondue dla jednej osoby. Ceramikę możesz myć w zmywarce, ale polecamy mycie ręczne, żeby szkliwo i napis zostały piękne na lata. Widelczyk myj ręcznie.</p></details>
-          <details><summary>Dostawa i zwroty</summary><p>Kubek wysyłamy z magazynu naszego partnera — paczka jest u Ciebie zwykle w 10–14 dni, a numer do śledzenia dostajesz mailem. Darmowa dostawa od 149 zł. 30 dni na zwrot — na prezenty świąteczne do 31 stycznia.</p></details>
+          <details><summary>Dostawa i zwroty</summary><p>Kubek wysyłamy z magazynu naszego partnera — paczka jest u Ciebie zwykle w 10–14 dni, a numer do śledzenia dostajesz mailem. Dostawa jest zawsze darmowa. 30 dni na zwrot — na prezenty świąteczne do 31 stycznia.</p></details>
         </div>
       </div>
     </div>
@@ -167,6 +168,6 @@ document.getElementById('product-root').innerHTML = `
 `;
 
 const sticky = document.querySelector('.sticky-buy');
-if (sticky) sticky.innerHTML = `<img src="${p.img}" alt=""><div class="sticky-buy__info"><b>${p.name}</b><span data-price="${id}">75 zł</span> · darmowa dostawa od 149 zł</div><button class="btn btn--primary" data-add="${id}" data-open-cart>Do koszyka</button>`;
+if (sticky) sticky.innerHTML = `<img src="${p.img}" alt=""><div class="sticky-buy__info"><b>${p.name}</b><span data-price="${id}">75 zł</span> · 🚚 darmowa dostawa</div><button class="btn btn--primary" data-add="${id}" data-open-cart>Do koszyka</button>`;
 
 await import('./main.js');

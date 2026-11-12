@@ -64,11 +64,11 @@ function render() {
   const list = document.querySelector('.drawer__items');
   if (!list) return;
   const sum = subtotal();
-  const left = Math.max(0, SHOP.freeShippingFrom - sum);
+  const left = SHOP.freeShippingFrom > 0 ? Math.max(0, SHOP.freeShippingFrom - sum) : 0;
   document.querySelector('.ship-bar__text').innerHTML = left > 0
     ? `Brakuje <b>${fmt(left)}</b> do <b>darmowej dostawy</b>`
-    : `🎉 Masz <b>darmową dostawę</b>`;
-  document.querySelector('.ship-bar__fill').style.width = Math.min(100, (sum / SHOP.freeShippingFrom) * 100) + '%';
+    : `🚚 <b>Darmowa dostawa</b> — w kasie nic nie dopłacasz`;
+  document.querySelector('.ship-bar__fill').style.width = (SHOP.freeShippingFrom > 0 ? Math.min(100, (sum / SHOP.freeShippingFrom) * 100) : 100) + '%';
   document.querySelector('.drawer__sum').textContent = fmt(sum + (sum > 0 && left > 0 ? SHOP.shippingCost : 0));
 
   if (!n) {
