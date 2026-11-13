@@ -62,9 +62,9 @@ document.getElementById('product-root').innerHTML = `
         <span class="eyebrow">Kubek do fondue Chocolat…</span>
         <h1 class="pdp__title">${p.name}</h1>
         <div class="pdp__price">
-          <span class="now" data-price="${id}">75 zł</span>
+          <span class="now" data-price="${id}">69,99 zł</span>
           <span class="old" data-old-price="${id}" data-sale-only>99 zł</span>
-          <span class="save" data-sale-only data-discount="${id}">−24%</span>
+          <span class="save" data-sale-only data-discount="${id}">−29%</span>
         </div>
         ${p.oldPrice > p.price ? `<p class="pdp__omnibus" data-sale-only>Najniższa cena z 30 dni przed obniżką: ${p.lowest30 || p.oldPrice} zł · cena z VAT</p>` : ''}
         <div class="sale-box" data-sale-only>
@@ -85,9 +85,9 @@ document.getElementById('product-root').innerHTML = `
         <ul class="pdp__bullets">${info.bullets.map((b) => `<li>${b}</li>`).join('')}</ul>
         <div class="pdp__buy">
           <div class="qty"><button data-q="-" aria-label="Mniej">−</button><span id="qty-main">1</span><button data-q="+" aria-label="Więcej">+</button></div>
-          <button class="btn btn--primary" data-add="${id}" data-qty-from="#qty-main" data-open-cart>Dodaj do koszyka · <span data-price="${id}">75 zł</span></button>
+          <button class="btn btn--primary" data-add="${id}" data-qty-from="#qty-main" data-open-cart>Dodaj do koszyka · <span data-price="${id}">69,99 zł</span></button>
         </div>
-        <div class="free-ship"><span class="free-ship__ic">🚚</span><div><b>Darmowa dostawa</b><span>Płacisz <span data-price="${id}">75 zł</span> i nic więcej — bez dopłat w kasie.</span></div></div>
+        <div class="free-ship"><span class="free-ship__ic">🚚</span><div><b>Darmowa dostawa</b><span>Płacisz <span data-price="${id}">69,99 zł</span> i nic więcej — bez dopłat w kasie.</span></div></div>
         <p class="stock-note"><span class="live-dot"></span>Dostawa do 10 dni · zamów do 8 grudnia, zdążymy przed Wigilią</p>
         <div class="bundle-tip">
           <div><b>Weź drugi na prezent</b><span>Drugi kolor dla bliskiej osoby — dostawa też gratis.</span></div>
@@ -168,6 +168,6 @@ document.getElementById('product-root').innerHTML = `
 `;
 
 const sticky = document.querySelector('.sticky-buy');
-if (sticky) sticky.innerHTML = `<img src="${p.img}" alt=""><div class="sticky-buy__info"><b>${p.name}</b><span data-price="${id}">75 zł</span> · 🚚 darmowa dostawa</div><button class="btn btn--primary" data-add="${id}" data-open-cart>Do koszyka</button>`;
+if (sticky) sticky.innerHTML = `<img src="${p.img}" alt=""><div class="sticky-buy__info"><b>${p.name}</b><span data-price="${id}">69,99 zł</span> · 🚚 darmowa dostawa</div><button class="btn btn--primary" data-add="${id}" data-open-cart>Do koszyka</button>`;
 
 await import('./main.js');

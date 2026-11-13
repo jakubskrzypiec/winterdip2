@@ -47,14 +47,14 @@ export const SHOPIFY = {
 };
 
 export const PRODUCTS = {
-  'mug-1': { id: 'mug-1', name: 'Kubek beżowy', short: 'Ceramiczny kubek do fondue z podgrzewaczem', price: 75, img: 'assets/products/winter-dips-bezowy-01-katalog.webp',
+  'mug-1': { id: 'mug-1', name: 'Kubek beżowy', short: 'Ceramiczny kubek do fondue z podgrzewaczem', price: 69.99, img: 'assets/products/winter-dips-bezowy-01-katalog.webp',
     // TODO: oldPrice = prawdziwa cena sprzed obniżki, lowest30 = najniższa cena z 30 dni przed obniżką (wymóg prawa — dyrektywa Omnibus)
-    oldPrice: 99, lowest30: 99,
+    oldPrice: 99, lowest30: 75,   // do 13.11 kubek kosztował 75 zł — to najniższa cena z 30 dni (Omnibus)
     stock: 7, shopifyVariantId: '' },   // TODO: prawdziwa liczba sztuk w magazynie
-  'mug-2': { id: 'mug-2', name: 'Kubek czerwony', short: 'Ceramiczny kubek do fondue z podgrzewaczem', price: 75, img: 'assets/products/winter-dips-czerwony-01-katalog.webp',
-    oldPrice: 99, lowest30: 99,   // TODO: jak wyżej
+  'mug-2': { id: 'mug-2', name: 'Kubek czerwony', short: 'Ceramiczny kubek do fondue z podgrzewaczem', price: 69.99, img: 'assets/products/winter-dips-czerwony-01-katalog.webp',
+    oldPrice: 99, lowest30: 75,   // do 13.11 kubek kosztował 75 zł — to najniższa cena z 30 dni (Omnibus)   // TODO: jak wyżej
     stock: 4, shopifyVariantId: '' },   // TODO: prawdziwa liczba sztuk w magazynie
-  'mug-3': { id: 'mug-3', name: 'Kubek biały Cozy days', short: 'Biała ceramika, dwa widelczyki w komplecie', price: 75, img: 'assets/products/winter-dips-bialy-01-katalog.webp', soldOut: true },
+  'mug-3': { id: 'mug-3', name: 'Kubek biały Cozy days', short: 'Biała ceramika, dwa widelczyki w komplecie', price: 69.99, img: 'assets/products/winter-dips-bialy-01-katalog.webp', soldOut: true },
   'chocolate-mug': {
     id: 'chocolate-mug',
     name: 'Chocolate… kubek do fondue',
