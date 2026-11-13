@@ -88,7 +88,7 @@ document.getElementById('product-root').innerHTML = `
           <button class="btn btn--primary" data-add="${id}" data-qty-from="#qty-main" data-open-cart>Dodaj do koszyka · <span data-price="${id}">75 zł</span></button>
         </div>
         <div class="free-ship"><span class="free-ship__ic">🚚</span><div><b>Darmowa dostawa</b><span>Płacisz <span data-price="${id}">75 zł</span> i nic więcej — bez dopłat w kasie.</span></div></div>
-        <p class="stock-note"><span class="live-dot"></span>Dostawa ok. 10–14 dni · zamów do 8 grudnia, zdążymy przed Wigilią</p>
+        <p class="stock-note"><span class="live-dot"></span>Dostawa do 10 dni · zamów do 8 grudnia, zdążymy przed Wigilią</p>
         <div class="bundle-tip">
           <div><b>Weź drugi na prezent</b><span>Drugi kolor dla bliskiej osoby — dostawa też gratis.</span></div>
           <button class="bundle-tip__btn" data-add="${otherId}" data-open-cart>+ ${other.name}</button>
@@ -100,7 +100,7 @@ document.getElementById('product-root').innerHTML = `
         </div>
         <div class="acc">
           <details><summary>Wymiary i pielęgnacja</summary><p>Kubek mieści porcję czekoladowego fondue dla jednej osoby. Ceramikę możesz myć w zmywarce, ale polecamy mycie ręczne, żeby szkliwo i napis zostały piękne na lata. Widelczyk myj ręcznie.</p></details>
-          <details><summary>Dostawa i zwroty</summary><p>Kubek wysyłamy z magazynu naszego partnera — paczka jest u Ciebie zwykle w 10–14 dni, a numer do śledzenia dostajesz mailem. Dostawa jest zawsze darmowa. 30 dni na zwrot — na prezenty świąteczne do 31 stycznia.</p></details>
+          <details><summary>Dostawa i zwroty</summary><p>Kubek wysyłamy z magazynu naszego partnera — paczka jest u Ciebie najpóźniej w 10 dni, a numer do śledzenia dostajesz mailem. Dostawa jest zawsze darmowa. 30 dni na zwrot — na prezenty świąteczne do 31 stycznia.</p></details>
         </div>
       </div>
     </div>

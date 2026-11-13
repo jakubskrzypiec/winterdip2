@@ -85,7 +85,7 @@ function render() {
       <div class="c-item__price">${fmt(p.price * q)}</div>
     </div>`;
   }).join('');
-  if (sum > 0) html += `<p class="drawer__ship">Dostawa: <b>${left > 0 ? fmt(SHOP.shippingCost) : 'gratis'}</b> · dostawa ok. 10–14 dni</p>`;
+  if (sum > 0) html += `<p class="drawer__ship">Dostawa: <b>${left > 0 ? fmt(SHOP.shippingCost) : 'gratis'}</b> · dostawa do 10 dni</p>`;
   list.innerHTML = html;
 }
 
