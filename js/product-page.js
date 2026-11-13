@@ -77,7 +77,7 @@ document.getElementById('product-root').innerHTML = `
         </div>
         <div class="pdp__buy">
           <div class="qty"><button data-q="-" aria-label="Mniej">−</button><span id="qty-main">1</span><button data-q="+" aria-label="Więcej">+</button></div>
-          <button class="btn btn--primary" data-add="${id}" data-qty-from="#qty-main" data-open-cart>Dodaj do koszyka · <span data-price="${id}">69,99 zł</span></button>
+          <button class="btn btn--primary" data-add="${id}" data-qty-from="#qty-main" data-open-cart>Dodaj do koszyka<span class="btn-price"> · <span data-price="${id}">69,99 zł</span></span></button>
         </div>
         <div class="free-ship"><span class="free-ship__ic">🚚</span><div><b>Darmowa dostawa · dotrze do ${deliveryBy}</b><span>Płacisz <span data-price="${id}">69,99 zł</span> i nic więcej — bez dopłat w kasie.</span></div></div>
         <div class="pay-row" aria-label="Metody płatności"><span>BLIK</span><span>Google Pay</span><span>Apple Pay</span><span>Visa</span><span>Mastercard</span><span>Klarna</span></div>

@@ -1364,3 +1364,4 @@ html:not(.in-hero) .logo .logo--dark { display: block; }
   .free-ship b { font-size: 16px; }
   body:has(.pdp) { padding-bottom: 76px; }
 }
+@media (max-width: 760px) { .pdp__buy .btn-price { display: none; } .pdp__buy .btn { flex: 1; padding: 0 16px; } }
