@@ -46,6 +46,8 @@ track('ViewContent', { content_ids: [id], content_name: p.name, content_type: 'p
 
 const shots = [['01-katalog', 'Kubek z przodu'], ['02-fondue', 'Kubek z czekoladą i świeczką'], ['03-maczanie', 'Maczanie truskawki w czekoladzie'], ['04-z-gory', 'Kubek z góry z widelczykiem i czekoladą'], ['05-detal-uchwytu', 'Widelczyk wsunięty w ucho kubka'], ['06-zimowy-wieczor', 'Kubek na zimowy wieczór z przekąskami']];
 const stars = (n) => '★'.repeat(n) + '☆'.repeat(5 - n);
+// najpóźniejsza data dostawy: dziś + 10 dni (tak jak w kasie Shopify)
+const deliveryBy = new Date(Date.now() + 10 * 864e5).toLocaleDateString('pl-PL', { weekday: 'short', day: 'numeric', month: 'long' });
 
 document.getElementById('product-root').innerHTML = `
   <nav class="crumbs container" aria-label="Okruszki"><a href="index.html">Start</a><span>/</span><a href="produkty.html">Produkty</a><span>/</span><b>${p.name}</b></nav>
@@ -67,28 +69,25 @@ document.getElementById('product-root').innerHTML = `
           <span class="save" data-sale-only data-discount="${id}">−29%</span>
         </div>
         ${p.oldPrice > p.price ? `<p class="pdp__omnibus" data-sale-only>Najniższa cena z 30 dni przed obniżką: ${p.lowest30 || p.oldPrice} zł · cena z VAT</p>` : ''}
-        <div class="sale-box" data-sale-only>
-          <div class="sale-box__head"><span class="sale-box__tag">Wyprzedaż</span><span>Promocja kończy się za</span></div>
-          <div class="sale-box__timer" data-sale-countdown data-format="boxes"></div>
-        </div>
-        ${!p.soldOut && p.stock > 0 && p.stock <= 10 ? `<div class="stock-alert" style="--left:${Math.max(8, p.stock * 10)}%">
-          <p><b>Ostatnie sztuki!</b> Zostało tylko <b>${p.stock}</b> ${p.stock === 1 ? 'sztuka' : p.stock < 5 ? 'sztuki' : 'sztuk'}.</p>
-          <div class="stock-alert__bar"><span></span></div>
-        </div>` : ''}
-        <p class="lead" style="margin:0">${info.lead}</p>
         <div class="swatches">
           <span class="swatches__label">Kolor: <b>${info.color}</b></span>
           <div class="swatches__row">
             ${['mug-1', 'mug-2'].map((k) => `<a href="produkt.html?id=${k}" class="swatch${k === id ? ' is-active' : ''}" style="--c:${INFO[k].swatch}" aria-label="${INFO[k].color}"${k === id ? ' aria-current="true"' : ''}></a>`).join('')}
           </div>
         </div>
-        <ul class="pdp__bullets">${info.bullets.map((b) => `<li>${b}</li>`).join('')}</ul>
         <div class="pdp__buy">
           <div class="qty"><button data-q="-" aria-label="Mniej">−</button><span id="qty-main">1</span><button data-q="+" aria-label="Więcej">+</button></div>
           <button class="btn btn--primary" data-add="${id}" data-qty-from="#qty-main" data-open-cart>Dodaj do koszyka · <span data-price="${id}">69,99 zł</span></button>
         </div>
-        <div class="free-ship"><span class="free-ship__ic">🚚</span><div><b>Darmowa dostawa</b><span>Płacisz <span data-price="${id}">69,99 zł</span> i nic więcej — bez dopłat w kasie.</span></div></div>
+        <div class="free-ship"><span class="free-ship__ic">🚚</span><div><b>Darmowa dostawa · dotrze do ${deliveryBy}</b><span>Płacisz <span data-price="${id}">69,99 zł</span> i nic więcej — bez dopłat w kasie.</span></div></div>
+        <div class="pay-row" aria-label="Metody płatności"><span>BLIK</span><span>Google Pay</span><span>Apple Pay</span><span>Visa</span><span>Mastercard</span><span>Klarna</span></div>
         <p class="stock-note"><span class="live-dot"></span>Dostawa do 10 dni · zamów do 8 grudnia, zdążymy przed Wigilią</p>
+        <div class="sale-box" data-sale-only>
+          <div class="sale-box__head"><span class="sale-box__tag">Wyprzedaż</span><span>Promocja kończy się za</span></div>
+          <div class="sale-box__timer" data-sale-countdown data-format="boxes"></div>
+        </div>
+        <p class="lead" style="margin:0">${info.lead}</p>
+        <ul class="pdp__bullets">${info.bullets.map((b) => `<li>${b}</li>`).join('')}</ul>
         <div class="bundle-tip">
           <div><b>Weź drugi na prezent</b><span>Drugi kolor dla bliskiej osoby — dostawa też gratis.</span></div>
           <button class="bundle-tip__btn" data-add="${otherId}" data-open-cart>+ ${other.name}</button>

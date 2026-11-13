@@ -214,7 +214,9 @@ if (sticky) {
   const footer = document.querySelector('.footer');
   let pastBuy = false, atFooter = false;
   const upd = () => sticky.classList.toggle('show', pastBuy && !atFooter);
-  new IntersectionObserver(([e]) => { pastBuy = !e.isIntersecting && e.boundingClientRect.top < 0; upd(); }).observe(firstBuy);
+  // telefon: pasek z ceną i przyciskiem widoczny od razu, gdy główny przycisk jest poza ekranem (nad nim lub pod nim)
+  const mobile = matchMedia('(max-width: 760px)');
+  new IntersectionObserver(([e]) => { pastBuy = !e.isIntersecting && (mobile.matches || e.boundingClientRect.top < 0); upd(); }).observe(firstBuy);
   new IntersectionObserver(([e]) => { atFooter = e.isIntersecting; upd(); }).observe(footer);
 }
 

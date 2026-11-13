@@ -1343,3 +1343,24 @@ html:not(.in-hero) .logo .logo--dark { display: block; }
 .free-ship span { font: 600 14px/1.35 var(--sans); opacity: .92; }
 .free-ship span span { opacity: 1; font-weight: 900; }
 .delivery-note b { color: var(--berry, #6b212c); font-weight: 900; }
+
+/* ===== v25: strona produktu na telefonie — cena, dostawa i przycisk wyżej ===== */
+.pay-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: -8px; }
+.pay-row span { padding: 5px 10px; border-radius: 8px; border: 1px solid rgba(39,54,63,.18); background: #fff; color: var(--pine, #27363f); font: 800 12px/1 var(--sans); letter-spacing: .01em; }
+.pay-row span:first-child { background: #000; color: #fff; border-color: #000; }
+@media (max-width: 760px) {
+  .pdp { padding: 12px 0 80px; }
+  .crumbs { display: none; }
+  .pdp__gallery { gap: 8px; }
+  .pdp__main--photo { max-height: 62vw; aspect-ratio: auto; }
+  .pdp__main--photo img { max-height: 62vw; width: 100%; object-fit: cover; }
+  .pdp__thumbs--photo { display: flex; overflow-x: auto; gap: 6px; scroll-snap-type: x mandatory; scrollbar-width: none; }
+  .pdp__thumbs--photo::-webkit-scrollbar { display: none; }
+  .pdp__thumbs--photo button { flex: 0 0 56px; height: 56px; scroll-snap-align: start; }
+  .pdp__info { gap: 14px; }
+  .pdp__info .eyebrow { display: none; }
+  .pdp__title { font-size: 28px; }
+  .free-ship { padding: 12px 14px; }
+  .free-ship b { font-size: 16px; }
+  body:has(.pdp) { padding-bottom: 76px; }
+}
