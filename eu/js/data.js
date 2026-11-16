@@ -12,15 +12,14 @@ export const SHOP = {
   christmasCutoff: '2026-12-05T23:59:59+01:00',
 };
 
-// Dane sprzedawcy (Impressum, AGB, Widerruf). TODO: uzupełnić przed startem reklam.
+// Dane sprzedawcy (Impressum, AGB, Widerruf). Bez NIP/VAT — działalność nierejestrowana.
 export const SELLER = {
-  name: '[Vor- und Nachname / Firmenname]',
-  street: '[Straße und Hausnummer]',
-  city: '[PLZ Ort]',
+  name: 'Jakub Skrzypiec',
+  street: 'Radoszowska 108',
+  city: '41-707 Ruda Śląska',
   country: 'Polen / Poland',
   email: 'winterrdip@gmail.com',
-  phone: '[Telefonnummer]',
-  vat: '[USt-IdNr. / NIP]',
+  phone: '+48 601 863 788',
 };
 
 export const TRACKING = { metaPixel: '1110812538488174', tiktokPixel: '' };
