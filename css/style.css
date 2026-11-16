@@ -1365,3 +1365,20 @@ html:not(.in-hero) .logo .logo--dark { display: block; }
   body:has(.pdp) { padding-bottom: 76px; }
 }
 @media (max-width: 760px) { .pdp__buy .btn-price { display: none; } .pdp__buy .btn { flex: 1; padding: 0 16px; } }
+
+/* ===== v26: wersja międzynarodowa (EN/DE) — przełącznik języka, strony prawne ===== */
+.lang-sw { display: inline-flex; gap: 2px; padding: 3px; border-radius: 99px; background: rgba(39,54,63,.08); border: 1px solid rgba(39,54,63,.14); }
+.lang-sw button { border: 0; background: none; padding: 6px 9px; border-radius: 99px; font: 800 12px/1 var(--sans); letter-spacing: .06em; color: inherit; opacity: .7; cursor: pointer; }
+.lang-sw button.is-active { background: var(--berry, #6b212c); color: #fff; opacity: 1; }
+.lang-sw button:hover { opacity: 1; }
+@media (max-width: 760px) { .header__buy { display: none; } .lang-sw button { padding: 6px 7px; } }
+.legal { padding: 140px 0 80px; }
+.legal__wrap { max-width: 860px; }
+.legal section { padding: 34px 0; border-bottom: 1px solid rgba(39,54,63,.12); scroll-margin-top: 110px; }
+.legal h1, .legal h2 { font-family: var(--display); font-size: clamp(28px, 4vw, 40px); margin: 0 0 16px; }
+.legal h3 { font-family: var(--display); font-size: 18px; margin: 22px 0 8px; }
+.legal p { line-height: 1.7; margin: 0 0 12px; }
+.legal__toc { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+.legal__toc a { padding: 8px 14px; border-radius: 99px; border: 1px solid rgba(39,54,63,.18); font-weight: 800; font-size: 14px; text-decoration: none; color: inherit; }
+.legal__note { font-size: 14px; opacity: .75; }
+.legal__form { padding: 16px 18px; border-radius: 14px; background: rgba(39,54,63,.05); }
