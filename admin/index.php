@@ -405,12 +405,16 @@ function bars(el, entries, fmt = (v) => num(v)) {
 function chart(id, cfg) { if (charts[id]) charts[id].destroy(); charts[id] = new Chart($(id), cfg); }
 
 // ================= przegląd =================
+let loadSeq = 0;
 async function load(fresh = false) {
+  const seq = ++loadSeq;
   $('kpis').classList.add('loading');
   try {
     const r = await fetch(`api.php?range=${range}${market !== 'all' ? '&m=' + market : ''}${fresh ? '&fresh=1' : ''}`, { cache: 'no-store' });
     if (r.status === 401) { location.reload(); return; }
-    DATA = await r.json();
+    const json = await r.json();
+    if (seq !== loadSeq) return; // w międzyczasie kliknięto inny rynek/okres
+    DATA = json;
   } catch { $('notes').innerHTML = '<div class="note">Nie udało się pobrać danych. Spróbuj odświeżyć.</div>'; return; }
   finally { $('kpis').classList.remove('loading'); }
   render(DATA);
