@@ -7,6 +7,24 @@ import { hit } from './stats.js';
 initTracking();
 hit('pv');
 
+// Gość spoza Polski (np. z bio na Instagramie) → pasek z linkiem do wersji DE/AT / EN
+(() => {
+  let off = false;
+  try { off = localStorage.getItem('winterdip-langbar') === 'off'; } catch {}
+  const lang = (navigator.language || '').toLowerCase();
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+  if (off || lang.startsWith('pl') || tz === 'Europe/Warsaw') return;
+  const de = lang.startsWith('de') || /Europe\/(Berlin|Vienna|Zurich)/.test(tz);
+  const at = lang === 'de-at' || tz === 'Europe/Vienna';
+  const href = `eu/index.html?lang=${de ? (at ? 'at' : 'de') : 'en'}`;
+  const text = de ? '🇩🇪🇦🇹 Wir liefern nach Deutschland & Österreich – <b>zur deutschen Seite →</b>' : '🌍 Shipping to Germany & Austria – <b>English site →</b>';
+  const bar = document.createElement('div');
+  bar.style.cssText = 'background:#27363f;color:#fff;font:600 14px/1.3 Nunito,system-ui,sans-serif;text-align:center;padding:10px 40px;position:relative;z-index:52';
+  bar.innerHTML = `<a href="${href}" style="color:#fff;text-decoration:none">${text}</a><button aria-label="close" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:0;color:#fff;font-size:20px;cursor:pointer">×</button>`;
+  bar.querySelector('button').addEventListener('click', () => { bar.remove(); try { localStorage.setItem('winterdip-langbar', 'off'); } catch {} });
+  document.body.prepend(bar);
+})();
+
 const gsap = window.gsap;
 const ScrollTrigger = window.ScrollTrigger;
 gsap.registerPlugin(ScrollTrigger);
