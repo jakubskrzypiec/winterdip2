@@ -224,6 +224,7 @@ details summary{cursor:pointer;font-weight:800;font-size:13px;color:var(--pine-2
   <div class="top">
     <div><h1 id="hello">Cześć!</h1><p id="period">Ładowanie…</p></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <div class="ranges" id="markets-sw"><button data-m="all" class="on">Wszystko</button><button data-m="PL">🇵🇱 Polska</button><button data-m="DE">🇩🇪🇦🇹 Niemcy+AT</button></div>
       <div class="ranges" id="ranges"><button data-r="today">Dziś</button><button data-r="7" class="on">7 dni</button><button data-r="30">30 dni</button><button data-r="all">Od startu</button></div>
       <button class="ghost" id="refresh">↻ Odśwież</button>
     </div>
@@ -374,6 +375,8 @@ const store = { get: (k, def) => { try { const v = localStorage.getItem('wd-' + 
 const NAMES = { 'mug-1': 'Kubek beżowy', 'mug-2': 'Kubek czerwony', 'mug-3': 'Kubek biały' };
 const RANGE_LABEL = { today: 'Dzisiaj', '7': 'Ostatnie 7 dni', '30': 'Ostatnie 30 dni', all: 'Od startu sklepu' };
 let range = '7', DATA = null, charts = {};
+let market = ['all', 'PL', 'DE'].includes(store.get('market', 'all')) ? store.get('market', 'all') : 'all';
+const MARKET_LABEL = { all: '', PL: ' · 🇵🇱 tylko Polska', DE: ' · 🇩🇪🇦🇹 tylko Niemcy+AT (kampania DE+AT)' };
 Chart.defaults.font.family = 'Nunito, system-ui, sans-serif';
 Chart.defaults.font.weight = 700;
 Chart.defaults.color = 'rgba(39,54,63,.62)';
@@ -405,7 +408,7 @@ function chart(id, cfg) { if (charts[id]) charts[id].destroy(); charts[id] = new
 async function load(fresh = false) {
   $('kpis').classList.add('loading');
   try {
-    const r = await fetch(`api.php?range=${range}${fresh ? '&fresh=1' : ''}`, { cache: 'no-store' });
+    const r = await fetch(`api.php?range=${range}${market !== 'all' ? '&m=' + market : ''}${fresh ? '&fresh=1' : ''}`, { cache: 'no-store' });
     if (r.status === 401) { location.reload(); return; }
     DATA = await r.json();
   } catch { $('notes').innerHTML = '<div class="note">Nie udało się pobrać danych. Spróbuj odświeżyć.</div>'; return; }
@@ -418,7 +421,7 @@ function render(d) {
   const k = d.kpi, p = d.prev, s = d.shopify, m = d.meta, t = d.traffic;
   const h = new Date().getHours();
   $('hello').textContent = (h < 12 ? 'Dzień dobry' : h < 18 ? 'Cześć' : 'Dobry wieczór') + ' 👋';
-  $('period').textContent = `${RANGE_LABEL[d.range] || ''} · ${dshort(d.since)} – ${dshort(d.until)} · stan na ${d.generated}`;
+  $('period').textContent = `${RANGE_LABEL[d.range] || ''} · ${dshort(d.since)} – ${dshort(d.until)} · stan na ${d.generated}${MARKET_LABEL[d.market || 'all'] || ''}`;
   $('notes').innerHTML = [s, m].filter((x) => !x.ok).map((x) => `<div class="note">⚠️ ${esc(x.error)}</div>`).join('');
 
   const q = (sel) => document.querySelector(sel);
@@ -637,6 +640,10 @@ $('cm-list').addEventListener('click', async (e) => {
 $$('#cm-filter button').forEach((b) => b.addEventListener('click', () => { cmFilter = b.dataset.f; renderComments(); }));
 $('cm-refresh').addEventListener('click', () => { $('cm-list').innerHTML = '<p class="empty">Ładowanie…</p>'; loadComments(true); });
 $$('#ranges button').forEach((b) => b.addEventListener('click', () => { $$('#ranges button').forEach((x) => x.classList.toggle('on', x === b)); range = b.dataset.r; load(); }));
+$$('#markets-sw button').forEach((b) => {
+  b.classList.toggle('on', b.dataset.m === market);
+  b.addEventListener('click', () => { $$('#markets-sw button').forEach((x) => x.classList.toggle('on', x === b)); market = b.dataset.m; store.set('market', market); load(); });
+});
 $('refresh').addEventListener('click', () => { load(true); pollLive(true); });
 
 // ================= NA ŻYWO: nowe zamówienia =================

@@ -56,49 +56,54 @@ $path = preg_replace('/[?&](fbclid|gclid|ttclid|utm_[a-z]+)=[^&]*/', '', $path);
 // rynek: strona /eu/ (Niemcy i Austria) albo polska
 $market = (str_starts_with($path, '/eu/') || str_starts_with($product, 'eu-')) ? 'DE/AT' : 'PL';
 
-// ---- zapis (z blokadą pliku) ----
-$file = "$dir/stats-$day.json";
-$fh = fopen($file, 'c+');
-if (!$fh) { http_response_code(500); exit; }
-flock($fh, LOCK_EX);
-$d = json_decode(stream_get_contents($fh) ?: '', true) ?: [];
-$d += ['pv' => 0, 'visitors' => 0, 'view' => 0, 'add' => 0, 'checkout' => 0, 'sources' => [], 'devices' => [], 'products' => [], 'pages' => [], 'funnel' => []];
-
+// ---- zapis (z blokadą pliku): wspólny plik + osobny plik rynku (stats-PL / stats-DE) ----
 $uniqFile = "$dir/uniq-$day.txt";
 $seen = is_file($uniqFile) ? array_flip(file($uniqFile, FILE_IGNORE_NEW_LINES) ?: []) : [];
-$isNew = !isset($seen[$vid]);
-if ($isNew) {
-  file_put_contents($uniqFile, $vid . "\n", FILE_APPEND | LOCK_EX);
-  $d['visitors']++;
-  $d['sources'][$source] = ($d['sources'][$source] ?? 0) + 1;
-  $d['devices'][$device] = ($d['devices'][$device] ?? 0) + 1;
-}
-// lejek: ile osób (nie kliknięć) doszło do danego kroku
-$marker = "$vid#$type";
-if (!isset($seen[$marker])) {
-  file_put_contents($uniqFile, $marker . "\n", FILE_APPEND | LOCK_EX);
-  $d['funnel'][$type] = ($d['funnel'][$type] ?? 0) + 1;
-}
-// to samo osobno dla rynku (PL / DE/AT)
-$d['mk'] ??= [];
-$d['mk'][$market] ??= ['visitors' => 0, 'pv' => 0, 'view' => 0, 'add' => 0, 'checkout' => 0];
-$mv = "$vid#$market";
-if (!isset($seen[$mv])) { file_put_contents($uniqFile, $mv . "\n", FILE_APPEND | LOCK_EX); $d['mk'][$market]['visitors']++; }
-$mt = "$vid#$market#$type";
-if (!isset($seen[$mt])) { file_put_contents($uniqFile, $mt . "\n", FILE_APPEND | LOCK_EX); $d['mk'][$market][$type]++; }
+$once = function (string $key) use (&$seen, $uniqFile): bool {
+  if (isset($seen[$key])) return false;
+  $seen[$key] = true;
+  file_put_contents($uniqFile, $key . "
+", FILE_APPEND | LOCK_EX);
+  return true;
+};
 
-if ($type === 'pv') {
-  $d['pv']++; $d['pages'][$path] = ($d['pages'][$path] ?? 0) + 1;
-  $h = (int)(new DateTime('now', $tz))->format('G');
-  $d['hours'][$h] = ($d['hours'][$h] ?? 0) + 1;
-}
-else $d[$type]++;
-if ($product !== '' && $type !== 'pv') {
-  $d['products'][$product] ??= ['view' => 0, 'add' => 0, 'checkout' => 0];
-  $d['products'][$product][$type] = ($d['products'][$product][$type] ?? 0) + 1;
+function record(string $file, string $pre, callable $once, array $ev, ?string $market): bool {
+  [$vid, $type, $source, $device, $path, $product, $hour] = $ev;
+  $fh = fopen($file, 'c+');
+  if (!$fh) return false;
+  flock($fh, LOCK_EX);
+  $d = json_decode(stream_get_contents($fh) ?: '', true) ?: [];
+  $d += ['pv' => 0, 'visitors' => 0, 'view' => 0, 'add' => 0, 'checkout' => 0, 'sources' => [], 'devices' => [], 'products' => [], 'pages' => [], 'funnel' => []];
+  if ($once($pre . $vid)) {
+    $d['visitors']++;
+    $d['sources'][$source] = ($d['sources'][$source] ?? 0) + 1;
+    $d['devices'][$device] = ($d['devices'][$device] ?? 0) + 1;
+  }
+  // lejek: ile osób (nie kliknięć) doszło do danego kroku
+  if ($once("$pre$vid#$type")) $d['funnel'][$type] = ($d['funnel'][$type] ?? 0) + 1;
+  // w pliku wspólnym: krótkie podsumowanie rynków (tabela „Rynki”)
+  if ($market !== null) {
+    $d['mk'] ??= [];
+    $d['mk'][$market] ??= ['visitors' => 0, 'pv' => 0, 'view' => 0, 'add' => 0, 'checkout' => 0];
+    if ($once("$vid#$market")) $d['mk'][$market]['visitors']++;
+    if ($once("$vid#$market#$type")) $d['mk'][$market][$type]++;
+  }
+  if ($type === 'pv') {
+    $d['pv']++; $d['pages'][$path] = ($d['pages'][$path] ?? 0) + 1;
+    $d['hours'][$hour] = ($d['hours'][$hour] ?? 0) + 1;
+  } else $d[$type]++;
+  if ($product !== '' && $type !== 'pv') {
+    $d['products'][$product] ??= ['view' => 0, 'add' => 0, 'checkout' => 0];
+    $d['products'][$product][$type] = ($d['products'][$product][$type] ?? 0) + 1;
+  }
+  ftruncate($fh, 0); rewind($fh);
+  fwrite($fh, json_encode($d, JSON_UNESCAPED_UNICODE));
+  fflush($fh); flock($fh, LOCK_UN); fclose($fh);
+  return true;
 }
 
-ftruncate($fh, 0); rewind($fh);
-fwrite($fh, json_encode($d, JSON_UNESCAPED_UNICODE));
-fflush($fh); flock($fh, LOCK_UN); fclose($fh);
+$ev = [$vid, $type, $source, $device, $path, $product, (int)(new DateTime('now', $tz))->format('G')];
+if (!record("$dir/stats-$day.json", '', $once, $ev, $market)) { http_response_code(500); exit; }
+$mcode = $market === 'DE/AT' ? 'DE' : 'PL';
+record("$dir/stats-$mcode-$day.json", "$mcode@", $once, $ev, null);
 http_response_code(204);

@@ -4,6 +4,7 @@
 // ruch na stronie (własny licznik api/hit.php). Wymaga zalogowania.
 //   ?range=today|7|30|90|all      — przegląd (z porównaniem do poprzedniego okresu)
 //   ?live=1                       — szybki podgląd dnia (powiadomienia o zamówieniach)
+//   &m=PL|DE                      — tylko jeden rynek (DE = Niemcy i Austria, kampanie z „DE+AT”)
 //   &fresh=1                      — pomija cache
 // =========================================================
 declare(strict_types=1);
@@ -14,6 +15,8 @@ if (!logged_in()) { http_response_code(401); echo json_encode(['error' => 'auth'
 
 const STORE_START = '2026-11-10';
 $fresh = isset($_GET['fresh']);
+$MKT = in_array($_GET['m'] ?? '', ['PL', 'DE'], true) ? $_GET['m'] : 'all';
+const DE_START = '2026-11-16';
 $tzW = new DateTimeZone('Europe/Warsaw');
 
 // ---------------- Shopify ----------------
@@ -96,7 +99,7 @@ if (isset($_GET['live'])) {
 $range = $_GET['range'] ?? '7';
 $until = new DateTimeImmutable('today', $tzW);
 if ($range === 'all') {
-  $since = new DateTimeImmutable(STORE_START, $tzW);
+  $since = new DateTimeImmutable($MKT === 'DE' ? DE_START : STORE_START, $tzW);
   $days = (int)$since->diff($until)->days + 1;
 } else {
   $days = ['today' => 1, '7' => 7, '30' => 30, '90' => 90][$range] ?? 7;
@@ -112,7 +115,8 @@ $sinceS = $since->format('Y-m-d'); $untilS = $until->format('Y-m-d');
 
 // ---------------- Shopify: okres + poprzedni okres ----------------
 function shopify_data(string $sinceS, string $prevSinceS, array $dates, bool $fresh, DateTimeZone $tz): array {
-  $key = 'shopify2-' . $prevSinceS . '-' . $sinceS;
+  $mkt = $GLOBALS['MKT'];
+  $key = 'shopify2-' . $mkt . '-' . $prevSinceS . '-' . $sinceS;
   if (!$fresh && ($c = cache_get($key, 240))) return $c;
   $err = '';
   $orders = shopify_orders($prevSinceS, 8, $err);
@@ -124,6 +128,7 @@ function shopify_data(string $sinceS, string $prevSinceS, array $dates, bool $fr
   $markets = ['PL' => ['orders' => 0, 'revenue' => 0.0, 'items' => 0], 'DE/AT' => ['orders' => 0, 'revenue' => 0.0, 'items' => 0, 'eur' => 0.0]];
   foreach ($orders as $n) {
     $r = order_row($n, $tz);
+    if ($mkt !== 'all' && ($r['market'] === 'DE/AT' ? 'DE' : 'PL') !== $mkt) continue;
     $inCur = $r['day'] >= $sinceS;
     if ($inCur) $list[] = $r;
     if (!$r['counted']) { if ($inCur && $r['status'] === 'anulowane') $tot['cancelled']++; continue; }
@@ -149,12 +154,14 @@ function shopify_data(string $sinceS, string $prevSinceS, array $dates, bool $fr
 function meta_data(string $since, string $until, string $prevSince, string $prevUntil, array $dates, bool $fresh): array {
   $token = cfg('META_TOKEN');
   if ($token === '') return ['ok' => false, 'error' => 'Brak klucza Meta (META_TOKEN).'];
-  $key = 'meta-' . $since . '-' . $until;
+  $mkt = $GLOBALS['MKT'];
+  $key = 'meta-' . $mkt . '-' . $since . '-' . $until;
   if (!$fresh && ($c = cache_get($key, 600))) return $c;
   $acct = cfg('META_AD_ACCOUNT', '1960712965203736');
   $ver = cfg('META_API_VERSION', 'v22.0');
   $base = "https://graph.facebook.com/$ver/act_$acct/insights";
-  $get = function (array $p) use ($base, $token) { $p['access_token'] = $token; return http_json($base . '?' . http_build_query($p)); };
+  $filt = $mkt === 'all' ? null : json_encode([['field' => 'campaign.name', 'operator' => $mkt === 'DE' ? 'CONTAIN' : 'NOT_CONTAIN', 'value' => 'DE+AT']]);
+  $get = function (array $p) use ($base, $token, $filt) { $p['access_token'] = $token; if ($filt) $p['filtering'] = $filt; return http_json($base . '?' . http_build_query($p)); };
   $purch = function (array $row, string $key): float {
     $best = 0.0;
     foreach ($row[$key] ?? [] as $a) if (in_array($a['action_type'], ['purchase', 'omni_purchase', 'offsite_conversion.fb_pixel_purchase'], true)) $best = max($best, (float)$a['value']);
@@ -200,6 +207,8 @@ function meta_data(string $since, string $until, string $prevSince, string $prev
     'fields' => 'id,name,effective_status,campaign{name},creative{thumbnail_url}', 'limit' => 60, 'access_token' => $token]));
   foreach ($ra['json']['data'] ?? [] as $a) {
     if (in_array($a['effective_status'] ?? '', ['DELETED', 'ARCHIVED'], true)) continue;
+    $isDe = str_contains($a['campaign']['name'] ?? '', 'DE+AT');
+    if ($mkt !== 'all' && $isDe !== ($mkt === 'DE')) continue;
     $ads[$a['id']] = ['id' => $a['id'], 'name' => $a['name'], 'status' => $a['effective_status'] ?? '', 'campaign' => $a['campaign']['name'] ?? '',
       'thumb' => $a['creative']['thumbnail_url'] ?? '', 'spend' => 0.0, 'impressions' => 0, 'clicks' => 0, 'checkouts' => 0.0, 'purchases' => 0.0, 'value' => 0.0];
   }
@@ -229,8 +238,15 @@ function traffic_data(array $dates): array {
   $funnel = ['pv' => 0, 'view' => 0, 'add' => 0, 'checkout' => 0];
   $mk = [];
   foreach ($dates as $day) {
-    $f = DATA_DIR . "/stats-$day.json";
+    $f = DATA_DIR . ($GLOBALS['MKT'] === 'all' ? "/stats-$day.json" : "/stats-{$GLOBALS['MKT']}-$day.json");
     $d = is_file($f) ? (json_decode((string)file_get_contents($f), true) ?: []) : [];
+    // dni sprzed osobnych plików rynku: tylko skrót z tabeli „Rynki”
+    if (!$d && $GLOBALS['MKT'] !== 'all' && is_file(DATA_DIR . "/stats-$day.json")) {
+      $all = json_decode((string)file_get_contents(DATA_DIR . "/stats-$day.json"), true) ?: [];
+      $m = $all['mk'][$GLOBALS['MKT'] === 'DE' ? 'DE/AT' : 'PL'] ?? null;
+      if ($m) $d = ['visitors' => $m['visitors'] ?? 0, 'view' => $m['view'] ?? 0, 'add' => $m['add'] ?? 0, 'checkout' => $m['checkout'] ?? 0,
+        'funnel' => ['pv' => $m['pv'] ?? 0, 'view' => $m['view'] ?? 0, 'add' => $m['add'] ?? 0, 'checkout' => $m['checkout'] ?? 0]];
+    }
     $daily[$day] = ['visitors' => (int)($d['visitors'] ?? 0), 'pv' => (int)($d['pv'] ?? 0)];
     foreach ($tot as $k => $_) $tot[$k] += (int)($d[$k] ?? 0);
     foreach (($d['sources'] ?? []) as $k => $v) $sources[$k] = ($sources[$k] ?? 0) + $v;
@@ -271,5 +287,5 @@ $prev = [
   'linkClicks' => $meta['ok'] ? $meta['prev']['linkClicks'] : null,
 ];
 
-echo json_encode(['range' => $range, 'since' => $sinceS, 'until' => $untilS, 'days' => $days, 'dates' => $dates, 'kpi' => $kpi, 'prev' => $prev,
+echo json_encode(['range' => $range, 'market' => $MKT, 'since' => $sinceS, 'until' => $untilS, 'days' => $days, 'dates' => $dates, 'kpi' => $kpi, 'prev' => $prev,
   'shopify' => $shop, 'meta' => $meta, 'traffic' => $traffic, 'generated' => (new DateTime('now', $tzW))->format('H:i')], JSON_UNESCAPED_UNICODE);
