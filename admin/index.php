@@ -271,6 +271,10 @@ details summary{cursor:pointer;font-weight:800;font-size:13px;color:var(--pine-2
     </div>
   </div>
 
+  <div class="grid">
+    <div class="card"><h2>🌍 Rynki <small>Polska vs Niemcy i Austria · wydatki wg kampanii z „DE+AT” w nazwie</small></h2><div id="markets"></div></div>
+  </div>
+
   <div class="grid g21">
     <div class="card"><h2>⏰ Kiedy ludzie wchodzą i kupują <small>najlepsza pora na posty</small></h2><div class="chart sm"><canvas id="ch-hours"></canvas></div></div>
     <div class="card"><h2>🪜 Lejek sprzedaży</h2><div class="funnel" id="funnel"></div></div>
@@ -467,11 +471,23 @@ function render(d) {
   }).join('');
   requestAnimationFrame(() => $$('#funnel i[data-w]').forEach((i) => (i.style.width = i.dataset.w + '%')));
 
+  // rynki: PL vs DE/AT
+  const eurF = (n) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(n);
+  const MK = [['PL', '🇵🇱 Polska', 'winterdip.pl'], ['DE/AT', '🇩🇪🇦🇹 Niemcy i Austria', 'winterdip.pl/eu']];
+  const tm = t.markets || {}, sm = s.ok ? (s.markets || {}) : {};
+  const mspend = { PL: 0, 'DE/AT': 0 };
+  if (m.ok) m.campaigns.forEach((c) => { mspend[/DE\+AT|DE\/AT|Niemcy|Austria/i.test(c.name) ? 'DE/AT' : 'PL'] += c.spend; });
+  $('markets').innerHTML = `<table><tr><th>Rynek</th><th class="r">Odwiedzający</th><th class="r">Obejrzeli kubek</th><th class="r">Koszyk</th><th class="r">Do kasy</th><th class="r">Zamówienia</th><th class="r">Przychód</th><th class="r">Reklamy</th><th class="r">ROAS</th></tr>${MK.map(([id, label, site]) => {
+    const tt = tm[id] || {}, ss = sm[id] || {}, sp = mspend[id], rv = ss.revenue || 0;
+    const eur = id === 'DE/AT' && ss.eur ? ` <div class="muted" style="font-size:12px">${eurF(ss.eur)}</div>` : '';
+    return `<tr><td><b>${label}</b><div class="muted" style="font-size:12px">${site}</div></td><td class="r">${num(tt.visitors || 0)}</td><td class="r">${num(tt.view || 0)}</td><td class="r">${num(tt.add || 0)}</td><td class="r">${num(tt.checkout || 0)}</td><td class="r"><b>${s.ok ? num(ss.orders || 0) : '—'}</b></td><td class="r"><b>${s.ok ? zl(rv) : '—'}</b>${eur}</td><td class="r">${m.ok ? zl(sp) : '—'}</td><td class="r">${sp > 0 && s.ok ? `<span class="pill ${rv / sp >= 1.5 ? 'ok' : 'bad'}">${num(rv / sp, 2)}×</span>` : '—'}</td></tr>`;
+  }).join('')}</table><p class="muted" style="font-size:12px;margin-top:8px">Ruch dzielony na rynki od 16.11 — wcześniejsze dni są tylko w sumach. Przychód w zł po przeliczeniu Shopify.</p>`;
+
   bars($('sources'), Object.entries(t.sources));
   bars($('devices'), Object.entries(t.devices));
 
   const pv = t.products, sold = s.ok ? s.products : {};
-  $('products').innerHTML = `<table><tr><th>Kubek</th><th class="r">Wyśw.</th><th class="r">Koszyk</th><th class="r">Sprzed.</th></tr>${['mug-1', 'mug-2'].map((id) => `<tr><td>${NAMES[id]}</td><td class="r">${num(pv[id]?.view || 0)}</td><td class="r">${num(pv[id]?.add || 0)}</td><td class="r"><b>${num(sold[NAMES[id]] || 0)}</b></td></tr>`).join('')}</table>`;
+  $('products').innerHTML = `<table><tr><th>Kubek</th><th class="r">Wyśw.</th><th class="r">Koszyk</th><th class="r">Sprzed.</th></tr>${['mug-1', 'mug-2'].map((id) => `<tr><td>${NAMES[id]}</td><td class="r">${num((pv[id]?.view || 0) + (pv['eu-' + id]?.view || 0))}</td><td class="r">${num((pv[id]?.add || 0) + (pv['eu-' + id]?.add || 0))}</td><td class="r"><b>${num(sold[NAMES[id]] || 0)}</b></td></tr>`).join('')}</table>`;
 
   $('campaigns').innerHTML = !m.ok ? '<p class="empty">Podłącz klucz Meta, żeby zobaczyć kampanie.</p>' : (m.campaigns.length ? `<table><tr><th>Kampania</th><th class="r">Wydatki</th><th class="r">Wyświetlenia</th><th class="r">Kliknięcia</th><th class="r">CPC</th><th class="r">Zakupy</th><th class="r">ROAS</th></tr>${m.campaigns.map((c) => `<tr><td><b>${esc(c.name)}</b></td><td class="r">${zl(c.spend)}</td><td class="r">${num(c.impressions)}</td><td class="r">${num(c.clicks)}</td><td class="r">${c.clicks ? zl(c.spend / c.clicks) : '—'}</td><td class="r">${num(c.purchases)}</td><td class="r"><span class="pill ${c.spend && c.value / c.spend >= 1.5 ? 'ok' : (c.spend ? 'bad' : '')}">${c.spend ? num(c.value / c.spend, 2) + '×' : '—'}</span></td></tr>`).join('')}</table>` : '<p class="empty">Brak kampanii w tym okresie — pierwsza kampania pojawi się tu automatycznie.</p>');
 
@@ -486,9 +502,9 @@ function render(d) {
   }).join('')}</table>` : '<p class="empty">Brak reklam na koncie.</p>');
 
   const ST = { PAID: 'opłacone', PENDING: 'oczekuje', REFUNDED: 'zwrócone', PARTIALLY_REFUNDED: 'częściowy zwrot', AUTHORIZED: 'autoryzowane' };
-  $('orders').innerHTML = !s.ok ? '<p class="empty">Podłącz klucz Shopify, żeby zobaczyć zamówienia.</p>' : (s.orders.length ? `<table><tr><th>Nr</th><th>Kiedy</th><th>Produkty</th><th class="r">Kwota</th><th>Status</th></tr>${s.orders.map((o) => `<tr${o.counted ? '' : ' class="muted"'}><td><b>${esc(o.name)}</b></td><td>${new Date(o.date).toLocaleString('pl-PL', { day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit' })}</td><td>${esc(o.items)}</td><td class="r"><b>${zl(o.total)}</b></td><td><span class="pill ${o.status === 'PAID' ? 'ok' : (o.counted ? '' : 'bad')}">${esc(ST[o.status] || o.status)}</span> ${o.counted ? `<span class="pill">${o.fulfillment === 'FULFILLED' ? '🚚 wysłane' : '⏳ do wysyłki'}</span>` : ''}</td></tr>`).join('')}</table>` : '<p class="empty">Brak zamówień w tym okresie — pierwsze pojawi się tu od razu (i zadzwoni 🔔).</p>');
+  $('orders').innerHTML = !s.ok ? '<p class="empty">Podłącz klucz Shopify, żeby zobaczyć zamówienia.</p>' : (s.orders.length ? `<table><tr><th>Nr</th><th>Kiedy</th><th>Produkty</th><th class="r">Kwota</th><th>Status</th></tr>${s.orders.map((o) => `<tr${o.counted ? '' : ' class="muted"'}><td><b>${esc(o.name)}</b></td><td>${new Date(o.date).toLocaleString('pl-PL', { day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit' })}</td><td>${o.market === 'DE/AT' ? '🇩🇪🇦🇹 ' : '🇵🇱 '}${esc(o.items)}</td><td class="r"><b>${zl(o.total)}</b>${o.currency === 'EUR' ? `<div class="muted" style="font-size:12px">${eurF(o.paid)}</div>` : ''}</td><td><span class="pill ${o.status === 'PAID' ? 'ok' : (o.counted ? '' : 'bad')}">${esc(ST[o.status] || o.status)}</span> ${o.counted ? `<span class="pill">${o.fulfillment === 'FULFILLED' ? '🚚 wysłane' : '⏳ do wysyłki'}</span>` : ''}</td></tr>`).join('')}</table>` : '<p class="empty">Brak zamówień w tym okresie — pierwsze pojawi się tu od razu (i zadzwoni 🔔).</p>');
 
-  const pages = Object.entries(t.pages).map(([p, v]) => [p.replace(/^\/(index\.html)?$/, 'Strona główna').replace(/^\/produkty\.html.*/, 'Lista kubków').replace(/^\/produkt\.html\?id=(mug-\d)/, (_, id) => NAMES[id] || id).replace(/^\//, ''), v]);
+  const pages = Object.entries(t.pages).map(([p, v]) => [p.replace(/^\/(index\.html)?$/, 'Strona główna').replace(/^\/produkty\.html.*/, 'Lista kubków').replace(/^\/produkt\.html\?id=(mug-\d)/, (_, id) => NAMES[id] || id).replace(/^\/eu\/(index\.html)?(\?.*)?$/, '🇩🇪 Strona główna DE/AT').replace(/^\/eu\/shop\.html.*/, '🇩🇪 Lista kubków DE/AT').replace(/^\/eu\/product\.html\?id=(mug-\d).*/, (_, id) => '🇩🇪 ' + (NAMES[id] || id)).replace(/^\/eu\/legal\.html.*/, '🇩🇪 Impressum / AGB').replace(/^\//, ''), v]);
   bars($('pages'), pages);
 }
 

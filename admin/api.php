@@ -39,7 +39,7 @@ function shopify_orders(string $since, int $limitPages, string &$error): ?array 
   $token = shopify_token($domain, $error);
   if ($token === '') return null;
   $orders = []; $after = null; $retried = false;
-  $q = 'query($q:String,$after:String){orders(first:100,after:$after,query:$q,sortKey:CREATED_AT,reverse:true){pageInfo{hasNextPage endCursor} nodes{name createdAt test cancelledAt displayFinancialStatus displayFulfillmentStatus totalPriceSet{shopMoney{amount}} totalRefundedSet{shopMoney{amount}} lineItems(first:10){nodes{title quantity}}}}}';
+  $q = 'query($q:String,$after:String){orders(first:100,after:$after,query:$q,sortKey:CREATED_AT,reverse:true){pageInfo{hasNextPage endCursor} nodes{name createdAt test cancelledAt displayFinancialStatus displayFulfillmentStatus presentmentCurrencyCode totalPriceSet{shopMoney{amount} presentmentMoney{amount}} totalRefundedSet{shopMoney{amount}} lineItems(first:10){nodes{title quantity}}}}}';
   for ($page = 0; $page < $limitPages; $page++) {
     $r = http_json("https://$domain/admin/api/$ver/graphql.json",
       ['Content-Type: application/json', 'X-Shopify-Access-Token: ' . $token],
@@ -66,7 +66,9 @@ function order_row(array $n, DateTimeZone $tz): array {
   return ['name' => $n['name'], 'date' => $n['createdAt'], 'day' => $dt->format('Y-m-d'), 'hour' => (int)$dt->format('G'),
     'total' => round($total, 2), 'qty' => $qty, 'items' => implode(', ', $items), 'lines' => $n['lineItems']['nodes'],
     'status' => $n['cancelledAt'] ? 'anulowane' : ($n['test'] ? 'testowe' : $n['displayFinancialStatus']),
-    'fulfillment' => $n['displayFulfillmentStatus'], 'counted' => !$n['test'] && !$n['cancelledAt']];
+    'fulfillment' => $n['displayFulfillmentStatus'], 'counted' => !$n['test'] && !$n['cancelledAt'],
+    'market' => ($n['presentmentCurrencyCode'] ?? 'PLN') === 'EUR' ? 'DE/AT' : 'PL',
+    'currency' => $n['presentmentCurrencyCode'] ?? 'PLN', 'paid' => round((float)($n['totalPriceSet']['presentmentMoney']['amount'] ?? 0), 2)];
 }
 
 // ---------------- tryb „na żywo” ----------------
@@ -110,7 +112,7 @@ $sinceS = $since->format('Y-m-d'); $untilS = $until->format('Y-m-d');
 
 // ---------------- Shopify: okres + poprzedni okres ----------------
 function shopify_data(string $sinceS, string $prevSinceS, array $dates, bool $fresh, DateTimeZone $tz): array {
-  $key = 'shopify-' . $prevSinceS . '-' . $sinceS;
+  $key = 'shopify2-' . $prevSinceS . '-' . $sinceS;
   if (!$fresh && ($c = cache_get($key, 240))) return $c;
   $err = '';
   $orders = shopify_orders($prevSinceS, 8, $err);
@@ -119,6 +121,7 @@ function shopify_data(string $sinceS, string $prevSinceS, array $dates, bool $fr
   $tot = ['orders' => 0, 'revenue' => 0.0, 'items' => 0, 'cancelled' => 0, 'unfulfilled' => 0];
   $prev = ['orders' => 0, 'revenue' => 0.0, 'items' => 0];
   $list = []; $products = []; $hours = array_fill(0, 24, 0); $best = null;
+  $markets = ['PL' => ['orders' => 0, 'revenue' => 0.0, 'items' => 0], 'DE/AT' => ['orders' => 0, 'revenue' => 0.0, 'items' => 0, 'eur' => 0.0]];
   foreach ($orders as $n) {
     $r = order_row($n, $tz);
     $inCur = $r['day'] >= $sinceS;
@@ -128,6 +131,8 @@ function shopify_data(string $sinceS, string $prevSinceS, array $dates, bool $fr
     $tot['orders']++; $tot['revenue'] += $r['total']; $tot['items'] += $r['qty'];
     if (isset($daily[$r['day']])) { $daily[$r['day']]['orders']++; $daily[$r['day']]['revenue'] += $r['total']; }
     $hours[$r['hour']]++;
+    $markets[$r['market']]['orders']++; $markets[$r['market']]['revenue'] += $r['total']; $markets[$r['market']]['items'] += $r['qty'];
+    if ($r['market'] === 'DE/AT') $markets['DE/AT']['eur'] += $r['paid'];
     if ($r['fulfillment'] !== 'FULFILLED') $tot['unfulfilled']++;
     foreach ($r['lines'] as $li) $products[$li['title']] = ($products[$li['title']] ?? 0) + (int)$li['quantity'];
   }
@@ -135,7 +140,7 @@ function shopify_data(string $sinceS, string $prevSinceS, array $dates, bool $fr
   arsort($products);
   foreach ($list as &$l) unset($l['lines']);
   $out = ['ok' => true, 'totals' => $tot, 'prev' => $prev, 'daily' => $daily, 'hours' => $hours, 'bestDay' => $best,
-    'orders' => array_slice($list, 0, 15), 'products' => $products];
+    'orders' => array_slice($list, 0, 15), 'products' => $products, 'markets' => $markets];
   cache_set($key, $out);
   return $out;
 }
@@ -222,6 +227,7 @@ function traffic_data(array $dates): array {
   $tot = ['pv' => 0, 'visitors' => 0, 'view' => 0, 'add' => 0, 'checkout' => 0];
   $daily = []; $sources = []; $devices = []; $products = []; $pages = []; $hours = array_fill(0, 24, 0);
   $funnel = ['pv' => 0, 'view' => 0, 'add' => 0, 'checkout' => 0];
+  $mk = [];
   foreach ($dates as $day) {
     $f = DATA_DIR . "/stats-$day.json";
     $d = is_file($f) ? (json_decode((string)file_get_contents($f), true) ?: []) : [];
@@ -232,11 +238,12 @@ function traffic_data(array $dates): array {
     foreach (($d['pages'] ?? []) as $k => $v) $pages[$k] = ($pages[$k] ?? 0) + $v;
     foreach (($d['funnel'] ?? []) as $k => $v) $funnel[$k] = ($funnel[$k] ?? 0) + $v;
     foreach (($d['hours'] ?? []) as $k => $v) $hours[(int)$k] += (int)$v;
+    foreach (($d['mk'] ?? []) as $m => $vals) foreach ($vals as $kk => $vv) $mk[$m][$kk] = ($mk[$m][$kk] ?? 0) + (int)$vv;
     foreach (($d['products'] ?? []) as $k => $v) foreach ($v as $kk => $vv) $products[$k][$kk] = ($products[$k][$kk] ?? 0) + $vv;
   }
   arsort($sources); arsort($pages);
   return ['ok' => true, 'totals' => $tot, 'daily' => $daily, 'sources' => $sources, 'devices' => $devices, 'hours' => $hours,
-    'products' => $products, 'pages' => array_slice($pages, 0, 8, true), 'funnel' => $funnel];
+    'products' => $products, 'pages' => array_slice($pages, 0, 8, true), 'funnel' => $funnel, 'markets' => $mk];
 }
 
 $shop = shopify_data($sinceS, $prevSince->format('Y-m-d'), $dates, $fresh, $tzW);

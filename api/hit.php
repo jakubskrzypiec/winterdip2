@@ -53,6 +53,8 @@ $device = preg_match('/mobile|android|iphone|ipad/i', $ua) ? 'telefon' : 'komput
 $product = preg_replace('/[^a-z0-9\-]/', '', (string)($in['p'] ?? ''));
 $path = substr(preg_replace('/[^a-zA-Z0-9\-\._\/?=&]/', '', (string)($in['u'] ?? '/')), 0, 80);
 $path = preg_replace('/[?&](fbclid|gclid|ttclid|utm_[a-z]+)=[^&]*/', '', $path);
+// rynek: strona /eu/ (Niemcy i Austria) albo polska
+$market = (str_starts_with($path, '/eu/') || str_starts_with($product, 'eu-')) ? 'DE/AT' : 'PL';
 
 // ---- zapis (z blokadą pliku) ----
 $file = "$dir/stats-$day.json";
@@ -77,6 +79,13 @@ if (!isset($seen[$marker])) {
   file_put_contents($uniqFile, $marker . "\n", FILE_APPEND | LOCK_EX);
   $d['funnel'][$type] = ($d['funnel'][$type] ?? 0) + 1;
 }
+// to samo osobno dla rynku (PL / DE/AT)
+$d['mk'] ??= [];
+$d['mk'][$market] ??= ['visitors' => 0, 'pv' => 0, 'view' => 0, 'add' => 0, 'checkout' => 0];
+$mv = "$vid#$market";
+if (!isset($seen[$mv])) { file_put_contents($uniqFile, $mv . "\n", FILE_APPEND | LOCK_EX); $d['mk'][$market]['visitors']++; }
+$mt = "$vid#$market#$type";
+if (!isset($seen[$mt])) { file_put_contents($uniqFile, $mt . "\n", FILE_APPEND | LOCK_EX); $d['mk'][$market][$type]++; }
 
 if ($type === 'pv') {
   $d['pv']++; $d['pages'][$path] = ($d['pages'][$path] ?? 0) + 1;
