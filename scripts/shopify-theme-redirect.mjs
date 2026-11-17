@@ -40,10 +40,17 @@ const th = await gql(`{ themes(first: 10, roles: [MAIN]) { nodes { id name files
 const theme = th.themes.nodes[0];
 const content = theme.files.nodes[0].body.content;
 console.log('Motyw:', theme.name);
-if (content.includes(MARK)) { console.log('Przekierowanie już jest w motywie — nic nie zmieniam.'); process.exit(0); }
-const i = content.indexOf('<head>');
-if (i < 0) throw new Error('Nie znaleziono <head> w theme.liquid');
-const next = content.slice(0, i + 6) + '\n    ' + snippet + content.slice(i + 6);
+let next;
+const old = content.match(/<script>\/\* winterdip\.pl redirect \*\/[\s\S]*?<\/script>/);
+if (old) {
+  if (old[0] === snippet) { console.log('Przekierowanie jest aktualne — nic nie zmieniam.'); process.exit(0); }
+  next = content.replace(old[0], () => snippet);
+  console.log('Aktualizuję istniejące przekierowanie.');
+} else {
+  const i = content.indexOf('<head>');
+  if (i < 0) throw new Error('Nie znaleziono <head> w theme.liquid');
+  next = content.slice(0, i + 6) + '\n    ' + snippet + content.slice(i + 6);
+}
 
 const res = await gql(`mutation($id: ID!, $files: [OnlineStoreThemeFilesUpsertFileInput!]!) {
   themeFilesUpsert(themeId: $id, files: $files) { upsertedThemeFiles { filename } userErrors { field message } } }`,
