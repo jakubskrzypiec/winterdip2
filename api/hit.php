@@ -81,12 +81,15 @@ function record(string $file, string $pre, callable $once, array $ev, ?string $m
   }
   // lejek: ile osób (nie kliknięć) doszło do danego kroku
   if ($once("$pre$vid#$type")) $d['funnel'][$type] = ($d['funnel'][$type] ?? 0) + 1;
+  // kto obejrzał kubek / dodał do koszyka, ten też „wszedł na stronę” (gdy zdarzenie pv nie zdążyło dojść) — lejek nie przekroczy 100%
+  if ($type !== 'pv' && $once("$pre$vid#pv")) $d['funnel']['pv'] = ($d['funnel']['pv'] ?? 0) + 1;
   // w pliku wspólnym: krótkie podsumowanie rynków (tabela „Rynki”)
   if ($market !== null) {
     $d['mk'] ??= [];
     $d['mk'][$market] ??= ['visitors' => 0, 'pv' => 0, 'view' => 0, 'add' => 0, 'checkout' => 0];
     if ($once("$vid#$market")) $d['mk'][$market]['visitors']++;
     if ($once("$vid#$market#$type")) $d['mk'][$market][$type]++;
+    if ($type !== 'pv' && $once("$vid#$market#pv")) $d['mk'][$market]['pv']++;
   }
   if ($type === 'pv') {
     $d['pv']++; $d['pages'][$path] = ($d['pages'][$path] ?? 0) + 1;

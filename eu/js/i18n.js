@@ -3,7 +3,7 @@
 //   en — domyślny (angielski)
 //   de — niemiecki (Niemcy)
 //   at — niemiecki (Austria): te same teksty co de, rynek Shopify = AT
-// Wybór: ?lang=en|de|at w adresie (zapamiętywany) → zapamiętany wybór → język przeglądarki → en.
+// Wybór: ?lang=en|de|at w adresie (zapamiętywany) → zapamiętany wybór → język / strefa czasowa przeglądarki (DE/AT → niemiecki) → en.
 // =========================================================
 const KEY = 'winterdip-lang';
 const VALID = ['en', 'de', 'at'];
@@ -12,6 +12,11 @@ function detect() {
   const q = new URLSearchParams(location.search).get('lang');
   if (VALID.includes(q)) { try { localStorage.setItem(KEY, q); } catch {} return q; }
   try { const s = localStorage.getItem(KEY); if (VALID.includes(s)) return s; } catch {}
+  // pierwsze wejście bez ?lang: niemiecka przeglądarka albo strefa czasowa DE/AT → niemiecki
+  const nl = (navigator.language || '').toLowerCase();
+  let tz = ''; try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch {}
+  if (nl === 'de-at' || tz === 'Europe/Vienna') return 'at';
+  if (nl.startsWith('de') || tz === 'Europe/Berlin' || tz === 'Europe/Busingen') return 'de';
   return 'en';
 }
 
@@ -42,7 +47,7 @@ const STR = {
     hero_buy: 'Buy now', hero_see: 'See the mugs', hero_ship: '<span>🚚</span> <b>Free shipping</b> · {price} is the final price', scroll: 'Scroll',
     col_eyebrow: 'Collection', col_title: 'Choose your<br><em>winter ritual</em>',
     col_lead: 'One mug for a quiet evening with a good book, or two for a cosy date night at home. A gift that makes the evening — perfect under the tree.',
-    card_desc: 'Ceramic fondue mug with tea light opening',
+    card_desc: 'Ceramic fondue mug with fork · tea light not included',
     free_ship: '🚚 Free shipping', view: 'View product', add: 'Add to cart',
     delivery_note: '<b>🚚 Free shipping on every order</b> · delivery in {days} · order by 5 December for Christmas',
     gal_eyebrow: 'Gallery', gal_title: 'Up close',
@@ -68,9 +73,9 @@ const STR = {
     pay_aria: 'Payment methods',
     stock_note: 'Delivery in {days} · order by 5 December for Christmas',
     bundle_t: 'Get a second one as a gift', bundle_d: 'The other colour for someone you love — shipping is free too.',
-    tr_ship: 'Shipping', tr_ship_v: 'Always free', tr_ret: 'Returns', tr_ret_v: '30 days, no questions asked', tr_track: 'Tracking', tr_track_v: 'Tracking number by email',
+    tr_ship: 'Shipping', tr_ship_v: 'Always free', tr_ret: 'Returns', tr_ret_v: '30 days · return to Poland at your cost', tr_track: 'Tracking', tr_track_v: 'Tracking number by email',
     acc_care_t: 'Size & care', acc_care: 'The mug holds a single portion of chocolate fondue. The ceramic is dishwasher-safe, but we recommend washing by hand so the glaze and lettering stay beautiful for years. Please wash the fork by hand.',
-    acc_ship_t: 'Shipping & returns', acc_ship: 'We ship from our partner’s warehouse — your parcel arrives in {days}, and you’ll receive a tracking number by email. Shipping is always free. You have a 14-day statutory right of withdrawal, which we voluntarily extend to 30 days.',
+    acc_ship_t: 'Shipping & returns', acc_ship: 'We ship from our partner’s warehouse — your parcel arrives in {days}, and you’ll receive a tracking number by email. Shipping is always free. You have a 14-day statutory right of withdrawal, which we voluntarily extend to 30 days. Returns go to our address in Poland; the return shipping cost is paid by the buyer. Faulty or damaged items: we cover everything.',
     steps_eyebrow: 'How it works', steps_title: 'Three steps<br>to fondue',
     s1_t: 'Add chocolate pieces', s1_d: 'Put a few pieces of your favourite chocolate into the mug. No need to melt anything beforehand.',
     s2_t: 'Light the tea light', s2_d: 'Slide a tea light into the opening in the base and light it. The chocolate melts on its own and stays smooth all evening.',
@@ -79,7 +84,7 @@ const STR = {
     occ_eyebrow: 'Occasions', occ_title: 'For every<br>winter evening',
     occ: [['Date night at home', 'Two mugs, dimmed lights and chocolate-dipped strawberries. An evening you’ll remember longer than dinner out.'], ['Movie night', 'A blanket, your favourite series and warm chocolate within reach. No cooking, no pots to wash.'], ['A Christmas gift', 'The mug with a bar of their favourite chocolate makes a ready-to-give Christmas present.'], ['Evening with friends', 'Everyone gets their own mug and their own portion. Mini fondue for one — no shared pot.']],
     dips_t: 'What to dip?', dips: ['Strawberries', 'Bananas', 'Gingerbread', 'Biscuits', 'Marshmallows', 'Pretzels', 'Clementines', 'Sponge fingers', 'Pineapple', 'Waffles'],
-    box_eyebrow: 'In the box', box_title: 'Everything<br>you need',
+    box_eyebrow: 'In the box', box_title: 'What’s<br>in the box',
     box_mug: 'Chocolat… mug', box_mug_v: 'ceramic, colour: {colour}', box_fork: 'Fondue fork', box_fork_v: 'stainless steel', box_size: 'Size', box_size_v: 'approx. 13 × 10 × 12 cm, one portion', box_tl: 'Tea light', box_tl_v: 'any standard tea light fits (not included)',
     other_eyebrow: 'Also available', sticky_ship: '🚚 free shipping',
     colours: { 'mug-1': 'Beige', 'mug-2': 'Red' },
@@ -89,8 +94,8 @@ const STR = {
       'mug-2': 'Deep festive red with a light interior. A tea light underneath, melted chocolate on top and the fork always within reach.',
     },
     bullets: {
-      'mug-1': ['Creamy beige ceramic with a brown interior', 'Tea light opening — chocolate stays melted all evening', 'Fondue fork included', 'A lovely Christmas gift idea'],
-      'mug-2': ['Festive red ceramic with a light interior', 'Tea light opening — chocolate stays melted all evening', 'Fondue fork included', 'A lovely Christmas gift idea'],
+      'mug-1': ['Creamy beige ceramic with a brown interior', 'Tea light opening — chocolate stays melted all evening', 'Fondue fork included · tea light not included (any standard one fits)', 'A lovely Christmas gift idea'],
+      'mug-2': ['Festive red ceramic with a light interior', 'Tea light opening — chocolate stays melted all evening', 'Fondue fork included · tea light not included (any standard one fits)', 'A lovely Christmas gift idea'],
     },
     alts: ['Mug from the front', 'Mug with chocolate and tea light', 'Dipping a strawberry into chocolate', 'Mug from above with fork and chocolate', 'Fork resting in the handle', 'Mug on a winter evening with snacks'],
     faq: [
@@ -116,7 +121,7 @@ const STR = {
     hero_buy: 'Jetzt kaufen', hero_see: 'Tassen ansehen', hero_ship: '<span>🚚</span> <b>Kostenloser Versand</b> · {price} ist der Endpreis', scroll: 'Scrollen',
     col_eyebrow: 'Kollektion', col_title: 'Wähle dein<br><em>Winterritual</em>',
     col_lead: 'Eine Tasse für den ruhigen Abend mit einem guten Buch – oder zwei für ein gemütliches Date zu Hause. Ein Geschenk, das den Abend besonders macht – perfekt unter dem Weihnachtsbaum.',
-    card_desc: 'Keramik-Fondue-Tasse mit Teelicht-Öffnung',
+    card_desc: 'Keramik-Fondue-Tasse mit Gabel · Teelicht nicht enthalten',
     free_ship: '🚚 Kostenloser Versand', view: 'Zum Produkt', add: 'In den Warenkorb',
     delivery_note: '<b>🚚 Kostenloser Versand für jede Bestellung</b> · Lieferung in {days} · bis 5. Dezember bestellen, pünktlich zu Weihnachten',
     gal_eyebrow: 'Galerie', gal_title: 'Ganz nah',
@@ -140,9 +145,9 @@ const STR = {
     pay_aria: 'Zahlungsarten',
     stock_note: 'Lieferung in {days} · bis 5. Dezember bestellen, pünktlich zu Weihnachten',
     bundle_t: 'Eine zweite als Geschenk', bundle_d: 'Die andere Farbe für einen lieben Menschen – ebenfalls versandkostenfrei.',
-    tr_ship: 'Versand', tr_ship_v: 'Immer kostenlos', tr_ret: 'Rückgabe', tr_ret_v: '30 Tage ohne Wenn und Aber', tr_track: 'Sendungsverfolgung', tr_track_v: 'Sendungsnummer per E-Mail',
+    tr_ship: 'Versand', tr_ship_v: 'Immer kostenlos', tr_ret: 'Rückgabe', tr_ret_v: '30 Tage · Rücksendung nach Polen auf eigene Kosten', tr_track: 'Sendungsverfolgung', tr_track_v: 'Sendungsnummer per E-Mail',
     acc_care_t: 'Maße & Pflege', acc_care: 'Die Tasse fasst eine Portion Schokoladenfondue für eine Person. Die Keramik ist spülmaschinenfest, wir empfehlen aber Handwäsche, damit Glasur und Schriftzug lange schön bleiben. Die Gabel bitte von Hand spülen.',
-    acc_ship_t: 'Versand & Rückgabe', acc_ship: 'Wir versenden aus dem Lager unseres Partners – dein Paket ist in {days} bei dir, die Sendungsnummer bekommst du per E-Mail. Der Versand ist immer kostenlos. Du hast ein gesetzliches Widerrufsrecht von 14 Tagen, das wir freiwillig auf 30 Tage verlängern.',
+    acc_ship_t: 'Versand & Rückgabe', acc_ship: 'Wir versenden aus dem Lager unseres Partners – dein Paket ist in {days} bei dir, die Sendungsnummer bekommst du per E-Mail. Der Versand ist immer kostenlos. Du hast ein gesetzliches Widerrufsrecht von 14 Tagen, das wir freiwillig auf 30 Tage verlängern. Die Rücksendung geht an unsere Adresse in Polen; die Rücksendekosten trägst du. Bei Mängeln oder Transportschäden übernehmen wir alles.',
     steps_eyebrow: 'So funktioniert’s', steps_title: 'In drei Schritten<br>zum Fondue',
     s1_t: 'Schokolade hineingeben', s1_d: 'Gib ein paar Stücke deiner Lieblingsschokolade in die Tasse. Vorher schmelzen musst du nichts.',
     s2_t: 'Teelicht anzünden', s2_d: 'Schieb ein Teelicht in die Öffnung im Fuß und zünde es an. Die Schokolade schmilzt von selbst und bleibt den ganzen Abend flüssig.',
@@ -151,7 +156,7 @@ const STR = {
     occ_eyebrow: 'Anlässe', occ_title: 'Für jeden<br>Winterabend',
     occ: [['Date zu Hause', 'Zwei Tassen, gedimmtes Licht und Erdbeeren in Schokolade. Ein Abend, an den man sich länger erinnert als an ein Essen im Restaurant.'], ['Filmabend', 'Eine Decke, deine Lieblingsserie und warme Schokolade griffbereit. Ohne Kochen, ohne Töpfe zu spülen.'], ['Weihnachtsgeschenk', 'Die Tasse mit einer Tafel Lieblingsschokolade ist ein fertiges Weihnachtsgeschenk.'], ['Abend mit Freunden', 'Jeder hat seine eigene Tasse und seine eigene Portion. Mini-Fondue für eine Person – ganz ohne gemeinsamen Topf.']],
     dips_t: 'Was eintauchen?', dips: ['Erdbeeren', 'Bananen', 'Lebkuchen', 'Kekse', 'Marshmallows', 'Brezeln', 'Mandarinen', 'Löffelbiskuits', 'Ananas', 'Waffeln'],
-    box_eyebrow: 'Lieferumfang', box_title: 'Alles,<br>was du brauchst',
+    box_eyebrow: 'Lieferumfang', box_title: 'Das ist<br>im Paket',
     box_mug: 'Tasse Chocolat…', box_mug_v: 'Keramik, Farbe: {colour}', box_fork: 'Fondue-Gabel', box_fork_v: 'Edelstahl', box_size: 'Maße', box_size_v: 'ca. 13 × 10 × 12 cm, eine Portion', box_tl: 'Teelicht', box_tl_v: 'jedes normale Teelicht passt (nicht enthalten)',
     other_eyebrow: 'Auch erhältlich', sticky_ship: '🚚 kostenloser Versand',
     colours: { 'mug-1': 'Beige', 'mug-2': 'Rot' },
@@ -161,8 +166,8 @@ const STR = {
       'mug-2': 'Festliches, kräftiges Rot mit hellem Innenteil. Unten das Teelicht, oben die geschmolzene Schokolade – und die Gabel immer griffbereit.',
     },
     bullets: {
-      'mug-1': ['Keramik in Cremebeige mit braunem Innenteil', 'Teelicht-Öffnung – die Schokolade bleibt den ganzen Abend flüssig', 'Fondue-Gabel inklusive', 'Eine schöne Geschenkidee für Weihnachten'],
-      'mug-2': ['Keramik in festlichem Rot mit hellem Innenteil', 'Teelicht-Öffnung – die Schokolade bleibt den ganzen Abend flüssig', 'Fondue-Gabel inklusive', 'Eine schöne Geschenkidee für Weihnachten'],
+      'mug-1': ['Keramik in Cremebeige mit braunem Innenteil', 'Teelicht-Öffnung – die Schokolade bleibt den ganzen Abend flüssig', 'Fondue-Gabel inklusive · Teelicht nicht enthalten (jedes normale passt)', 'Eine schöne Geschenkidee für Weihnachten'],
+      'mug-2': ['Keramik in festlichem Rot mit hellem Innenteil', 'Teelicht-Öffnung – die Schokolade bleibt den ganzen Abend flüssig', 'Fondue-Gabel inklusive · Teelicht nicht enthalten (jedes normale passt)', 'Eine schöne Geschenkidee für Weihnachten'],
     },
     alts: ['Tasse von vorne', 'Tasse mit Schokolade und Teelicht', 'Erdbeere wird in Schokolade getaucht', 'Tasse von oben mit Gabel und Schokolade', 'Gabel steckt am Henkel', 'Tasse an einem Winterabend mit Snacks'],
     faq: [
