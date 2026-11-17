@@ -1,0 +1,17 @@
+# Jednorazowo (uruchamiane ręcznie): dopisuje do motywu Shopify (layout/theme.liquid) przekierowanie
+# ze sklepu Shopify (logo w kasie, „przeglądanie produktów” w reklamach) na winterdip.pl / winterdip.pl/eu.
+name: Shopify – przekierowanie motywu
+on: workflow_dispatch
+jobs:
+  redirect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Dopisz przekierowanie do theme.liquid
+        env:
+          SHOPIFY_ADMIN_TOKEN: ${{ secrets.SHOPIFY_ADMIN_TOKEN }}
+          SHOPIFY_CLIENT_ID: ${{ secrets.SHOPIFY_CLIENT_ID }}
+          SHOPIFY_CLIENT_SECRET: ${{ secrets.SHOPIFY_CLIENT_SECRET }}
+        run: node scripts/shopify-theme-redirect.mjs
