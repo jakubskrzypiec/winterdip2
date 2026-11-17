@@ -8,7 +8,7 @@ const MARK = '/* winterdip.pl redirect */';
 const snippet = readFileSync(new URL('../shopify-przekierowanie.txt', import.meta.url), 'utf8').trim();
 
 async function token() {
-  if (process.env.SHOPIFY_ADMIN_TOKEN) return process.env.SHOPIFY_ADMIN_TOKEN;
+  if (!process.env.SHOPIFY_CLIENT_ID && process.env.SHOPIFY_ADMIN_TOKEN) return process.env.SHOPIFY_ADMIN_TOKEN;
   const r = await fetch(`https://${DOMAIN}/admin/oauth/access_token`, {
     method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({ grant_type: 'client_credentials', client_id: process.env.SHOPIFY_CLIENT_ID, client_secret: process.env.SHOPIFY_CLIENT_SECRET }),
